@@ -1,19 +1,21 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
-	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-micro/v2/web"
 
-	user "boxin/service/user/proto/user"
 	"boxin/service/api/handler"
+	user "boxin/service/user/proto/user"
+	auth "boxin/service/api/proto/auth"
 )
 
 const (
 	ServiceName = "go.micro.api.api"
-	EtcdAddr = "localhost:2379"
+	EtcdAddr    = "localhost:2379"
 )
 
 func main() {
@@ -22,6 +24,7 @@ func main() {
 	)
 
 	userService := user.NewUserService("go.micro.service.user", app.Client())
+	
 	webHandler := gin.Default()
 	service := web.NewService(
 		web.Name(ServiceName),
