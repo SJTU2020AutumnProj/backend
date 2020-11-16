@@ -1,27 +1,26 @@
 package handler
 
 import (
-	"context"
-	"github.com/micro/go-micro/v2"
 	pb "boxin/service/user/proto/user"
 	repo "boxin/service/user/repository"
+	"context"
+	"log"
 )
 
 type UserHandler struct {
 	UserRepository repo.UserRepository
-	TaskFinishedPubEvent micro.Event
 }
 
 func (u *UserHandler) AddUser(ctx context.Context, req *pb.User, resp *pb.EditResponse) error {
-	user := u.UserRepository.GenerateUser (
-		req.UserID,
-		req.UserType,
-		req.UserName,
-		req.Password,
-		req.School,
-		req.Id,
-		req.Phone,
-		req.Email)
+	user := repo.User{
+		UserType: req.UserType,
+		UserName: req.UserName,
+		Password: req.Password,
+		School: req.School,
+		ID: req.Id,
+		Phone: req.Phone,
+		Email: req.Email,
+	}
 	if err := u.UserRepository.AddUser(ctx, user); err != nil {
 		resp.Status = -1
 		resp.Msg = "Error"
@@ -44,7 +43,7 @@ func (u *UserHandler) DeleteUser(ctx context.Context, req *pb.UserID, resp *pb.E
 }
 
 func (u *UserHandler) UpdateUser(ctx context.Context, req *pb.User, resp *pb.EditResponse) error {
-	user := u.UserRepository.GenerateUser (
+	user := u.UserRepository.GenerateUser(
 		req.UserID,
 		req.UserType,
 		req.UserName,
@@ -67,16 +66,22 @@ func (u *UserHandler) SearchUser(ctx context.Context, req *pb.UserID, resp *pb.S
 	user, err := u.UserRepository.SearchUser(ctx, req.GetUserID())
 	if err != nil {
 		resp.Status = -1
+		log.Println("Handler SearchUser", err)
 		return err
 	}
-	resp.Status = 1
-	resp.User.UserID = user.UserID
-	resp.User.UserType = user.UserType
-	resp.User.UserName = user.UserName
-	resp.User.Password = user.Password
-	resp.User.School = user.School
-	resp.User.Id = user.ID
-	resp.User.Phone = user.Phone
-	resp.User.Email = user.Email
+
+	*resp = pb.SearchResponse{
+		Status: 1,
+		User: &pb.User{
+			UserID:   user.UserID,
+			UserType: user.UserType,
+			UserName: user.UserName,
+			Password: user.Password,
+			School:   user.School,
+			Id:       user.ID,
+			Phone:    user.Phone,
+			Email:    user.Email,
+		},
+	}
 	return nil
 }

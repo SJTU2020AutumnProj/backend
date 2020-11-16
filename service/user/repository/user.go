@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-
+	"log"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -10,10 +10,10 @@ import (
 type User struct {
 	UserID   int32  `gorm:"auto_increment;column:user_id;primary_key:true;unique;index:"`
 	UserType int32  `gorm:"default:1;not null"`
-	UserName string `gorm:"size:100;not null"`
+	UserName string `gorm:"size:100;not null;column:username"`
 	Password string `gorm:"size:100;not null"`
 	School   string `gorm:"size:100;not null"`
-	ID       string `gorm:"size:100;not null"`
+	ID       string `gorm:"size:100;not null;column:ID"`
 	Phone    string `gorm:"size:100"`
 	Email    string `gorm:"size:100"`
 }
@@ -73,6 +73,9 @@ func (repo *UserRepositoryImpl) UpdateUser(ctx context.Context, user User) error
 func (repo *UserRepositoryImpl) SearchUser(ctx context.Context, userID int32) (User, error) {
 	var user User
 	result := repo.DB.First(&user, userID)
+	if result.Error != nil {
+		log.Println("Repository SearchUser", result.Error)
+	}
 	return user, result.Error
 }
 

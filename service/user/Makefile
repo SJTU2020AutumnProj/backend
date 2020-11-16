@@ -9,5 +9,5 @@ proto:
 .PHONY: build
 build: proto
 
-	go build -o task-srv main.go
+	go build -o user-srv main.go
 
