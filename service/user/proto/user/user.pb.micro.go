@@ -48,6 +48,7 @@ type UserService interface {
 	DeleteUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*EditResponse, error)
 	UpdateUser(ctx context.Context, in *User, opts ...client.CallOption) (*EditResponse, error)
 	SearchUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchResponse, error)
+	SearchUsers(ctx context.Context, in *UserIDArray, opts ...client.CallOption) (*SearchUsersResponse, error)
 }
 
 type userService struct {
@@ -102,6 +103,16 @@ func (c *userService) SearchUser(ctx context.Context, in *UserID, opts ...client
 	return out, nil
 }
 
+func (c *userService) SearchUsers(ctx context.Context, in *UserIDArray, opts ...client.CallOption) (*SearchUsersResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.SearchUsers", in)
+	out := new(SearchUsersResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for UserService service
 
 type UserServiceHandler interface {
@@ -109,6 +120,7 @@ type UserServiceHandler interface {
 	DeleteUser(context.Context, *UserID, *EditResponse) error
 	UpdateUser(context.Context, *User, *EditResponse) error
 	SearchUser(context.Context, *UserID, *SearchResponse) error
+	SearchUsers(context.Context, *UserIDArray, *SearchUsersResponse) error
 }
 
 func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) error {
@@ -117,6 +129,7 @@ func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts .
 		DeleteUser(ctx context.Context, in *UserID, out *EditResponse) error
 		UpdateUser(ctx context.Context, in *User, out *EditResponse) error
 		SearchUser(ctx context.Context, in *UserID, out *SearchResponse) error
+		SearchUsers(ctx context.Context, in *UserIDArray, out *SearchUsersResponse) error
 	}
 	type UserService struct {
 		userService
@@ -143,4 +156,8 @@ func (h *userServiceHandler) UpdateUser(ctx context.Context, in *User, out *Edit
 
 func (h *userServiceHandler) SearchUser(ctx context.Context, in *UserID, out *SearchResponse) error {
 	return h.UserServiceHandler.SearchUser(ctx, in, out)
+}
+
+func (h *userServiceHandler) SearchUsers(ctx context.Context, in *UserIDArray, out *SearchUsersResponse) error {
+	return h.UserServiceHandler.SearchUsers(ctx, in, out)
 }

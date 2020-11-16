@@ -12,6 +12,7 @@ service UserService {
   rpc DeleteUser(UserID)returns (EditResponse){}
   rpc UpdateUser(User)returns (EditResponse){}
   rpc SearchUser(UserID)returns (SearchResponse){}
+  rpc SearchUsers(UserIDArray)returns (SearchUsersResponse){}
 }
 
 message User {
@@ -45,4 +46,17 @@ message SearchResponse {
     }
     Status status = 1;
     User user = 2;
+}
+
+message UserIDArray {
+    repeated int32 IDArray = 1;
+}
+
+message SearchUsersResponse {
+    enum Status {
+        SUCCESS = 0;       
+        ERROR = -1;
+    }
+    Status status = 1;
+    repeated User user = 2;
 }
