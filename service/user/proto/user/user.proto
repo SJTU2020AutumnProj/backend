@@ -58,5 +58,5 @@ message SearchUsersResponse {
         ERROR = -1;
     }
     Status status = 1;
-    repeated User user = 2;
+    repeated User users = 2;
 }
