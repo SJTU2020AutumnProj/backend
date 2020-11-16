@@ -58,7 +58,7 @@ func (u *UserHandler) UpdateUser(ctx context.Context, req *pb.User, resp *pb.Edi
 		return err
 	}
 	resp.Status = 0
-	resp.Msg = "SUccess"
+	resp.Msg = "Success"
 	return nil
 }
 
