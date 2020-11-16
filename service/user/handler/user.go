@@ -85,3 +85,30 @@ func (u *UserHandler) SearchUser(ctx context.Context, req *pb.UserID, resp *pb.S
 	}
 	return nil
 }
+
+func (u *UserHandler) SearchUsers(ctx context.Context, req *pb.UserIDArray, resp *pb.SearchUsersResponse) error {
+	var users []*pb.User
+	for i := range req.IDArray {
+		user, err := u.UserRepository.SearchUser(ctx, req.IDArray[i])
+		if err != nil {
+			resp.Status = -1
+			log.Fatal("UserHandler SearchUsers", err)
+			return err
+		}
+		users = append(users, &pb.User{
+			UserID:   user.UserID,
+			UserType: user.UserType,
+			UserName: user.UserName,
+			Password: user.Password,
+			School:   user.School,
+			Id:       user.ID,
+			Phone:    user.Phone,
+			Email:    user.Email,
+		})
+	}
+	*resp = pb.SearchUsersResponse{
+		Status: 1,
+		Users: users, 
+	}
+	return nil
+}
