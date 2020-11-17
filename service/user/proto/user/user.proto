@@ -9,6 +9,9 @@ option go_package = "proto/user";
 //结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
 service UserService {
   rpc AddUser(User)returns (EditResponse){}
+  rpc RegisterAdmin(UserInfo)returns (RegisterResponse){}
+  rpc RegisterTeacher(UserInfo)returns (RegisterResponse){}
+  rpc RegisterStudent(UserInfo)returns (RegisterResponse){}
   rpc DeleteUser(UserID)returns (EditResponse){}
   rpc UpdateUser(User)returns (EditResponse){}
   rpc SearchUser(UserID)returns (SearchResponse){}
@@ -24,6 +27,24 @@ message User {
     string id = 6;
     string phone = 7;
     string email = 8;
+}
+
+message UserInfo {
+    string userName = 1;
+    string password = 2;
+    string school = 3;
+    string id = 4;
+    string phone = 5;
+    string email = 6;
+}
+
+message RegisterResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
 }
 
 message UserID {
@@ -45,7 +66,8 @@ message SearchResponse {
         ERROR = -1;
     }
     Status status = 1;
-    User user = 2;
+    string msg = 2;
+    User user = 3;
 }
 
 message UserIDArray {
@@ -58,5 +80,6 @@ message SearchUsersResponse {
         ERROR = -1;
     }
     Status status = 1;
-    repeated User users = 2;
+    string msg = 2;
+    repeated User users = 3;
 }

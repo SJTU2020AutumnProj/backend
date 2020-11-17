@@ -45,6 +45,9 @@ func NewUserServiceEndpoints() []*api.Endpoint {
 
 type UserService interface {
 	AddUser(ctx context.Context, in *User, opts ...client.CallOption) (*EditResponse, error)
+	RegisterAdmin(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error)
+	RegisterTeacher(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error)
+	RegisterStudent(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error)
 	DeleteUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*EditResponse, error)
 	UpdateUser(ctx context.Context, in *User, opts ...client.CallOption) (*EditResponse, error)
 	SearchUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchResponse, error)
@@ -66,6 +69,36 @@ func NewUserService(name string, c client.Client) UserService {
 func (c *userService) AddUser(ctx context.Context, in *User, opts ...client.CallOption) (*EditResponse, error) {
 	req := c.c.NewRequest(c.name, "UserService.AddUser", in)
 	out := new(EditResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) RegisterAdmin(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.RegisterAdmin", in)
+	out := new(RegisterResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) RegisterTeacher(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.RegisterTeacher", in)
+	out := new(RegisterResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) RegisterStudent(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.RegisterStudent", in)
+	out := new(RegisterResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -117,6 +150,9 @@ func (c *userService) SearchUsers(ctx context.Context, in *UserIDArray, opts ...
 
 type UserServiceHandler interface {
 	AddUser(context.Context, *User, *EditResponse) error
+	RegisterAdmin(context.Context, *UserInfo, *RegisterResponse) error
+	RegisterTeacher(context.Context, *UserInfo, *RegisterResponse) error
+	RegisterStudent(context.Context, *UserInfo, *RegisterResponse) error
 	DeleteUser(context.Context, *UserID, *EditResponse) error
 	UpdateUser(context.Context, *User, *EditResponse) error
 	SearchUser(context.Context, *UserID, *SearchResponse) error
@@ -126,6 +162,9 @@ type UserServiceHandler interface {
 func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) error {
 	type userService interface {
 		AddUser(ctx context.Context, in *User, out *EditResponse) error
+		RegisterAdmin(ctx context.Context, in *UserInfo, out *RegisterResponse) error
+		RegisterTeacher(ctx context.Context, in *UserInfo, out *RegisterResponse) error
+		RegisterStudent(ctx context.Context, in *UserInfo, out *RegisterResponse) error
 		DeleteUser(ctx context.Context, in *UserID, out *EditResponse) error
 		UpdateUser(ctx context.Context, in *User, out *EditResponse) error
 		SearchUser(ctx context.Context, in *UserID, out *SearchResponse) error
@@ -144,6 +183,18 @@ type userServiceHandler struct {
 
 func (h *userServiceHandler) AddUser(ctx context.Context, in *User, out *EditResponse) error {
 	return h.UserServiceHandler.AddUser(ctx, in, out)
+}
+
+func (h *userServiceHandler) RegisterAdmin(ctx context.Context, in *UserInfo, out *RegisterResponse) error {
+	return h.UserServiceHandler.RegisterAdmin(ctx, in, out)
+}
+
+func (h *userServiceHandler) RegisterTeacher(ctx context.Context, in *UserInfo, out *RegisterResponse) error {
+	return h.UserServiceHandler.RegisterTeacher(ctx, in, out)
+}
+
+func (h *userServiceHandler) RegisterStudent(ctx context.Context, in *UserInfo, out *RegisterResponse) error {
+	return h.UserServiceHandler.RegisterStudent(ctx, in, out)
 }
 
 func (h *userServiceHandler) DeleteUser(ctx context.Context, in *UserID, out *EditResponse) error {
