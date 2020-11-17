@@ -3,13 +3,14 @@ package main
 import (
 	"log"
 
+	"boxin/service/api/handler"
+	user "boxin/service/user/proto/user"
+
 	"github.com/gin-gonic/gin"
+	micro "github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-micro/v2/web"
-
-	"boxin/service/api/handler"
-	user "boxin/service/user/proto/user"
 )
 
 const (
@@ -21,8 +22,11 @@ func main() {
 	etcdRegister := etcd.NewRegistry(
 		registry.Addrs(EtcdAddr),
 	)
+	app := micro.NewService(
+		micro.Name(ServiceName),
+		micro.Registry(etcdRegister))
 
-	userService := user.NewUserService("go.micro.service.user", app.Client()) //app.Client()在编译后会成功
+	userService := user.NewUserService("go.micro.service.user", app.Client())
 
 	webHandler := gin.Default()
 	service := web.NewService(

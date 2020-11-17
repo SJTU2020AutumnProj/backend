@@ -2,6 +2,7 @@ package handler
 
 import (
 	user "boxin/service/user/proto/user"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,50 +22,55 @@ func UserRouter(g *gin.Engine, s user.UserService) {
 func register(c *gin.Context) {
 
 	type param struct {
-		userName string `form:"userName" binding:"required"`
-		password string `form:"password" binding:"required"`
-		school   string `form:"school" binding:"required"`
-		ID       int64  `form:"ID" binding:"required"`
-		phone    string `form:"phone" binding:"required"`
-		email    string `form:"email" binding:"required"`
-		authcode string `form:"authcode" binding:"rquried"`
+		UserName string `form:"userName"  binding:"required"`
+		Password string `form:"password"  binding:"required"`
+		School   string `form:"school"  binding:"required"`
+		ID       int64  `form:"ID"  binding:"required"`
+		Phone    string `form:"phone" binding:"required"`
+		Email    string `form:"email"  binding:"required"`
+		Authcode string `form:"authcode"  binding:"required"`
 	}
 	type response struct {
 		status int16  `JSON:"status"`
 		msg    string `JSON:"msg"`
 	}
 	var p param
+	// if err := c.ShouldBind(&p); err != nil {
+	// 	c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+	// 	return
+	// }
+	// log.Println("====== Bind by query String ======")
+	// log.Println(p.UserName)
 	if err := c.ShouldBind(&p); err != nil {
-		res := &response{500, "缺少必须参数，请稍后重试"}
-		c.JSON(200, res)
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
 		return
 	}
-	if p.authcode != "123456" {
-		res := &response{401, "验证码有误，请重新确认后再试"}
-		c.JSON(200, res)
+	log.Println("====== Bind By JSON ======")
+	log.Println(p.UserName)
+	if p.Authcode != "123456" {
+		c.JSON(200, gin.H{"status": 401, "msg": "验证码有误，请重新确认后再试"})
 		return
 	}
 	u := user.User{
 		UserType: 1,
-		UserName: p.userName,
-		Password: p.password,
-		School:   p.school,
-		Phone:    p.phone,
-		Email:    p.email}
+		UserName: p.UserName,
+		Password: p.Password,
+		School:   p.School,
+		Phone:    p.Phone,
+		Email:    p.Email}
 	result, err := userService.AddUser(c, &u)
 	if err != nil {
-		res := &response{401, "写入数据库有误"}
-		c.JSON(200, res)
+
+		c.JSON(200, gin.H{"status": 401, "msg": "写入数据库有误"})
 		return
 	}
-	// res := &response{200, "写入成功"}
 	c.JSON(200, result)
 	return
 
 }
 
 func getinfo(c *gin.Context) {
-
+	c.JSON(200, gin.H{"msg": "err"})
 }
 
 func editinfo(c *gin.Context) {
