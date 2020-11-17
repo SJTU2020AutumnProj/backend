@@ -10,7 +10,6 @@ import (
 
 	"boxin/service/api/handler"
 	user "boxin/service/user/proto/user"
-	auth "boxin/service/api/proto/auth"
 )
 
 const (
@@ -24,7 +23,7 @@ func main() {
 	)
 
 	userService := user.NewUserService("go.micro.service.user", app.Client())
-	
+
 	webHandler := gin.Default()
 	service := web.NewService(
 		web.Name(ServiceName),
