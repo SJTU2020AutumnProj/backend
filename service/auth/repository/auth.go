@@ -9,13 +9,13 @@ import (
 
 type User struct {
 	UserID   int32  `gorm:"auto_increment;column:user_id;primary_key:true;unique;index:"`
-	UserType int32  `gorm:"default:1;not null"`
-	UserName string `gorm:"size:100;not null;column:username"`
-	Password string `gorm:"size:100;not null"`
-	School   string `gorm:"size:100;not null"`
+	UserType int32  `gorm:"default:1;not null;column:user_type"`
+	UserName string `gorm:"size:100;not null;column:user_name"`
+	Password string `gorm:"size:100;not null;column:password"`
+	School   string `gorm:"size:100;not null;column:school"`
 	ID       string `gorm:"size:100;not null;column:ID"`
-	Phone    string `gorm:"size:100"`
-	Email    string `gorm:"size:100"`
+	Phone    string `gorm:"size:100;column:phone"`
+	Email    string `gorm:"size:100;column:email"`
 }
 
 func (User) TableName() string {

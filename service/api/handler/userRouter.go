@@ -23,13 +23,13 @@ func UserRouter(g *gin.Engine, s user.UserService) {
 
 func register(c *gin.Context) {
 	type param struct {
-		UserName string `form:"userName"  binding:"required"`
-		Password string `form:"password"  binding:"required"`
-		School   string `form:"school"  binding:"required"`
-		ID       string `form:"ID"  binding:"required"`
-		Phone    string `form:"phone" binding:"required"`
-		Email    string `form:"email"  binding:"required"`
-		Authcode string `form:"authcode"  binding:"required"`
+		UserName string `form:"userName" json:"userName" binding:"required"`
+		Password string `form:"password" json:"password"  binding:"required"`
+		School   string `form:"school" json:"school"  binding:"required"`
+		ID       string `form:"ID" json:"ID" binding:"required"`
+		Phone    string `form:"phone" json:"phone" binding:"required"`
+		Email    string `form:"email" json:"email"  binding:"required"`
+		Authcode string `form:"authcode" json:"authcode" binding:"required"`
 	}
 	var p param
 
@@ -50,24 +50,26 @@ func register(c *gin.Context) {
 		Id:       p.ID,
 		Phone:    p.Phone,
 		Email:    p.Email}
+
 	result, err := userService.RegisterStudent(context.Background(), &u)
 	log.Println(result)
 	log.Println(err)
 	if err != nil {
-		c.JSON(200, gin.H{"status": 401, "msg": "写入数据库有误"})
+		c.JSON(200, gin.H{"status": 401, "msg": "写入数据库失败"})
 		return
 	}
-	c.JSON(200, result)
+	c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
 	return
 
 }
 
 func getinfo(c *gin.Context) {
 	type param struct {
-		UserID int32 `form:"userId"  binding:"required"`
+		UserID int32 `form:"userId" json:"userId"  binding:"required"`
+		// UserID int32 `form:"userId" binding:"required"`
 	}
 	var p param
-	if err := c.ShouldBind(&p); err != nil {
+	if err := c.BindJSON(&p); err != nil {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
 		return
 	}
@@ -75,41 +77,77 @@ func getinfo(c *gin.Context) {
 	log.Println(p.UserID)
 	ID := user.UserID{
 		UserID: p.UserID}
-	result, err := userService.SearchUser(c, &ID)
+	result, err := userService.SearchUser(context.Background(), &ID)
+	log.Println(result)
+	log.Println(err)
 	if err != nil {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
 		return
 	}
-	c.JSON(200, result)
-
+	result.User.Password = ""
+	c.JSON(200, gin.H{"status": 200, "msg": "获取信息成功", "data": result})
+	return
 }
 
 func editinfo(c *gin.Context) {
-	type user struct {
-		UserID   int32  `form:"userId"  binding:"required"`
-		UserName string `form:"userName"  binding:"required"`
-		UserType int32  `form:"userType" binding:"required"`
-		Password string `form:"password"  binding:"required"`
-		School   string `form:"school"  binding:"required"`
-		ID       int64  `form:"ID"  binding:"required"`
-		Phone    string `form:"phone" binding:"required"`
-		Email    string `form:"email"  binding:"required"`
+	type userparam struct {
+		UserID   int32  `form:"userId" json:"userId"  binding:"required"`
+		UserName string `form:"userName" json:"userName" binding:"required"`
+		School   string `form:"school" json:"school" binding:"required"`
+		ID       string `form:"ID" json:"ID"  binding:"required"`
+		Phone    string `form:"phone" json:"phone" binding:"required"`
+		Email    string `form:"email" json:"email"  binding:"required"`
 	}
 	type param struct {
-		User user `form:"user" binding:"required"`
+		User userparam `form:"user" binding:"required"`
 	}
 	var p param
 	if err := c.ShouldBind(&p); err != nil {
+		log.Println(err)
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
 		return
 	}
 	log.Println("====== editinfo userId======")
 	log.Println(p.User.UserID)
+	ID := user.UserID{
+		UserID: p.User.UserID}
+	data, err := userService.SearchUser(context.Background(), &ID)
 
-	// result, err := userService.SearchUser(c, &ID)
-	// if err != nil {
-	// 	c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
-	// 	return
-	// }
-	// c.JSON(200, result)
+	user := data.User
+
+	var flag bool
+	flag = false
+	if user.UserName != p.User.UserName {
+		user.UserName = p.User.UserName
+		flag = true
+	}
+	if user.School != p.User.School {
+		user.School = p.User.School
+		flag = true
+	}
+	if user.Id != p.User.ID {
+		user.Id = p.User.ID
+		flag = true
+	}
+	if user.Phone != p.User.Phone {
+		user.Phone = p.User.Phone
+		flag = true
+	}
+
+	if user.Email != p.User.Email {
+		user.Email = p.User.Email
+		flag = true
+	}
+	if flag == false {
+		c.JSON(200, gin.H{"status": 200, "msg": "未发生改动，修改信息与数据库信息一致"})
+		return
+	}
+	result, err := userService.UpdateUser(context.Background(), user)
+	log.Println(result)
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库更新失败"})
+		return
+	}
+	c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
 }
