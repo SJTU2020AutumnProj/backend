@@ -22,7 +22,7 @@ func main() {
 		registry.Addrs(EtcdAddr),
 	)
 
-	userService := user.NewUserService("go.micro.service.user", app.Client())
+	userService := user.NewUserService("go.micro.service.user", app.Client()) //app.Client()在编译后会成功
 
 	webHandler := gin.Default()
 	service := web.NewService(
