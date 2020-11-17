@@ -1,0 +1,43 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+)
+
+type User struct {
+	UserID   int32  `gorm:"auto_increment;column:user_id;primary_key:true;unique;index:"`
+	UserType int32  `gorm:"default:1;not null"`
+	UserName string `gorm:"size:100;not null;column:username"`
+	Password string `gorm:"size:100;not null"`
+	School   string `gorm:"size:100;not null"`
+	ID       string `gorm:"size:100;not null;column:ID"`
+	Phone    string `gorm:"size:100"`
+	Email    string `gorm:"size:100"`
+}
+
+func (User) TableName() string {
+	return "user"
+}
+
+type AuthRepository interface {
+	Login(ctx context.Context, userName string, password string) (User, error)
+}
+
+type AuthRepositoryImpl struct {
+	DB *gorm.DB
+}
+
+func (repo *AuthRepositoryImpl) Login(ctx context.Context, userName string, password string) (User, error) {
+	var user User
+	result := repo.DB.Where("username = ? and password = ?", userName, password)
+	if nil != result.Error {
+		return User{}, result.Error
+	}
+	if err := result.First(&user).Error; nil != err {
+		return User{}, err
+	}
+	return user, nil
+}

@@ -16,14 +16,15 @@ func (u *UserHandler) AddUser(ctx context.Context, req *pb.User, resp *pb.EditRe
 		UserType: req.UserType,
 		UserName: req.UserName,
 		Password: req.Password,
-		School: req.School,
-		ID: req.Id,
-		Phone: req.Phone,
-		Email: req.Email,
+		School:   req.School,
+		ID:       req.Id,
+		Phone:    req.Phone,
+		Email:    req.Email,
 	}
-	if err := u.UserRepository.AddUser(ctx, user); err != nil {
+	if err := u.UserRepository.AddUser(ctx, user); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
+		log.Println("UserHandler AddUser error: ", err)
 		return err
 	}
 	resp.Status = 0
@@ -31,10 +32,76 @@ func (u *UserHandler) AddUser(ctx context.Context, req *pb.User, resp *pb.EditRe
 	return nil
 }
 
-func (u *UserHandler) DeleteUser(ctx context.Context, req *pb.UserID, resp *pb.EditResponse) error {
-	if err := u.UserRepository.DeleteUser(ctx, req.UserID); err != nil {
+func (u *UserHandler) RegisterAdmin(ctx context.Context, req *pb.UserInfo, resp *pb.RegisterResponse) error {
+	user := repo.User{
+		UserType: 0,
+		UserName: req.UserName,
+		Password: req.Password,
+		School:   req.School,
+		ID:       req.Id,
+		Phone:    req.Phone,
+		Email:    req.Email,
+	}
+	if err := u.UserRepository.AddUser(ctx, user); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
+		log.Println("UserHandler RegisterAdmin error: ", err)
+		return err
+	}
+	resp.Status = 0
+	resp.Msg = "Success"
+	return nil
+}
+
+func (u *UserHandler) RegisterTeacher(ctx context.Context, req *pb.UserInfo, resp *pb.RegisterResponse) error {
+	user := repo.User{
+		UserType: 1,
+		UserName: req.UserName,
+		Password: req.Password,
+		School:   req.School,
+		ID:       req.Id,
+		Phone:    req.Phone,
+		Email:    req.Email,
+	}
+	if err := u.UserRepository.AddUser(ctx, user); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("UserHandler RegisterTeacher error: ", err)
+		return err
+	}
+	resp.Status = 0
+	resp.Msg = "Success"
+	return nil
+}
+
+func (u *UserHandler) RegisterStudent(ctx context.Context, req *pb.UserInfo, resp *pb.RegisterResponse) error {
+	user := repo.User{
+		UserType: 2,
+		UserName: req.UserName,
+		Password: req.Password,
+		School:   req.School,
+		ID:       req.Id,
+		Phone:    req.Phone,
+		Email:    req.Email,
+	}
+	if err := u.UserRepository.AddUser(ctx, user); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("UserHandler RegisterStudent error: ", err)
+		return err
+	}
+	resp.Status = 0
+	resp.Msg = "Success"
+	return nil
+}
+
+
+
+func (u *UserHandler) DeleteUser(ctx context.Context, req *pb.UserID, resp *pb.EditResponse) error {
+	if err := u.UserRepository.DeleteUser(ctx, req.UserID); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("UserHandler DeleteUser error: ", err)
 		return err
 	}
 	resp.Status = 0
@@ -43,18 +110,20 @@ func (u *UserHandler) DeleteUser(ctx context.Context, req *pb.UserID, resp *pb.E
 }
 
 func (u *UserHandler) UpdateUser(ctx context.Context, req *pb.User, resp *pb.EditResponse) error {
-	user := u.UserRepository.GenerateUser(
-		req.UserID,
-		req.UserType,
-		req.UserName,
-		req.Password,
-		req.School,
-		req.Id,
-		req.Phone,
-		req.Email)
-	if err := u.UserRepository.UpdateUser(ctx, user); err != nil {
+	user := repo.User{
+		UserID:   req.UserID,
+		UserType: req.UserType,
+		UserName: req.UserName,
+		Password: req.Password,
+		School:   req.School,
+		ID:       req.Id,
+		Phone:    req.Phone,
+		Email:    req.Email,
+	}
+	if err := u.UserRepository.UpdateUser(ctx, user); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
+		log.Println("UserHandler UpdateUser error: ", err)
 		return err
 	}
 	resp.Status = 0
@@ -63,15 +132,16 @@ func (u *UserHandler) UpdateUser(ctx context.Context, req *pb.User, resp *pb.Edi
 }
 
 func (u *UserHandler) SearchUser(ctx context.Context, req *pb.UserID, resp *pb.SearchResponse) error {
-	user, err := u.UserRepository.SearchUser(ctx, req.GetUserID())
-	if err != nil {
+	user, err := u.UserRepository.SearchUser(ctx, req.UserID)
+	if nil != err {
 		resp.Status = -1
-		log.Println("Handler SearchUser", err)
+		resp.Msg = "Error"
+		log.Println("Handler SearchUser error: ", err)
 		return err
 	}
 
 	*resp = pb.SearchResponse{
-		Status: 1,
+		Status: 0,
 		User: &pb.User{
 			UserID:   user.UserID,
 			UserType: user.UserType,
@@ -90,9 +160,10 @@ func (u *UserHandler) SearchUsers(ctx context.Context, req *pb.UserIDArray, resp
 	var users []*pb.User
 	for i := range req.IDArray {
 		user, err := u.UserRepository.SearchUser(ctx, req.IDArray[i])
-		if err != nil {
+		if nil != err {
 			resp.Status = -1
-			log.Fatal("UserHandler SearchUsers", err)
+			resp.Msg = "Error"
+			log.Println("UserHandler SearchUsers error: ", err)
 			return err
 		}
 		users = append(users, &pb.User{
@@ -107,8 +178,9 @@ func (u *UserHandler) SearchUsers(ctx context.Context, req *pb.UserIDArray, resp
 		})
 	}
 	*resp = pb.SearchUsersResponse{
-		Status: 1,
-		Users: users, 
+		Status: 0,
+		Msg:    "Success",
+		Users:  users,
 	}
 	return nil
 }

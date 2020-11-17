@@ -1,9 +1,9 @@
 package main
 
 import (
-	"boxin/service/user/handler"
-	user "boxin/service/user/proto/user"
-	repo "boxin/service/user/repository"
+	"boxin/service/auth/handler"
+	auth "boxin/service/auth/proto/auth"
+	repo "boxin/service/auth/repository"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -15,14 +15,14 @@ import (
 )
 
 const (
-	ServiceName = "go.micro.service.user"
+	ServiceName = "go.micro.service.auth"
 	MysqlUri    = "root:root@(127.0.0.1:3306)/jub?charset=utf8mb4&parseTime=True&loc=Local"
 	EtcdAddr    = "localhost:2379"
 )
 
 func main() {
 	db, err := gorm.Open("mysql", MysqlUri)
-	if nil != err {
+	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
@@ -37,9 +37,9 @@ func main() {
 
 	service.Init()
 
-	userHandler := &handler.UserHandler{UserRepository: &repo.UserRepositoryImpl{DB: db}}
+	authHandler := &handler.AuthHandler{AuthRepository: &repo.AuthRepositoryImpl{DB: db}}
 
-	if err := user.RegisterUserServiceHandler(service.Server(), userHandler); nil != err {
+	if err := auth.RegisterAuthServiceHandler(service.Server(), authHandler); nil != err {
 		log.Fatal(errors.WithMessage(err, "register server"))
 	}
 

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"log"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -27,15 +27,6 @@ type UserRepository interface {
 	DeleteUser(ctx context.Context, userID int32) error
 	UpdateUser(ctx context.Context, user User) error
 	SearchUser(ctx context.Context, userID int32) (User, error)
-	GenerateUser(
-		userID int32,
-		userType int32,
-		userName string,
-		password string,
-		school string,
-		ID string,
-		phone string,
-		email string) User
 }
 
 type UserRepositoryImpl struct {
@@ -73,28 +64,8 @@ func (repo *UserRepositoryImpl) UpdateUser(ctx context.Context, user User) error
 func (repo *UserRepositoryImpl) SearchUser(ctx context.Context, userID int32) (User, error) {
 	var user User
 	result := repo.DB.First(&user, userID)
-	if result.Error != nil {
-		log.Println("Repository SearchUser", result.Error)
+	if nil != result.Error {
+		return User{}, result.Error
 	}
 	return user, result.Error
-}
-
-func (repo *UserRepositoryImpl) GenerateUser(
-	userID int32,
-	userType int32,
-	userName string,
-	password string,
-	school string,
-	ID string,
-	phone string,
-	email string) User {
-		return User{
-			userID,
-			userType,
-			userName,
-			password,
-			school,
-			ID,
-			phone,
-			email}
 }
