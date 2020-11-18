@@ -33,6 +33,8 @@ type CourseClassRepository interface {
 	DeleteCourseClass(ctx context.Context, courseID int32) error
 	UpdateCourseClass(ctx context.Context, courseclass CourseClass) error
 	SearchCourseClass(ctx context.Context, courseID int32) (CourseClass, error)
+
+	NewCourse(ctx context.Context, courseclass CourseClass) (CourseClass, error)
 	// GenerateCourseClass(
 	// 	courseID int32,
 	// 	courseName string,
@@ -193,6 +195,13 @@ func (repo *CourseClassRepositoryImpl) SearchTakeByCourseClass(ctx context.Conte
 		return ans, result.Error
 	}
 	return ans, result.Error
+}
+
+func (repo *CourseClassRepositoryImpl) NewCourse(ctx context.Context, courseclass CourseClass) (CourseClass, error) {
+	if err := repo.DB.Create(&courseclass).Error; nil != err {
+		return courseclass, err
+	}
+	return courseclass, nil
 }
 
 // func (repo *CourseClassRepositoryImpl) GenerateTakeClass(

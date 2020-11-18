@@ -26,7 +26,7 @@ func (c *CourseClassHandler) AddCourseClass(ctx context.Context, req *pb.CourseC
 	stime := time.Unix(req.StartTime, 0)
 	etime := time.Unix(req.EndTime, 0)
 
-	log.Println("repo.stime", stime)
+	// log.Println("repo.stime", stime)
 
 	courseclass := repo.CourseClass{
 		CourseName:   req.CourseName,
@@ -160,7 +160,7 @@ func (c *CourseClassHandler) AddTake(ctx context.Context, req *pb.Take, resp *pb
 }
 
 func (c *CourseClassHandler) DeleteTake(ctx context.Context, req *pb.UserCourse, resp *pb.EditResponse) error {
-	if err := c.CourseClassRepository.DeleteTake(ctx, req.UserID, req.CourseID); nil != err {
+	if err := c.CourseClassRepository.DeleteTake(ctx, req.UserCourse.UserID, req.UserCourse.CourseID); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("TakeHandler DeleteTake error: ", err)
@@ -276,5 +276,44 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 		Msg:    "Success",
 		Users:  ans,
 	}
+	return nil
+}
+
+func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMessage, resp *pb.NewCourseResponse) error {
+	stime := time.Unix(req.StartTime, 0)
+	etime := time.Unix(req.EndTime, 0)
+
+	courseclass := repo.CourseClass{
+		CourseName:   req.CourseName,
+		Introduction: req.Introduction,
+		TextBooks:    req.TextBooks,
+		StartTime:    stime,
+		EndTime:      etime,
+	}
+
+	var newCourse repo.CourseClass
+	var err1 error
+
+	if newCourse, err1 = c.CourseClassRepository.NewCourse(ctx, courseclass); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("CourseClassHandler AddCourseClass error: ", err)
+		return err1
+	}
+
+	log.Println(newCourse.CourseID)
+	*resp = pb.NewCourseResponse{
+		Status: 0,
+		Msg:    "Sucess",
+		Courseclass: &pb.CourseClass{
+			CourseID:     newCourse.CourseID,
+			CourseName:   newCourse.CourseName,
+			Introduction: newCourse.Introduction,
+			TextBooks:    newCourse.TextBooks,
+			StartTime:    newCourse.StartTime.Unix(),
+			EndTime:      newCourse.EndTime.Unix(),
+		},
+	}
+
 	return nil
 }

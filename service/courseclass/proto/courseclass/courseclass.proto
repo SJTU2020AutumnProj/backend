@@ -14,6 +14,8 @@ service CourseClassService {
 	rpc SearchCourseClass (CourseID) returns (SearchCourseClassResponse) {}
 	rpc SearchCourseClasses (CourseIDArray) returns (SearchCourseClassesResponse) {}
 
+	rpc NewCourse (NewCourseMessage) returns (NewCourseResponse) {}
+
 	rpc AddTake(Take) returns(EditResponse){}
 	rpc DeleteTake(UserCourse) returns (EditResponse){}
 	rpc DeleteTakeByUser(UserID) returns (EditResponse){}
@@ -114,4 +116,23 @@ message SearchTakeByCourseResponse {
 	Status status = 1;
 	string msg = 2;
 	repeated User users = 3;
+}
+
+message NewCourseMessage {
+	int32 userID = 1;
+	string courseName = 2;
+	string introduction = 3;
+	string textBooks = 4;
+	int64 startTime = 5;
+	int64 endTime = 6;
+}
+
+message NewCourseResponse {
+		enum Status {
+		SUCCESS = 0;
+		ERROR = -1;
+	}
+	Status status = 1;
+	string msg = 2;
+	CourseClass courseclass = 3;
 }
