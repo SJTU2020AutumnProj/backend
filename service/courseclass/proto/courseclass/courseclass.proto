@@ -13,7 +13,8 @@ service CourseClassService {
 	rpc UpdateCourseClass (CourseClass) returns (EditResponse) {}
 	rpc SearchCourseClass (CourseID) returns (SearchCourseClassResponse) {}
 	rpc SearchCourseClasses (CourseIDArray) returns (SearchCourseClassesResponse) {}
-	rpc AddTake(Take) returns (EditResponse){}
+
+	rpc AddTake(Take) returns(EditResponse){}
 	rpc DeleteTake(UserCourse) returns (EditResponse){}
 	rpc DeleteTakeByUser(UserID) returns (EditResponse){}
 	rpc DeleteTakeByCourseClass(CourseID) returns (EditResponse){}
@@ -26,8 +27,8 @@ message CourseClass {
 	string courseName = 2;
 	string introduction = 3;
 	string textBooks = 4;
-	string startTime = 5;
-	string endTime = 6;
+	int64 startTime = 5;
+	int64 endTime = 6;
 }
 
 message CourseID {

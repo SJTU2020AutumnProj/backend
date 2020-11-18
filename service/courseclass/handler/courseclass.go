@@ -21,8 +21,12 @@ type CourseClassHandler struct {
 
 func (c *CourseClassHandler) AddCourseClass(ctx context.Context, req *pb.CourseClass, resp *pb.EditResponse) error {
 
-	stime, _ := time.ParseInLocation("2006-01-02 15:04:05", req.StartTime, time.Local)
-	etime, _ := time.ParseInLocation("2006-01-02 15:04:05", req.EndTime, time.Local)
+	// timeNow := time.Unix(timestamp, 0)
+
+	stime := time.Unix(req.StartTime, 0)
+	etime := time.Unix(req.EndTime, 0)
+
+	log.Println("repo.stime", stime)
 
 	courseclass := repo.CourseClass{
 		CourseName:   req.CourseName,
@@ -55,8 +59,9 @@ func (c *CourseClassHandler) DeleteCourseClass(ctx context.Context, req *pb.Cour
 }
 
 func (c *CourseClassHandler) UpdateCourseClass(ctx context.Context, req *pb.CourseClass, resp *pb.EditResponse) error {
-	stime, _ := time.ParseInLocation("2006-01-02 15:04:05", req.StartTime, time.Local)
-	etime, _ := time.ParseInLocation("2006-01-02 15:04:05", req.EndTime, time.Local)
+	//timeNow := time.Unix(timestamp, 0)
+	stime := time.Unix(req.StartTime, 0)
+	etime := time.Unix(req.EndTime, 0)
 	course := repo.CourseClass{
 		CourseID:     req.CourseID,
 		CourseName:   req.CourseName,
@@ -82,8 +87,8 @@ func (c *CourseClassHandler) SearchCourseClass(ctx context.Context, req *pb.Cour
 	// t := time.Now()
 	// stime := t.Format(course.StartTime.String())
 	// etime := t.Format(course.EndTime.String())
-	stime := course.StartTime.String()
-	etime := course.EndTime.String()
+	stime := course.StartTime.Unix()
+	etime := course.EndTime.Unix()
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
@@ -112,8 +117,8 @@ func (c *CourseClassHandler) SearchCourseClasses(ctx context.Context, req *pb.Co
 		// t := time.Now()
 		// stime := t.Format(course.StartTime.String())
 		// etime := t.Format(course.EndTime.String())
-		stime := course.StartTime.String()
-		etime := course.EndTime.String()
+		stime := course.StartTime.Unix()
+		etime := course.EndTime.Unix()
 		if nil != err {
 			resp.Status = -1
 			resp.Msg = "Error"
@@ -207,8 +212,8 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 			CourseName:   course[i].CourseName,
 			Introduction: course[i].Introduction,
 			TextBooks:    course[i].TextBooks,
-			StartTime:    course[i].StartTime.String(),
-			EndTime:      course[i].EndTime.String(),
+			StartTime:    course[i].StartTime.Unix(),
+			EndTime:      course[i].EndTime.Unix(),
 		})
 	}
 

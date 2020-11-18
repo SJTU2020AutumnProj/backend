@@ -122,21 +122,21 @@ func (repo *CourseClassRepositoryImpl) AddTake(ctx context.Context, take Take) e
 }
 
 func (repo *CourseClassRepositoryImpl) DeleteTake(ctx context.Context, userID int32, courseID int32) error {
-	if err := repo.DB.Where("userID = ?", userID).Delete(&Take{}, courseID).Error; nil != err {
+	if err := repo.DB.Where("user_id = ?", userID).Delete(&Take{}, courseID).Error; nil != err {
 		return err
 	}
 	return nil
 }
 
 func (repo *CourseClassRepositoryImpl) DeleteTakeByUser(ctx context.Context, userID int32) error {
-	if err := repo.DB.Where("userID = ?", userID).Delete(&Take{}).Error; nil != err {
+	if err := repo.DB.Where("user_id = ?", userID).Delete(&Take{}).Error; nil != err {
 		return err
 	}
 	return nil
 }
 
 func (repo *CourseClassRepositoryImpl) DeleteTakeByCourseClass(ctx context.Context, courseID int32) error {
-	if err := repo.DB.Where("courseID = ?", courseID).Delete(&Take{}).Error; nil != err {
+	if err := repo.DB.Where("course_id = ?", courseID).Delete(&Take{}).Error; nil != err {
 		return err
 	}
 	return nil
@@ -144,24 +144,32 @@ func (repo *CourseClassRepositoryImpl) DeleteTakeByCourseClass(ctx context.Conte
 
 func (repo *CourseClassRepositoryImpl) SearchTakeByUser(ctx context.Context, userID int32) ([]*CourseClass, error) {
 	var courses []CourseClass
-	result := repo.DB.Where(map[string]interface{}{"userID": userID}).Find(&courses)
-
-	var ans []*CourseClass
-	for i := range courses {
-		ans[i] = &courses[i]
-	}
-
+	// result := repo.DB.Where(map[string]interface{}{"user_id": userID}).Find(&courses)
+	result := repo.DB.Where("user_id = ?", userID)
 	if nil != result.Error {
-		return ans, result.Error
+		return []*CourseClass{}, result.Error
 	}
-	return ans, result.Error
+
+	if err := result.Find(&courses).Error; nil != err {
+		return []*CourseClass{}, err
+	}
+	// var ans []*CourseClass
+	// for i := range courses {
+	// 	ans[i] = &courses[i]
+	// }
+
+	// if nil != result.Error {
+	// 	return ans, result.Error
+	// }
+	// return ans, result.Error
+	return []*CourseClass{}, result.Error
 }
 
 //返回userID的数组
 func (repo *CourseClassRepositoryImpl) SearchTakeByCourseClass(ctx context.Context, courseID int32) ([]int32, error) {
-	var tmp []Take
+	var tmp []*Take
 	var ans []int32
-	result := repo.DB.Find(&tmp, "CourseID = ?", courseID)
+	result := repo.DB.Find(&tmp, "course_id = ?", courseID)
 
 	for i := range tmp {
 		ans[i] = tmp[i].UserID
