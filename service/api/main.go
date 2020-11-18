@@ -6,16 +6,17 @@
  * @School: SJTU
  * @Date: 2020-11-16 21:32:52
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-18 08:43:32
+ * @LastEditTime: 2020-11-18 19:40:29
  */
 package main
 
 import (
-	"log"
-
 	"boxin/service/api/handler"
 	auth "boxin/service/auth/proto/auth"
+	courseclass "boxin/service/courseclass/proto/courseclass"
 	user "boxin/service/user/proto/user"
+	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/micro/go-micro/v2/client"
@@ -30,6 +31,26 @@ const (
 	EtcdAddr    = "localhost:2379"
 )
 
+func Cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		method := c.Request.Method
+		//fmt.Println(method)
+		c.Header("Access-Control-Allow-Origin", "localhost:3000")
+		c.Header("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token, developerId")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
+		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
+		c.Header("Access-Control-Allow-Credentials", "true")
+
+		// 放行所有OPTIONS方法，因为有的模板是要请求两次的
+		if method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+		}
+
+		// 处理请求
+		c.Next()
+	}
+}
+
 func main() {
 	etcdRegister := etcd.NewRegistry(
 		registry.Addrs(EtcdAddr),
@@ -39,7 +60,9 @@ func main() {
 	// 	micro.Registry(etcdRegister))
 	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
 	authService := auth.NewAuthService("go.micro.service.auth", client.DefaultClient)
+	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", client.DefaultClient)
 	webHandler := gin.Default()
+	webHandler.Use(Cors())
 	service := web.NewService(
 		web.Name(ServiceName),
 		web.Address(":8080"),
@@ -48,6 +71,7 @@ func main() {
 	)
 	handler.UserRouter(webHandler, userService)
 	handler.AuthRouter(webHandler, authService)
+	handler.CourseRouter(webHandler, courseClassService)
 	// handler.CourseRouter(webHandler,courService)
 	service.Init()
 	if err := service.Run(); err != nil {

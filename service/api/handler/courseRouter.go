@@ -6,18 +6,23 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-17 21:05:41
+ * @LastEditTime: 2020-11-18 18:54:02
  */
 package handler
 
 import (
-	user "boxin/service/user/proto/user"
+	courseclass "boxin/service/courseclass/proto/courseclass"
+	"context"
 	"log"
 
 	"github.com/gin-gonic/gin"
 )
 
-func CourseRouter(g *gin.Engine) {
+var courseClassService courseclass.CourseClassService
+
+//CourseRouter 处理与班级有关的api
+func CourseRouter(g *gin.Engine, s courseclass.CourseClassService) {
+	courseClassService = s
 	v1 := g.Group("/course")
 	{
 		v1.GET("/mylist", getmylist)    //获取个人课程列表
@@ -31,15 +36,17 @@ func getmylist(c *gin.Context) {
 		UserID int32 `form:"userId" json:"userId"  binding:"required"`
 	}
 	var p param
-	if err := c.ShouldBind(&p); err != nil {
+	if err := c.ShouldBindJSON(&p); err != nil {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
 		return
 	}
-	log.Println("====== getinfo userId======")
+	log.Println("====== getmylist userId======")
 	log.Println(p.UserID)
-	ID := user.UserID{
+	ID := courseclass.UserID{
 		UserID: p.UserID}
-	result, err := userService.SearchUser(c, &ID)
+	result, err := courseClassService.SearchTakeByUser(context.Background(), &ID)
+	log.Println(result)
+	log.Println(err)
 	if err != nil {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
 		return
@@ -48,9 +55,43 @@ func getmylist(c *gin.Context) {
 }
 
 func getstudent(c *gin.Context) {
-
+	c.JSON(200, gin.H{"status": 200})
 }
 
 func newcourse(c *gin.Context) {
+	type course struct {
+		CourseName   string `form:"courseName" json:"courseName" binding:"required"`
+		Introduction string `form:"introduction" json:"introduction" binding:"required"`
+		Textbooks    string `form:"textbooks" json:"textbooks" binding:"required"`
+		StartTime    int64  `form:"startTime" json:"startTime" binding:"required"`
+		EndTime      int64  `form:"endTime" json:"endTime" binding:"required"`
+	}
+	type param struct {
+		Course course `form:"course" json:"course" binding:"required"`
+		UserId int32  `form:"userId" json:"userId" binding:"required"`
+	}
+	var p param
+	if err := c.ShouldBind(&p); err != nil {
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+		return
+	}
+	log.Println("====== newCourse CourseName======")
+	log.Println(p.Course.CourseName)
+	// teacher := courseclass
+	// newC := courseclass.CourseClass{
+	// 	CourseName:   p.Course.CourseName,
+	// 	Introduction: p.Course.Introduction,
+	// 	TextBooks:    p.Course.Textbooks,
+	// 	StartTime:    p.Course.StartTime,
+	// 	EndTime:      p.Course.EndTime,
+	// }
+	// result, err := courseClassService.AddCourseClass(context.Background(), &newC)
+	// log.Println(result)
+	// log.Println(err)
+	// if err != nil {
+	// 	c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
+	// 	return
+	// }
 
+	// c.JSON(200, gin.H{"status": 200})
 }
