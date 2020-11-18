@@ -37,7 +37,8 @@ func main() {
 	// addTake(courseClassService, 2, 2, 0)
 
 	getCourseByUser(courseClassService, 1)
-	getUserByCourse(courseClassService, 1)
+	// getUserByCourse(courseClassService, 1)
+	log.Println("完成test")
 }
 
 func getCourse(courseClassService courseclass.CourseClassService, courseID int32) (*courseclass.CourseClass, error) {
