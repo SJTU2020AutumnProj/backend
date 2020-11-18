@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-16 21:32:52
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-18 19:40:29
+ * @LastEditTime: 2020-11-18 20:03:59
  */
 package main
 
@@ -15,6 +15,7 @@ import (
 	auth "boxin/service/auth/proto/auth"
 	courseclass "boxin/service/courseclass/proto/courseclass"
 	user "boxin/service/user/proto/user"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -34,9 +35,9 @@ const (
 func Cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method
-		//fmt.Println(method)
+		fmt.Println(method)
 		c.Header("Access-Control-Allow-Origin", "localhost:3000")
-		c.Header("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token, developerId")
+		c.Header("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token")
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
 		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
 		c.Header("Access-Control-Allow-Credentials", "true")

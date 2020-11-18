@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-18 18:54:02
+ * @LastEditTime: 2020-11-18 20:53:49
  */
 package handler
 
@@ -36,7 +36,7 @@ func getmylist(c *gin.Context) {
 		UserID int32 `form:"userId" json:"userId"  binding:"required"`
 	}
 	var p param
-	if err := c.ShouldBindJSON(&p); err != nil {
+	if err := c.ShouldBind(&p); err != nil {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
 		return
 	}
@@ -55,7 +55,27 @@ func getmylist(c *gin.Context) {
 }
 
 func getstudent(c *gin.Context) {
-	c.JSON(200, gin.H{"status": 200})
+	type param struct {
+		CourseID int32 `form:"courseId" json:"courseId"  binding:"required"`
+	}
+	var p param
+	if err := c.ShouldBind(&p); err != nil {
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+		return
+	}
+	log.Println("====== getCourseStudent CoursId======")
+	log.Println(p.CourseID)
+	ID := courseclass.CourseID{
+		CourseID: p.CourseID,
+	}
+	result, err := courseClassService.SearchTakeByCourse(context.Background(), &ID)
+	log.Println(result)
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败或未找到相应数据"})
+		return
+	}
+	c.JSON(200, result)
 }
 
 func newcourse(c *gin.Context) {
@@ -77,7 +97,9 @@ func newcourse(c *gin.Context) {
 	}
 	log.Println("====== newCourse CourseName======")
 	log.Println(p.Course.CourseName)
-	// teacher := courseclass
+	// teacher := courseclass.UserID{
+	// 	UserID: p.UserId,
+	// }
 	// newC := courseclass.CourseClass{
 	// 	CourseName:   p.Course.CourseName,
 	// 	Introduction: p.Course.Introduction,
@@ -86,6 +108,7 @@ func newcourse(c *gin.Context) {
 	// 	EndTime:      p.Course.EndTime,
 	// }
 	// result, err := courseClassService.AddCourseClass(context.Background(), &newC)
+
 	// log.Println(result)
 	// log.Println(err)
 	// if err != nil {

@@ -68,6 +68,19 @@ func getinfo(c *gin.Context) {
 		UserID int32 `form:"userId" json:"userId"  binding:"required"`
 		// UserID int32 `form:"userId" binding:"required"`
 	}
+
+	type userinfo struct {
+		UserID   int32  `form:"userId" json:"userId"  binding:"required"`
+		UserType int32  `form:"userType" json:"userType" binding:"required"`
+		UserName string `form:"userName" json:"userName" binding:"required"`
+		School   string `form:"school" json:"school" binding:"required"`
+		ID       string `form:"ID" json:"ID"  binding:"required"`
+		Phone    string `form:"phone" json:"phone" binding:"required"`
+		Email    string `form:"email" json:"email"  binding:"required"`
+	}
+	type response struct {
+		User userinfo `form:"user" json:"user" binding:"required"`
+	}
 	var p param
 	if err := c.ShouldBind(&p); err != nil {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
@@ -84,8 +97,18 @@ func getinfo(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
 		return
 	}
-	result.User.Password = ""
-	c.JSON(200, gin.H{"status": 200, "msg": "获取信息成功", "data": result})
+	res := response{
+		User: userinfo{
+			UserID:   result.User.UserID,
+			UserName: result.User.UserName,
+			UserType: result.User.UserType,
+			School:   result.User.School,
+			ID:       result.User.Id,
+			Phone:    result.User.Phone,
+			Email:    result.User.Email,
+		},
+	}
+	c.JSON(200, gin.H{"status": 200, "msg": "获取信息成功", "data": res})
 	return
 }
 
