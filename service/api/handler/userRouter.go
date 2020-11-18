@@ -33,7 +33,7 @@ func register(c *gin.Context) {
 	}
 	var p param
 
-	if err := c.ShouldBind(&p); err != nil {
+	if err := c.ShouldBindJSON(&p); err != nil {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
 		return
 	}

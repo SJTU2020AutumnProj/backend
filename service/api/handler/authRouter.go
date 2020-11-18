@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-18 08:38:54
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-18 19:16:33
+ * @LastEditTime: 2020-11-18 23:36:12
  */
 package handler
 
@@ -42,7 +42,7 @@ func login(c *gin.Context) {
 
 	var p param
 
-	if err := c.ShouldBind(&p); err != nil {
+	if err := c.ShouldBindJSON(&p); err != nil {
 		log.Println(err)
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
 		return
