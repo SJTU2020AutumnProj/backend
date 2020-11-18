@@ -49,6 +49,12 @@ type CourseClassService interface {
 	UpdateCourseClass(ctx context.Context, in *CourseClass, opts ...client.CallOption) (*EditResponse, error)
 	SearchCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchCourseClassResponse, error)
 	SearchCourseClasses(ctx context.Context, in *CourseIDArray, opts ...client.CallOption) (*SearchCourseClassesResponse, error)
+	AddTake(ctx context.Context, in *Take, opts ...client.CallOption) (*EditResponse, error)
+	DeleteTake(ctx context.Context, in *UserCourse, opts ...client.CallOption) (*EditResponse, error)
+	DeleteTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*EditResponse, error)
+	DeleteTakeByCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error)
+	SearchTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchTakeByUserResponse, error)
+	SearchTakeByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchTakeByCourseResponse, error)
 }
 
 type courseClassService struct {
@@ -113,6 +119,66 @@ func (c *courseClassService) SearchCourseClasses(ctx context.Context, in *Course
 	return out, nil
 }
 
+func (c *courseClassService) AddTake(ctx context.Context, in *Take, opts ...client.CallOption) (*EditResponse, error) {
+	req := c.c.NewRequest(c.name, "CourseClassService.AddTake", in)
+	out := new(EditResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *courseClassService) DeleteTake(ctx context.Context, in *UserCourse, opts ...client.CallOption) (*EditResponse, error) {
+	req := c.c.NewRequest(c.name, "CourseClassService.DeleteTake", in)
+	out := new(EditResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *courseClassService) DeleteTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*EditResponse, error) {
+	req := c.c.NewRequest(c.name, "CourseClassService.DeleteTakeByUser", in)
+	out := new(EditResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *courseClassService) DeleteTakeByCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error) {
+	req := c.c.NewRequest(c.name, "CourseClassService.DeleteTakeByCourseClass", in)
+	out := new(EditResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *courseClassService) SearchTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchTakeByUserResponse, error) {
+	req := c.c.NewRequest(c.name, "CourseClassService.SearchTakeByUser", in)
+	out := new(SearchTakeByUserResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *courseClassService) SearchTakeByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchTakeByCourseResponse, error) {
+	req := c.c.NewRequest(c.name, "CourseClassService.SearchTakeByCourse", in)
+	out := new(SearchTakeByCourseResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for CourseClassService service
 
 type CourseClassServiceHandler interface {
@@ -121,6 +187,12 @@ type CourseClassServiceHandler interface {
 	UpdateCourseClass(context.Context, *CourseClass, *EditResponse) error
 	SearchCourseClass(context.Context, *CourseID, *SearchCourseClassResponse) error
 	SearchCourseClasses(context.Context, *CourseIDArray, *SearchCourseClassesResponse) error
+	AddTake(context.Context, *Take, *EditResponse) error
+	DeleteTake(context.Context, *UserCourse, *EditResponse) error
+	DeleteTakeByUser(context.Context, *UserID, *EditResponse) error
+	DeleteTakeByCourseClass(context.Context, *CourseID, *EditResponse) error
+	SearchTakeByUser(context.Context, *UserID, *SearchTakeByUserResponse) error
+	SearchTakeByCourse(context.Context, *CourseID, *SearchTakeByCourseResponse) error
 }
 
 func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceHandler, opts ...server.HandlerOption) error {
@@ -130,6 +202,12 @@ func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceH
 		UpdateCourseClass(ctx context.Context, in *CourseClass, out *EditResponse) error
 		SearchCourseClass(ctx context.Context, in *CourseID, out *SearchCourseClassResponse) error
 		SearchCourseClasses(ctx context.Context, in *CourseIDArray, out *SearchCourseClassesResponse) error
+		AddTake(ctx context.Context, in *Take, out *EditResponse) error
+		DeleteTake(ctx context.Context, in *UserCourse, out *EditResponse) error
+		DeleteTakeByUser(ctx context.Context, in *UserID, out *EditResponse) error
+		DeleteTakeByCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error
+		SearchTakeByUser(ctx context.Context, in *UserID, out *SearchTakeByUserResponse) error
+		SearchTakeByCourse(ctx context.Context, in *CourseID, out *SearchTakeByCourseResponse) error
 	}
 	type CourseClassService struct {
 		courseClassService
@@ -162,129 +240,26 @@ func (h *courseClassServiceHandler) SearchCourseClasses(ctx context.Context, in 
 	return h.CourseClassServiceHandler.SearchCourseClasses(ctx, in, out)
 }
 
-// Api Endpoints for TakeService service
-
-func NewTakeServiceEndpoints() []*api.Endpoint {
-	return []*api.Endpoint{}
+func (h *courseClassServiceHandler) AddTake(ctx context.Context, in *Take, out *EditResponse) error {
+	return h.CourseClassServiceHandler.AddTake(ctx, in, out)
 }
 
-// Client API for TakeService service
-
-type TakeService interface {
-	AddTake(ctx context.Context, in *Take, opts ...client.CallOption) (*EditResponse, error)
-	DeleteTake(ctx context.Context, in *UserCourse, opts ...client.CallOption) (*EditResponse, error)
-	DeleteTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*EditResponse, error)
-	DeleteTakeByCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error)
-	SearchTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchTakeByUserResponse, error)
+func (h *courseClassServiceHandler) DeleteTake(ctx context.Context, in *UserCourse, out *EditResponse) error {
+	return h.CourseClassServiceHandler.DeleteTake(ctx, in, out)
 }
 
-type takeService struct {
-	c    client.Client
-	name string
+func (h *courseClassServiceHandler) DeleteTakeByUser(ctx context.Context, in *UserID, out *EditResponse) error {
+	return h.CourseClassServiceHandler.DeleteTakeByUser(ctx, in, out)
 }
 
-func NewTakeService(name string, c client.Client) TakeService {
-	return &takeService{
-		c:    c,
-		name: name,
-	}
+func (h *courseClassServiceHandler) DeleteTakeByCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error {
+	return h.CourseClassServiceHandler.DeleteTakeByCourseClass(ctx, in, out)
 }
 
-func (c *takeService) AddTake(ctx context.Context, in *Take, opts ...client.CallOption) (*EditResponse, error) {
-	req := c.c.NewRequest(c.name, "TakeService.AddTake", in)
-	out := new(EditResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+func (h *courseClassServiceHandler) SearchTakeByUser(ctx context.Context, in *UserID, out *SearchTakeByUserResponse) error {
+	return h.CourseClassServiceHandler.SearchTakeByUser(ctx, in, out)
 }
 
-func (c *takeService) DeleteTake(ctx context.Context, in *UserCourse, opts ...client.CallOption) (*EditResponse, error) {
-	req := c.c.NewRequest(c.name, "TakeService.DeleteTake", in)
-	out := new(EditResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *takeService) DeleteTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*EditResponse, error) {
-	req := c.c.NewRequest(c.name, "TakeService.DeleteTakeByUser", in)
-	out := new(EditResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *takeService) DeleteTakeByCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error) {
-	req := c.c.NewRequest(c.name, "TakeService.DeleteTakeByCourseClass", in)
-	out := new(EditResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *takeService) SearchTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchTakeByUserResponse, error) {
-	req := c.c.NewRequest(c.name, "TakeService.SearchTakeByUser", in)
-	out := new(SearchTakeByUserResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Server API for TakeService service
-
-type TakeServiceHandler interface {
-	AddTake(context.Context, *Take, *EditResponse) error
-	DeleteTake(context.Context, *UserCourse, *EditResponse) error
-	DeleteTakeByUser(context.Context, *UserID, *EditResponse) error
-	DeleteTakeByCourseClass(context.Context, *CourseID, *EditResponse) error
-	SearchTakeByUser(context.Context, *UserID, *SearchTakeByUserResponse) error
-}
-
-func RegisterTakeServiceHandler(s server.Server, hdlr TakeServiceHandler, opts ...server.HandlerOption) error {
-	type takeService interface {
-		AddTake(ctx context.Context, in *Take, out *EditResponse) error
-		DeleteTake(ctx context.Context, in *UserCourse, out *EditResponse) error
-		DeleteTakeByUser(ctx context.Context, in *UserID, out *EditResponse) error
-		DeleteTakeByCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error
-		SearchTakeByUser(ctx context.Context, in *UserID, out *SearchTakeByUserResponse) error
-	}
-	type TakeService struct {
-		takeService
-	}
-	h := &takeServiceHandler{hdlr}
-	return s.Handle(s.NewHandler(&TakeService{h}, opts...))
-}
-
-type takeServiceHandler struct {
-	TakeServiceHandler
-}
-
-func (h *takeServiceHandler) AddTake(ctx context.Context, in *Take, out *EditResponse) error {
-	return h.TakeServiceHandler.AddTake(ctx, in, out)
-}
-
-func (h *takeServiceHandler) DeleteTake(ctx context.Context, in *UserCourse, out *EditResponse) error {
-	return h.TakeServiceHandler.DeleteTake(ctx, in, out)
-}
-
-func (h *takeServiceHandler) DeleteTakeByUser(ctx context.Context, in *UserID, out *EditResponse) error {
-	return h.TakeServiceHandler.DeleteTakeByUser(ctx, in, out)
-}
-
-func (h *takeServiceHandler) DeleteTakeByCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error {
-	return h.TakeServiceHandler.DeleteTakeByCourseClass(ctx, in, out)
-}
-
-func (h *takeServiceHandler) SearchTakeByUser(ctx context.Context, in *UserID, out *SearchTakeByUserResponse) error {
-	return h.TakeServiceHandler.SearchTakeByUser(ctx, in, out)
+func (h *courseClassServiceHandler) SearchTakeByCourse(ctx context.Context, in *CourseID, out *SearchTakeByCourseResponse) error {
+	return h.CourseClassServiceHandler.SearchTakeByCourse(ctx, in, out)
 }

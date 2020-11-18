@@ -24,7 +24,9 @@ func main() {
 		)),
 	)
 	server.Init()
-	courseClassService := courseclass.NewCourseClassService("go.micro.service.course", server.Client())
+	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", server.Client())
+	log.Println("time.Now()", time.Now())
+
 	addCourse(courseClassService, "数学", "很难", "数学书", time.Now(), time.Now())
 	addCourse(courseClassService, "语文", "更难", "语文书", time.Now(), time.Now())
 	getCourses(courseClassService, []int32{1, 2})
@@ -41,9 +43,10 @@ func getCourse(courseClassService courseclass.CourseClassService, courseID int32
 }
 
 func addCourse(courseService courseclass.CourseClassService, courseName string, introduction string, textBooks string, startTime time.Time, endTime time.Time) {
-	t := time.Now()
-	stime := t.Format(startTime.String())
-	etime := t.Format(endTime.String())
+	// t := time.Now()
+	stime := startTime.String()
+	etime := startTime.String()
+	log.Println("stime", stime)
 	resp, err := courseService.AddCourseClass(
 		context.Background(),
 		&courseclass.CourseClass{

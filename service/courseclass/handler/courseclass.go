@@ -3,11 +3,16 @@ package handler
 import (
 	pb "boxin/service/courseclass/proto/courseclass"
 	repo "boxin/service/courseclass/repository"
+	"boxin/service/user/proto/user"
 	"context"
 	"log"
 	"time"
 
 	"golang.org/x/crypto/openpgp/errors"
+
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 )
 
 type CourseClassHandler struct {
@@ -74,9 +79,11 @@ func (c *CourseClassHandler) UpdateCourseClass(ctx context.Context, req *pb.Cour
 func (c *CourseClassHandler) SearchCourseClass(ctx context.Context, req *pb.CourseID, resp *pb.SearchCourseClassResponse) error {
 
 	course, err := c.CourseClassRepository.SearchCourseClass(ctx, req.CourseID)
-	t := time.Now()
-	stime := t.Format(course.StartTime.String())
-	etime := t.Format(course.EndTime.String())
+	// t := time.Now()
+	// stime := t.Format(course.StartTime.String())
+	// etime := t.Format(course.EndTime.String())
+	stime := course.StartTime.String()
+	etime := course.EndTime.String()
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
@@ -102,9 +109,11 @@ func (c *CourseClassHandler) SearchCourseClasses(ctx context.Context, req *pb.Co
 	var courseclasses []*pb.CourseClass
 	for i := range req.IDArray {
 		course, err := c.CourseClassRepository.SearchCourseClass(ctx, req.IDArray[i])
-		t := time.Now()
-		stime := t.Format(course.StartTime.String())
-		etime := t.Format(course.EndTime.String())
+		// t := time.Now()
+		// stime := t.Format(course.StartTime.String())
+		// etime := t.Format(course.EndTime.String())
+		stime := course.StartTime.String()
+		etime := course.EndTime.String()
 		if nil != err {
 			resp.Status = -1
 			resp.Msg = "Error"
@@ -211,22 +220,56 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 	return nil
 }
 
-// func (t *CourseClassHandler) SearchUserByCourseClass(ctx context.Context, req *pb.CourseID, resp *pb.SearchTakeResponse) error {
-// 	take, err := t.TakeRepository.SearchTakeByCourseClass(ctx, req.CourseID)
-// 	if nil != err {
-// 		resp.Status = -1
-// 		resp.Msg = "Error"
-// 		log.Println("Handler SearchTakeByCourseClass error: ", err)
-// 		return err
-// 	}
+const (
+	ServiceName = "go.micro.client.user"
+	EtcdAddr    = "localhost:2379"
+)
 
-// 	*resp = pb.SearchTakeResponse{
-// 		Status: 0,
-// 		Take: &pb.Take{
-// 			UserID:   take.UserID,
-// 			CourseID: take.CourseID,
-// 			role:     take.role,
-// 		},
-// 	}
-// 	return nil
-// }
+func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchTakeByCourseResponse) error {
+	server := micro.NewService(
+		micro.Name(ServiceName),
+		micro.Registry(etcd.NewRegistry(
+			registry.Addrs(EtcdAddr),
+		)),
+	)
+	server.Init()
+	userService := user.NewUserService("go.micro.service.user", server.Client())
+
+	userIDs, err := c.CourseClassRepository.SearchTakeByCourseClass(ctx, req.CourseID)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchTakeByCourse error: ", err)
+		return err
+	}
+
+	users, err1 := userService.SearchUsers(context.Background(), &user.UserIDArray{IDArray: userIDs})
+
+	if nil != err1 {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchTakeByCourse error: ", err)
+		return err
+	}
+
+	var ans []*pb.User
+	for i := range users.Users {
+		ans = append(ans, &pb.User{
+			UserID:   users.Users[i].UserID,
+			UserType: users.Users[i].UserType,
+			UserName: users.Users[i].UserName,
+			Password: users.Users[i].Password,
+			School:   users.Users[i].School,
+			Id:       users.Users[i].Id,
+			Phone:    users.Users[i].Phone,
+			Email:    users.Users[i].Email,
+		})
+	}
+
+	*resp = pb.SearchTakeByCourseResponse{
+		Status: 0,
+		Msg:    "Success",
+		Users:  ans,
+	}
+	return nil
+}

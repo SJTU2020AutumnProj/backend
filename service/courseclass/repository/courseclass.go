@@ -46,7 +46,7 @@ type CourseClassRepository interface {
 	DeleteTakeByUser(ctx context.Context, userID int32) error
 	DeleteTakeByCourseClass(ctx context.Context, courseID int32) error
 	SearchTakeByUser(ctx context.Context, userID int32) ([]*CourseClass, error)
-	// SearchTakeByCourseClass(ctx context.Context, courseID int32) ([]*CourseClass, error)
+	SearchTakeByCourseClass(ctx context.Context, courseID int32) ([]int32, error)
 	// GenerateTake(
 	// 	userID int32,
 	// 	courseID int32,
@@ -157,14 +157,21 @@ func (repo *CourseClassRepositoryImpl) SearchTakeByUser(ctx context.Context, use
 	return ans, result.Error
 }
 
-// func (repo *CourseClassRepositoryImpl) SearchTakeByCourseClass(ctx context.Context, courseID int32) ([]*CourseClass, error) {
-// 	var tmp []*CourseClass
-// 	result := repo.DB.Find(&tmp, "CourseID = ?", courseID)
-// 	if nil != result.Error {
-// 		return tmp, result.Error
-// 	}
-// 	return tmp, result.Error
-// }
+//返回userID的数组
+func (repo *CourseClassRepositoryImpl) SearchTakeByCourseClass(ctx context.Context, courseID int32) ([]int32, error) {
+	var tmp []Take
+	var ans []int32
+	result := repo.DB.Find(&tmp, "CourseID = ?", courseID)
+
+	for i := range tmp {
+		ans[i] = tmp[i].UserID
+	}
+
+	if nil != result.Error {
+		return ans, result.Error
+	}
+	return ans, result.Error
+}
 
 // func (repo *CourseClassRepositoryImpl) GenerateTakeClass(
 // 	userID int32,
