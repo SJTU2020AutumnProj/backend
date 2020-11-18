@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-18 22:51:08
+ * @LastEditTime: 2020-11-18 23:08:44
  */
 package handler
 
@@ -76,7 +76,7 @@ func getstudent(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败或未找到相应数据"})
 		return
 	}
-	c.JSON(200, result)
+	c.JSON(200, gin.H{"status": 200, "msg": result.Msg, "data": result.Users})
 }
 
 func newcourse(c *gin.Context) {
