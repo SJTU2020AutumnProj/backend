@@ -1,0 +1,116 @@
+//声明proto本版
+syntax = "proto3";
+//服务名
+package go.micro.service.courseclass;
+//生成go文件的包路径
+option go_package = "proto/courseclass";
+
+//定义task服务的接口，主要是增删改查
+//结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
+service CourseClassService {
+	rpc AddCourseClass (CourseClass) returns (EditResponse) {}
+	rpc DeleteCourseClass (CourseID) returns (EditResponse) {}
+	rpc UpdateCourseClass (CourseClass) returns (EditResponse) {}
+	rpc SearchCourseClass (CourseID) returns (SearchCourseClassResponse) {}
+	rpc SearchCourseClasses (CourseIDArray) returns (SearchCourseClassesResponse) {}
+	rpc AddTake(Take) returns (EditResponse){}
+	rpc DeleteTake(UserCourse) returns (EditResponse){}
+	rpc DeleteTakeByUser(UserID) returns (EditResponse){}
+	rpc DeleteTakeByCourseClass(CourseID) returns (EditResponse){}
+	rpc SearchTakeByUser (UserID) returns (SearchTakeByUserResponse){}
+	rpc SearchTakeByCourse (CourseID) returns (SearchTakeByCourseResponse){}
+}
+
+message CourseClass {
+	int32 courseID = 1;
+	string courseName = 2;
+	string introduction = 3;
+	string textBooks = 4;
+	string startTime = 5;
+	string endTime = 6;
+}
+
+message CourseID {
+	int32 courseID = 1;
+}
+
+message CourseIDArray {
+	repeated int32 IDArray = 1;
+}
+
+message EditResponse {
+	enum Status{
+		SUCCESS = 0;
+		ERROR = -1;
+	}
+	Status status = 1;
+    string msg = 2;
+}
+
+message SearchCourseClassResponse {
+    enum Status {
+        SUCCESS = 0;       
+        ERROR = -1;
+    }
+    Status status = 1;
+	string msg = 2;
+    CourseClass courseclass = 3;
+}
+
+message SearchCourseClassesResponse {
+    enum Status {
+        SUCCESS = 0;       
+        ERROR = -1;
+    }
+    Status status = 1;
+	string msg = 2;
+    repeated CourseClass courseclasses = 3;
+}
+
+
+message UserID {
+    int32 userID = 1;
+}
+
+message UserCourse {
+	int32 userID = 1;
+	int32 courseID = 2;
+}
+
+message Take {
+	int32 userID = 1;
+	int32 courseID = 2;
+	int32 role = 3;
+}
+
+
+message SearchTakeByUserResponse {
+	enum Status {
+		SUCCESS = 0;
+		ERROR = -1;
+	}
+	Status status = 1;
+	string msg = 2;
+	repeated CourseClass courses = 3;
+}
+
+message User {
+    int32 userID = 1;
+    int32 userType = 2;
+    string userName = 3;
+    string password = 4;
+    string school = 5;
+    string id = 6;
+    string phone = 7;
+    string email = 8;
+}
+
+message SearchTakeByCourseResponse {
+	enum Status {
+		SUCCESS = 0;
+		ERROR = -1;
+	}
+	Status status = 1;
+	string msg = 2;
+	repeated User users = 3;
+}
