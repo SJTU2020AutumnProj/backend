@@ -143,16 +143,31 @@ func (repo *CourseClassRepositoryImpl) DeleteTakeByCourseClass(ctx context.Conte
 }
 
 func (repo *CourseClassRepositoryImpl) SearchTakeByUser(ctx context.Context, userID int32) ([]*CourseClass, error) {
-	var courses []CourseClass
-	// result := repo.DB.Where(map[string]interface{}{"user_id": userID}).Find(&courses)
-	result := repo.DB.Where("user_id = ?", userID)
-	if nil != result.Error {
-		return []*CourseClass{}, result.Error
-	}
+	var takes []*Take
 
-	if err := result.Find(&courses).Error; nil != err {
+	// result := repo.DB.Table("take").Where("user_id = ?", userID).Find(&courses)
+	// if nil != result.Error {
+	// 	return courses, result.Error
+	// }
+	result := repo.DB.Table("take").Where("user_id = ?", userID)
+
+	if err := result.Find(&takes).Error; nil != err {
 		return []*CourseClass{}, err
 	}
+
+	var courses []*CourseClass
+
+	for i := range takes {
+		tmp := repo.DB.Table("courseclass").Where("course_id = ?", takes[i].CourseID)
+		var course CourseClass
+		if err := tmp.First(&course).Error; nil != err {
+			return []*CourseClass{}, err
+		}
+		courses = append(courses, &course)
+	}
+	return courses, nil
+
+	// result := repo.DB.Where(map[string]interface{}{"user_id": userID}).Find(&courses)
 	// var ans []*CourseClass
 	// for i := range courses {
 	// 	ans[i] = &courses[i]
@@ -162,7 +177,6 @@ func (repo *CourseClassRepositoryImpl) SearchTakeByUser(ctx context.Context, use
 	// 	return ans, result.Error
 	// }
 	// return ans, result.Error
-	return []*CourseClass{}, result.Error
 }
 
 //返回userID的数组
@@ -172,7 +186,7 @@ func (repo *CourseClassRepositoryImpl) SearchTakeByCourseClass(ctx context.Conte
 	result := repo.DB.Find(&tmp, "course_id = ?", courseID)
 
 	for i := range tmp {
-		ans[i] = tmp[i].UserID
+		ans = append(ans, tmp[i].UserID)
 	}
 
 	if nil != result.Error {

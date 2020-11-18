@@ -196,7 +196,7 @@ func (c *CourseClassHandler) DeleteTakeByCourseClass(ctx context.Context, req *p
 }
 
 func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserID, resp *pb.SearchTakeByUserResponse) error {
-	course, err := c.CourseClassRepository.SearchTakeByUser(ctx, req.UserID)
+	courses, err := c.CourseClassRepository.SearchTakeByUser(ctx, req.UserID)
 
 	if nil != err {
 		resp.Status = -1
@@ -206,14 +206,14 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 	}
 
 	var ans []*pb.CourseClass
-	for i := range course {
+	for i := range courses {
 		ans = append(ans, &pb.CourseClass{
-			CourseID:     course[i].CourseID,
-			CourseName:   course[i].CourseName,
-			Introduction: course[i].Introduction,
-			TextBooks:    course[i].TextBooks,
-			StartTime:    course[i].StartTime.Unix(),
-			EndTime:      course[i].EndTime.Unix(),
+			CourseID:     courses[i].CourseID,
+			CourseName:   courses[i].CourseName,
+			Introduction: courses[i].Introduction,
+			TextBooks:    courses[i].TextBooks,
+			StartTime:    courses[i].StartTime.Unix(),
+			EndTime:      courses[i].EndTime.Unix(),
 		})
 	}
 
