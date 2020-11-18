@@ -32,7 +32,7 @@ type AuthRepositoryImpl struct {
 
 func (repo *AuthRepositoryImpl) Login(ctx context.Context, userName string, password string) (User, error) {
 	var user User
-	result := repo.DB.Where("username = ? and password = ?", userName, password)
+	result := repo.DB.Where("user_name = ? and password = ?", userName, password)
 	if nil != result.Error {
 		return User{}, result.Error
 	}
