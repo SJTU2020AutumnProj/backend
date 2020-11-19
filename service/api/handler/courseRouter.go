@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-19 00:05:29
+ * @LastEditTime: 2020-11-19 08:43:54
  */
 package handler
 
@@ -111,21 +111,21 @@ func newcourse(c *gin.Context) {
 	log.Println(endTime)
 	log.Println(time.Unix(startTime, 0).Format(timeTemplate1)) //输出：2019-01-08 13:50:30
 	log.Println(time.Unix(endTime, 0).Format(timeTemplate1))   //输出：2019-01-08 13:50:30
-	// newC := courseclass.CourseClass{
-	// 	CourseName:   p.Course.CourseName,
-	// 	Introduction: p.Course.Introduction,
-	// 	TextBooks:    p.Course.Textbooks,
-	// 	StartTime:    p.Course.StartTime,
-	// 	EndTime:      p.Course.EndTime,
-	// }
-	// result, err := courseClassService.AddCourseClass(context.Background(), &newC)
+	newC := courseclass.NewCourseMessage{
+		UserID:       p.UserId,
+		CourseName:   p.Course.CourseName,
+		Introduction: p.Course.Introduction,
+		TextBooks:    p.Course.Textbooks,
+		StartTime:    startTime,
+		EndTime:      endTime,
+	}
+	result, err := courseClassService.NewCourse(context.Background(), &newC)
+	log.Println(result)
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
+		return
+	}
 
-	// log.Println(result)
-	// log.Println(err)
-	// if err != nil {
-	// 	c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
-	// 	return
-	// }
-
-	// c.JSON(200, gin.H{"status": 200})
+	c.JSON(200, gin.H{"status": 200})
 }
