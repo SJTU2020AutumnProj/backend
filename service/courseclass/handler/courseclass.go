@@ -151,7 +151,7 @@ func (c *CourseClassHandler) AddTake(ctx context.Context, req *pb.Take, resp *pb
 	if err := c.CourseClassRepository.AddTake(ctx, take); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("TakeHandler AddTake error: ", err)
+		log.Println("CourseHandler AddTake error: ", err)
 		return err
 	}
 	resp.Status = 0
@@ -160,10 +160,10 @@ func (c *CourseClassHandler) AddTake(ctx context.Context, req *pb.Take, resp *pb
 }
 
 func (c *CourseClassHandler) DeleteTake(ctx context.Context, req *pb.UserCourse, resp *pb.EditResponse) error {
-	if err := c.CourseClassRepository.DeleteTake(ctx, req.UserCourse.UserID, req.UserCourse.CourseID); nil != err {
+	if err := c.CourseClassRepository.DeleteTake(ctx, req.UserID, req.CourseID); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("TakeHandler DeleteTake error: ", err)
+		log.Println("CourseHandler DeleteTake error: ", err)
 		return err
 	}
 	resp.Status = 0
@@ -175,7 +175,7 @@ func (c *CourseClassHandler) DeleteTakeByUser(ctx context.Context, req *pb.UserI
 	if err := c.CourseClassRepository.DeleteTakeByUser(ctx, req.UserID); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("TakeHandler DeleteTakeByUser error", err)
+		log.Println("CourseHandler DeleteTakeByUser error", err)
 		return err
 	}
 	resp.Status = 0
@@ -187,7 +187,7 @@ func (c *CourseClassHandler) DeleteTakeByCourseClass(ctx context.Context, req *p
 	if err := c.CourseClassRepository.DeleteTakeByCourseClass(ctx, req.CourseID); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("TakeHandler DeleteTake error: ", err)
+		log.Println("CourseHandler DeleteTake error: ", err)
 		return err
 	}
 	resp.Status = 0
@@ -294,10 +294,10 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 	var newCourse repo.CourseClass
 	var err1 error
 
-	if newCourse, err1 = c.CourseClassRepository.NewCourse(ctx, courseclass); nil != err {
+	if newCourse, err1 = c.CourseClassRepository.NewCourse(ctx, courseclass); nil != err1 {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("CourseClassHandler AddCourseClass error: ", err)
+		log.Println("CourseClassHandler AddCourseClass error: ", err1)
 		return err1
 	}
 
@@ -315,5 +315,20 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 		},
 	}
 
+	take := repo.Take{
+		UserID:   req.UserID,
+		CourseID: newCourse.CourseID,
+		Role:     1,
+	}
+
+	if err := c.CourseClassRepository.AddTake(ctx, take); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("TakeHandler NewCourse:AddTake error: ", err)
+		return err
+	}
+	resp.Status = 0
+	resp.Msg = "Success"
 	return nil
+
 }

@@ -36,8 +36,10 @@ func main() {
 	// addTake(courseClassService, 2, 1, 0)
 	// addTake(courseClassService, 2, 2, 0)
 
-	getCourseByUser(courseClassService, 1)
-	// getUserByCourse(courseClassService, 1)
+	// getCourseByUser(courseClassService, 1)
+	// getUserByCourse(courseClassService, 23)
+
+	newCourse(courseClassService, 1, "新开课程测试", "测试", "书", time.Now(), time.Now())
 	log.Println("完成test")
 }
 
@@ -116,4 +118,25 @@ func getUserByCourse(courseClassService courseclass.CourseClassService, courseID
 	}
 	log.Println("getUserByCourse success:", resp)
 	return resp.Users, err
+}
+
+func newCourse(courseClassService courseclass.CourseClassService, userID int32, courseName string, introduction string, textBooks string, startTime time.Time, endTime time.Time) {
+	stime := startTime.Unix()
+	etime := endTime.Unix()
+	resp, err := courseClassService.NewCourse(
+		context.Background(),
+		&courseclass.NewCourseMessage{
+			UserID:       userID,
+			CourseName:   courseName,
+			Introduction: introduction,
+			TextBooks:    textBooks,
+			StartTime:    stime,
+			EndTime:      etime,
+		})
+
+	if nil != err {
+		log.Println("NewCourse error:", err)
+		return
+	}
+	log.Println("newCourse success", resp)
 }
