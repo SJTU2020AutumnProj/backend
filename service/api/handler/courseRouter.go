@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-19 08:43:54
+ * @LastEditTime: 2020-11-19 09:24:22
  */
 package handler
 
@@ -127,5 +127,5 @@ func newcourse(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"status": 200})
+	c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
 }
