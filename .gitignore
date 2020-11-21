@@ -14,7 +14,10 @@
 # Dependency directories (remove the comment below to include it)
 *.mod
 *.sum
+vendor/*
+
+# Vscode settings
 .vscode/*
 .vscode/settings.json
 .vscode/launch.json
-vendor/*
+*/.vscode/*
