@@ -15,4 +15,4 @@
 *.mod
 *.sum
 .vscode/
-# vendor/
+vendor/
