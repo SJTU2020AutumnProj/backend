@@ -15,4 +15,6 @@
 *.mod
 *.sum
 .vscode/*
+.vscode/settings.json
+.vscode/launch.json
 vendor/*
