@@ -1,13 +1,3 @@
-/*
- * @Description:
- * @Version: 1.0
- * @Author: Zhang AO
- * @studentID: 518021910368
- * @School: SJTU
- * @Date: 2020-11-18 22:55:18
- * @LastEditors: Seven
- * @LastEditTime: 2020-11-25 11:03:54
- */
 package main
 
 import (
