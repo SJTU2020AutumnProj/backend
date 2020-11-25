@@ -1,3 +1,13 @@
+/*
+ * @Description:
+ * @Version: 1.0
+ * @Author: Zhang AO
+ * @studentID: 518021910368
+ * @School: SJTU
+ * @Date: 2020-11-18 22:55:18
+ * @LastEditors: Seven
+ * @LastEditTime: 2020-11-25 11:03:54
+ */
 package main
 
 import (
@@ -16,8 +26,8 @@ import (
 
 const (
 	ServiceName = "go.micro.service.user"
-	MysqlUri    = "root:root@(127.0.0.1:3306)/jub?charset=utf8mb4&parseTime=True&loc=Local"
-	EtcdAddr    = "localhost:2379"
+	MysqlUri    = "root:root@(host.docker.internal:3306)/jub?charset=utf8mb4&parseTime=True&loc=Local"
+	EtcdAddr    = "host.docker.internal:2379"
 )
 
 func main() {

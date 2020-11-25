@@ -227,7 +227,7 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 
 const (
 	ServiceName = "go.micro.client.user"
-	EtcdAddr    = "localhost:2379"
+	EtcdAddr    = "host.docker.internal:2379"
 )
 
 func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchTakeByCourseResponse) error {

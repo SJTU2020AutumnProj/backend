@@ -13,7 +13,7 @@ import (
 
 const (
 	ServiceName = "go.micro.client.user"
-	EtcdAddr    = "localhost:2379"
+	EtcdAddr    = "host.docker.internal:2379"
 )
 
 func main() {
