@@ -8,50 +8,46 @@ option go_package = "proto/user";
 //定义task服务的接口，主要是增删改查
 //结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
 service UserService {
-  rpc AddUser(User)returns (EditResponse){}
-  rpc RegisterAdmin(UserInfo)returns (RegisterResponse){}
-  rpc RegisterTeacher(UserInfo)returns (RegisterResponse){}
-  rpc RegisterStudent(UserInfo)returns (RegisterResponse){}
-  rpc DeleteUser(UserID)returns (EditResponse){}
-  rpc UpdateUser(User)returns (EditResponse){}
-  rpc SearchUser(UserID)returns (SearchResponse){}
+  rpc RegisterAdmin(RegisterUserParam)returns (RegisterUserResponse){}
+  rpc RegisterTeacher(RegisterUserParam)returns (RegisterUserResponse){}
+  rpc RegisterStudent(RegisterUserParam)returns (RegisterUserResponse){}
+  rpc UpdateUser(UpdateUserParam)returns (UpdateUserResponse){}
+  rpc SearchUser(UserID)returns (SearchUserResponse){}
   rpc SearchUsers(UserIDArray)returns (SearchUsersResponse){}
 }
 
-message User {
-    int32 userID = 1;
-    int32 userType = 2;
-    string userName = 3;
-    string password = 4;
-    string school = 5;
-    string id = 6;
-    string phone = 7;
-    string email = 8;
-}
 
-message UserInfo {
+// Parameter protocol
+message RegisterUserParam {
     string userName = 1;
     string password = 2;
     string school = 3;
-    string id = 4;
+    string iD = 4;
     string phone = 5;
     string email = 6;
 }
 
-message RegisterResponse {
-    enum Status {
-        SUCCESS = 0;
-        ERROR = -1;
-    }
-    Status status = 1;
-    string msg = 2;
+message UpdateUserParam {
+    int32 userID = 1;
+    int32 userType = 2;
+    string userName = 3;
+    string school = 5;
+    string iD = 6;
+    string phone = 7;
+    string email = 8;
 }
 
 message UserID {
     int32 userID = 1;
 }
 
-message EditResponse {
+message UserIDArray {
+    repeated int32 userIDArray = 1;
+}
+
+
+// Response protocol
+message RegisterUserResponse {
     enum Status {
         SUCCESS = 0;
         ERROR = -1;
@@ -60,18 +56,33 @@ message EditResponse {
     string msg = 2;
 }
 
-message SearchResponse {
+message UpdateUserResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message UserInfo {
+    int32 userID = 1;
+    int32 userType = 2;
+    string userName = 3;
+    string school = 5;
+    string iD = 6;
+    string phone = 7;
+    string email = 8;
+}
+
+message SearchUserResponse {
     enum Status {
         SUCCESS = 0;       
         ERROR = -1;
     }
     Status status = 1;
     string msg = 2;
-    User user = 3;
-}
-
-message UserIDArray {
-    repeated int32 IDArray = 1;
+    UserInfo user = 3;
 }
 
 message SearchUsersResponse {
@@ -81,5 +92,5 @@ message SearchUsersResponse {
     }
     Status status = 1;
     string msg = 2;
-    repeated User users = 3;
+    repeated UserInfo users = 3;
 }

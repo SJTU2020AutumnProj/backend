@@ -21,15 +21,15 @@ func (a *AuthHandler) Login(ctx context.Context, req *pb.LoginParam, resp *pb.Lo
 	}
 	*resp = pb.LoginResponse{
 		Status: 0,
-		Msg: "Success",
+		Msg:    "Success",
 		Data: &pb.UserData{
-			UserID: user.UserID,
+			UserID:   user.UserID,
 			UserType: user.UserType,
 			UserName: user.UserName,
-			School: user.School,
-			Id: user.ID,
-			Phone: user.Phone,
-			Email: user.Email,
+			School:   user.School,
+			Id:       user.ID,
+			Phone:    user.Phone,
+			Email:    user.Email,
 		},
 	}
 	return nil
