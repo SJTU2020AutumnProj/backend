@@ -54,6 +54,7 @@ message RegisterUserResponse {
     }
     Status status = 1;
     string msg = 2;
+    UserID userID = 3;
 }
 
 message UpdateUserResponse {

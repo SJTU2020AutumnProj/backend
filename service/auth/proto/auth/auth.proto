@@ -20,6 +20,7 @@ message UserData {
     int32 userID = 1;
     int32 userType = 2;
     string userName = 3;
+    string password = 4;
     string school = 5;
     string id = 6;
     string phone = 7;

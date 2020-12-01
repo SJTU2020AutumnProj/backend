@@ -33,7 +33,7 @@ func (User) TableName() string {
 UserRepository : define functions about table `user`
 */
 type UserRepository interface {
-	AddUser(ctx context.Context, user User) error
+	AddUser(ctx context.Context, user User) (User, error)
 	DeleteUser(ctx context.Context, userID int32) error
 	UpdateUser(ctx context.Context, user User) error
 	SearchUser(ctx context.Context, userID int32) (User, error)
@@ -52,11 +52,11 @@ type UserRepositoryImpl struct {
 /*
 AddUser : add a tuple to table `user` with given information
 */
-func (repo *UserRepositoryImpl) AddUser(ctx context.Context, user User) error {
+func (repo *UserRepositoryImpl) AddUser(ctx context.Context, user User) (User, error) {
 	if err := repo.DB.Create(&user).Error; nil != err {
-		return err
+		return User{}, err
 	}
-	return nil
+	return user, nil
 }
 
 /*

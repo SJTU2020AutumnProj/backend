@@ -7,10 +7,16 @@ import (
 	"log"
 )
 
+/*
+AuthHandler : handler of auth service
+*/
 type AuthHandler struct {
 	AuthRepository repo.AuthRepository
 }
 
+/*
+Login : user can login by username and password
+*/
 func (a *AuthHandler) Login(ctx context.Context, req *pb.LoginParam, resp *pb.LoginResponse) error {
 	user, err := a.AuthRepository.Login(ctx, req.UserName, req.Password)
 	if nil != err {
@@ -26,6 +32,7 @@ func (a *AuthHandler) Login(ctx context.Context, req *pb.LoginParam, resp *pb.Lo
 			UserID:   user.UserID,
 			UserType: user.UserType,
 			UserName: user.UserName,
+			Password: user.Password,
 			School:   user.School,
 			Id:       user.ID,
 			Phone:    user.Phone,
