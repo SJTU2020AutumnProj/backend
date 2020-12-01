@@ -248,7 +248,7 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 		return err
 	}
 
-	users, err1 := userService.SearchUsers(context.Background(), &user.UserIDArray{IDArray: userIDs})
+	users, err1 := userService.SearchUsers(context.Background(), &user.UserIDArray{UserIDArray: userIDs})
 
 	if nil != err1 {
 		resp.Status = -1
@@ -263,9 +263,8 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 			UserID:   users.Users[i].UserID,
 			UserType: users.Users[i].UserType,
 			UserName: users.Users[i].UserName,
-			Password: users.Users[i].Password,
 			School:   users.Users[i].School,
-			Id:       users.Users[i].Id,
+			Id:       users.Users[i].ID,
 			Phone:    users.Users[i].Phone,
 			Email:    users.Users[i].Email,
 		})
