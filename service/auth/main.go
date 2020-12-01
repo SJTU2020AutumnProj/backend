@@ -26,8 +26,8 @@ import (
 
 const (
 	ServiceName = "go.micro.service.auth"
-	MysqlUri    = "root:root@(host.docker.internal:3306)/jub?charset=utf8mb4&parseTime=True&loc=Local"
-	EtcdAddr    = "host.docker.internal:2379"
+	MysqlUri    = "root:root@(localhost:3306)/jub?charset=utf8mb4&parseTime=True&loc=Local"
+	EtcdAddr    = "localhost:2379"
 )
 
 func main() {

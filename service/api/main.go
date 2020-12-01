@@ -29,14 +29,14 @@ import (
 const (
 	// AppName     = "go.micro.service.api"
 	ServiceName = "go.micro.api.api"
-	EtcdAddr    = "host.docker.internal:2379"
+	EtcdAddr    = "localhost:2379"
 )
 
 func Cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method
 		fmt.Println(method)
-		c.Header("Access-Control-Allow-Origin", "http://host.docker.internal:3000")
+		c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
 		c.Header("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token")
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
 		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
