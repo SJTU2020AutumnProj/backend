@@ -19,32 +19,32 @@ type CourseClassHandler struct {
 	CourseClassRepository repo.CourseClassRepository
 }
 
-func (c *CourseClassHandler) AddCourseClass(ctx context.Context, req *pb.CourseClass, resp *pb.EditResponse) error {
+// func (c *CourseClassHandler) AddCourseClass(ctx context.Context, req *pb.CourseClass, resp *pb.EditResponse) error {
 
-	// timeNow := time.Unix(timestamp, 0)
+// 	// timeNow := time.Unix(timestamp, 0)
 
-	stime := time.Unix(req.StartTime, 0)
-	etime := time.Unix(req.EndTime, 0)
+// 	stime := time.Unix(req.StartTime, 0)
+// 	etime := time.Unix(req.EndTime, 0)
 
-	// log.Println("repo.stime", stime)
+// 	// log.Println("repo.stime", stime)
 
-	courseclass := repo.CourseClass{
-		CourseName:   req.CourseName,
-		Introduction: req.Introduction,
-		TextBooks:    req.TextBooks,
-		StartTime:    stime,
-		EndTime:      etime,
-	}
-	if err := c.CourseClassRepository.AddCourseClass(ctx, courseclass); nil != err {
-		resp.Status = -1
-		resp.Msg = "Error"
-		log.Println("CourseClassHandler AddCourseClass error: ", err)
-		return err
-	}
-	resp.Status = 0
-	resp.Msg = "Success"
-	return nil
-}
+// 	courseclass := repo.CourseClass{
+// 		CourseName:   req.CourseName,
+// 		Introduction: req.Introduction,
+// 		TextBooks:    req.TextBooks,
+// 		StartTime:    stime,
+// 		EndTime:      etime,
+// 	}
+// 	if err := c.CourseClassRepository.AddCourseClass(ctx, courseclass); nil != err {
+// 		resp.Status = -1
+// 		resp.Msg = "Error"
+// 		log.Println("CourseClassHandler AddCourseClass error: ", err)
+// 		return err
+// 	}
+// 	resp.Status = 0
+// 	resp.Msg = "Success"
+// 	return nil
+// }
 
 func (c *CourseClassHandler) DeleteCourseClass(ctx context.Context, req *pb.CourseID, resp *pb.EditResponse) error {
 	if err := c.CourseClassRepository.DeleteCourseClass(ctx, req.CourseID); nil != err {

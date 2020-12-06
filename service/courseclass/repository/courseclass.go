@@ -124,7 +124,7 @@ func (repo *CourseClassRepositoryImpl) AddTake(ctx context.Context, take Take) e
 }
 
 func (repo *CourseClassRepositoryImpl) DeleteTake(ctx context.Context, userID int32, courseID int32) error {
-	if err := repo.DB.Where("user_id = ?", userID).Delete(&Take{}, courseID).Error; nil != err {
+	if err := repo.DB.Where("user_id = ?", userID).Where("course_id = ?", courseID).Delete(&Take{}).Error; nil != err {
 		return err
 	}
 	return nil
