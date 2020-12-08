@@ -10,6 +10,7 @@ replace (
 )
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-siris/siris v7.4.0+incompatible // indirect
