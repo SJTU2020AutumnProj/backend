@@ -21,6 +21,7 @@ require (
 	github.com/oxequa/interact v0.0.0-20171114182912-f8fb5795b5d7 // indirect
 	github.com/oxequa/realize v2.0.2+incompatible // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
 	google.golang.org/protobuf v1.25.0
