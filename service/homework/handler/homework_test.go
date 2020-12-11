@@ -1,9 +1,9 @@
 package handler
 
 import (
+	mongoDB "boxin/service/homework/mongoDB"
 	homework "boxin/service/homework/proto/homework"
 	repo "boxin/service/homework/repository"
-	mongoDB "boxin/service/homework/mongoDB"
 	"context"
 	"testing"
 	"time"
@@ -14,7 +14,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	. "github.com/smartystreets/goconvey/convey"
- 
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	// "github.com/micro/go-micro/v2"
@@ -51,7 +51,7 @@ func TestAssignAndDeleteHomework(t *testing.T) {
 	fmt.Println("Connected to MongoDB!")
 	collection := client.Database("jub").Collection("homework")
 
-	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db},HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL:collection}}
+	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db}, HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL: collection}}
 	var req homework.AssignHomeworkParam
 	var rsp homework.AssignHomeworkResponse
 
@@ -67,16 +67,16 @@ func TestAssignAndDeleteHomework(t *testing.T) {
 		return -1
 	}
 
-	tf2 := func (status homework.DeleteHomeworkResponse_Status) int32 {
-		So(h.DeleteHomework(context.TODO(), &dreq,&drsp),ShouldBeNil)
-		So(drsp.Status,ShouldEqual, status)
+	tf2 := func(status homework.DeleteHomeworkResponse_Status) int32 {
+		So(h.DeleteHomework(context.TODO(), &dreq, &drsp), ShouldBeNil)
+		So(drsp.Status, ShouldEqual, status)
 		if drsp.Status == homework.DeleteHomeworkResponse_SUCCESS {
 			return 0
 		}
 		return -1
 	}
 
-	Convey("Test NewCourseClass", t, func() {
+	Convey("Test Assign and delete homework", t, func() {
 		req.CourseID = 99632
 		req.TeacherID = 99632
 		req.StartTime = time.Now().Unix()
@@ -89,10 +89,190 @@ func TestAssignAndDeleteHomework(t *testing.T) {
 		dreq.HomeworkID = rsp.HomeworkID
 		id2 := tf2(homework.DeleteHomeworkResponse_SUCCESS)
 		So(id2, ShouldBeGreaterThanOrEqualTo, 0)
-		// defer func() {
-		// 	db.Where("user_id = ?", req.UserID).Delete(&repo.Take{})
-		// 	So(db.Delete(&repo.CourseClass{}, rsp.Courseclass.CourseID).Error, ShouldBeNil)
-		// }()
 	})
 }
 
+func TestUpdateHomework(t *testing.T) { //这里偷了个懒，直接用了AssignHomework和DeleteHomework
+	db, err := gorm.Open("mysql", MysqlUri)
+	if nil != err {
+		panic(err)
+	}
+	defer db.Close()
+
+	// 设置客户端连接配置
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// 连接到MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		fmt.Println("err")
+	}
+
+	// 检查连接
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		fmt.Println("err")
+	}
+	fmt.Println("Connected to MongoDB!")
+	collection := client.Database("jub").Collection("homework")
+
+	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db}, HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL: collection}}
+	var req homework.AssignHomeworkParam
+	var rsp homework.AssignHomeworkResponse
+
+	var dreq homework.HomeworkID
+	var drsp homework.DeleteHomeworkResponse
+
+	var ureq homework.HomeworkInfo
+	var ursp homework.UpdateHomeworkResponse
+
+	tf := func(status homework.UpdateHomeworkResponse_Status) int32 {
+		So(h.UpdateHomework(context.TODO(), &ureq, &ursp), ShouldBeNil)
+		So(ursp.Status, ShouldEqual, status)
+		if ursp.Status == homework.UpdateHomeworkResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
+	Convey("Test UpdateHomework", t, func() {
+		req.CourseID = 99632
+		req.TeacherID = 99632
+		req.StartTime = time.Now().Unix()
+		req.EndTime = time.Now().Unix()
+		req.HomeworkJson = "测试文字2"
+
+		h.AssignHomework(context.TODO(), &req, &rsp)
+
+		ureq.HomeworkID = rsp.HomeworkID
+		ureq.CourseID = 99999
+		ureq.TeacherID = 99999
+		ureq.StartTime = time.Now().Unix()
+		ureq.EndTime = time.Now().Unix()
+		ureq.HomeworkJson = "测试修改"
+		id := tf(homework.UpdateHomeworkResponse_SUCCESS)
+		So(id, ShouldBeGreaterThanOrEqualTo, 0)
+
+		dreq.HomeworkID = rsp.HomeworkID
+		h.DeleteHomework(context.TODO(), &dreq, &drsp)
+	})
+}
+
+func TestSearchHomework(t *testing.T) {
+	db, err := gorm.Open("mysql", MysqlUri)
+	if nil != err {
+		panic(err)
+	}
+	defer db.Close()
+
+	// 设置客户端连接配置
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// 连接到MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		fmt.Println("err")
+	}
+
+	// 检查连接
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		fmt.Println("err")
+	}
+	fmt.Println("Connected to MongoDB!")
+	collection := client.Database("jub").Collection("homework")
+
+	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db}, HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL: collection}}
+	var req homework.AssignHomeworkParam
+	var rsp homework.AssignHomeworkResponse
+
+	var dreq homework.HomeworkID
+	var drsp homework.DeleteHomeworkResponse
+
+	var sreq homework.HomeworkID
+	var srsp homework.SearchHomeworkResponse
+
+	tf := func(status homework.SearchHomeworkResponse_Status) int32 {
+		So(h.SearchHomework(context.TODO(), &sreq, &srsp), ShouldBeNil)
+		So(srsp.Status, ShouldEqual, status)
+		if srsp.Status == homework.SearchHomeworkResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
+	Convey("Test SearchHomework", t, func() {
+		req.CourseID = 99632
+		req.TeacherID = 99632
+		req.StartTime = time.Now().Unix()
+		req.EndTime = time.Now().Unix()
+		req.HomeworkJson = "测试文字2"
+
+		h.AssignHomework(context.TODO(), &req, &rsp)
+
+		sreq.HomeworkID = rsp.HomeworkID
+		id := tf(homework.SearchHomeworkResponse_SUCCESS)
+		So(id, ShouldBeGreaterThanOrEqualTo, 0)
+
+		dreq.HomeworkID = rsp.HomeworkID
+		h.DeleteHomework(context.TODO(), &dreq, &drsp)
+	})
+}
+
+func TestSearchHomeworkByTeacherID(t *testing.T) {
+	db, err := gorm.Open("mysql", MysqlUri)
+	if nil != err {
+		panic(err)
+	}
+	defer db.Close()
+
+	// 设置客户端连接配置
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// 连接到MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		fmt.Println("err")
+	}
+
+	// 检查连接
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		fmt.Println("err")
+	}
+	fmt.Println("Connected to MongoDB!")
+	collection := client.Database("jub").Collection("homework")
+
+	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db}, HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL: collection}}
+	var req homework.AssignHomeworkParam
+	var rsp homework.AssignHomeworkResponse
+
+	var dreq homework.HomeworkID
+	var drsp homework.DeleteHomeworkResponse
+
+	var sreq homework.TeacherID
+	var srsp homework.SearchHomeworkByTeacherIDResponse
+
+	tf := func(status homework.SearchHomeworkByTeacherIDResponse_Status) int32 {
+		So(h.SearchHomeworkByTeacherID(context.TODO(), &sreq, &srsp), ShouldBeNil)
+		So(srsp.Status, ShouldEqual, status)
+		if srsp.Status == homework.SearchHomeworkByTeacherIDResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
+	Convey("Test SearchHomework", t, func() {
+		req.CourseID = 99632
+		req.TeacherID = 99632
+		req.StartTime = time.Now().Unix()
+		req.EndTime = time.Now().Unix()
+		req.HomeworkJson = "测试文字2"
+
+		h.AssignHomework(context.TODO(), &req, &rsp)
+
+		sreq.TeacherID = req.TeacherID
+		id := tf(homework.SearchHomeworkByTeacherIDResponse_SUCCESS)
+		So(id, ShouldBeGreaterThanOrEqualTo, 0)
+
+		dreq.HomeworkID = rsp.HomeworkID
+		h.DeleteHomework(context.TODO(), &dreq, &drsp)
+	})
+}
