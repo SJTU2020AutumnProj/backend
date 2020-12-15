@@ -50,6 +50,7 @@ type AnswerService interface {
 	SearchAnswer(ctx context.Context, in *AnswerID, opts ...client.CallOption) (*SearchAnswerResponse, error)
 	SearchAnswerByStudentID(ctx context.Context, in *StudentID, opts ...client.CallOption) (*SearchAnswerByStudentIDResponse, error)
 	SearchAnswerByHomeworkID(ctx context.Context, in *HomeworkID, opts ...client.CallOption) (*SearchAnswerByHomeworkIDResponse, error)
+	SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, in *StudentIDAndHomeworkID, opts ...client.CallOption) (*SearchAnswerByStudentIDAndHomeworkIDResponse, error)
 }
 
 type answerService struct {
@@ -124,6 +125,16 @@ func (c *answerService) SearchAnswerByHomeworkID(ctx context.Context, in *Homewo
 	return out, nil
 }
 
+func (c *answerService) SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, in *StudentIDAndHomeworkID, opts ...client.CallOption) (*SearchAnswerByStudentIDAndHomeworkIDResponse, error) {
+	req := c.c.NewRequest(c.name, "AnswerService.SearchAnswerByStudentIDAndHomeworkID", in)
+	out := new(SearchAnswerByStudentIDAndHomeworkIDResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for AnswerService service
 
 type AnswerServiceHandler interface {
@@ -133,6 +144,7 @@ type AnswerServiceHandler interface {
 	SearchAnswer(context.Context, *AnswerID, *SearchAnswerResponse) error
 	SearchAnswerByStudentID(context.Context, *StudentID, *SearchAnswerByStudentIDResponse) error
 	SearchAnswerByHomeworkID(context.Context, *HomeworkID, *SearchAnswerByHomeworkIDResponse) error
+	SearchAnswerByStudentIDAndHomeworkID(context.Context, *StudentIDAndHomeworkID, *SearchAnswerByStudentIDAndHomeworkIDResponse) error
 }
 
 func RegisterAnswerServiceHandler(s server.Server, hdlr AnswerServiceHandler, opts ...server.HandlerOption) error {
@@ -143,6 +155,7 @@ func RegisterAnswerServiceHandler(s server.Server, hdlr AnswerServiceHandler, op
 		SearchAnswer(ctx context.Context, in *AnswerID, out *SearchAnswerResponse) error
 		SearchAnswerByStudentID(ctx context.Context, in *StudentID, out *SearchAnswerByStudentIDResponse) error
 		SearchAnswerByHomeworkID(ctx context.Context, in *HomeworkID, out *SearchAnswerByHomeworkIDResponse) error
+		SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, in *StudentIDAndHomeworkID, out *SearchAnswerByStudentIDAndHomeworkIDResponse) error
 	}
 	type AnswerService struct {
 		answerService
@@ -177,4 +190,8 @@ func (h *answerServiceHandler) SearchAnswerByStudentID(ctx context.Context, in *
 
 func (h *answerServiceHandler) SearchAnswerByHomeworkID(ctx context.Context, in *HomeworkID, out *SearchAnswerByHomeworkIDResponse) error {
 	return h.AnswerServiceHandler.SearchAnswerByHomeworkID(ctx, in, out)
+}
+
+func (h *answerServiceHandler) SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, in *StudentIDAndHomeworkID, out *SearchAnswerByStudentIDAndHomeworkIDResponse) error {
+	return h.AnswerServiceHandler.SearchAnswerByStudentIDAndHomeworkID(ctx, in, out)
 }

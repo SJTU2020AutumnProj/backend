@@ -209,3 +209,52 @@ func (h *AnswerHandler) SearchAnswerByHomeworkID(ctx context.Context, req *pb.Ho
 	}
 	return nil
 }
+
+func (h *AnswerHandler) SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, req *pb.StudentIDAndHomeworkID, resp *pb.SearchAnswerByStudentIDAndHomeworkIDResponse) error {
+	answers, err := h.AnswerRepository.SearchAnswerByHomeworkID(ctx, req.HomeworkID)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchAnswerByStudentIDAndHomeworkID error: ", err)
+		return err
+	}
+
+	var ans *pb.AnswerInfo
+	var flag bool = false
+	for i := range answers {
+		if answers[i].StudentID == req.StudentID {
+			answer_json, err := h.AnswerMongo.SearchAnswer(ctx, answers[i].AnswerID)
+			if nil != err {
+				resp.Status = -1
+				resp.Msg = "Error"
+				log.Println("Handler SearchAnswerByStudentAndHomeworkID error:", err)
+				return err
+			}
+
+			ans = &pb.AnswerInfo{
+				AnswerID:   answers[i].AnswerID,
+				HomeworkID: answers[i].HomeworkID,
+				StudentID:  answers[i].StudentID,
+				Status:     answers[i].Status,
+				CommitTime: answers[i].CommitTime.Unix(),
+				AnswerJson: answer_json.AnswerJson,
+			}
+			flag = true
+			break
+		}
+	}
+
+	if flag == false {
+		var err error
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchAnswerByStudentIDAndHomeworkID error: Cannot find the answer.", err)
+		return err
+	}
+	*resp = pb.SearchAnswerByStudentIDAndHomeworkIDResponse{
+		Status: 0,
+		Msg:    "Success",
+		Answer: ans,
+	}
+	return nil
+}
