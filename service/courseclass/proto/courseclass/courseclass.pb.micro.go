@@ -44,7 +44,7 @@ func NewCourseClassServiceEndpoints() []*api.Endpoint {
 // Client API for CourseClassService service
 
 type CourseClassService interface {
-	AddCourseClass(ctx context.Context, in *CourseClass, opts ...client.CallOption) (*EditResponse, error)
+	//rpc AddCourseClass (CourseClass) returns (EditResponse) {}
 	DeleteCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error)
 	UpdateCourseClass(ctx context.Context, in *CourseClass, opts ...client.CallOption) (*EditResponse, error)
 	SearchCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchCourseClassResponse, error)
@@ -68,16 +68,6 @@ func NewCourseClassService(name string, c client.Client) CourseClassService {
 		c:    c,
 		name: name,
 	}
-}
-
-func (c *courseClassService) AddCourseClass(ctx context.Context, in *CourseClass, opts ...client.CallOption) (*EditResponse, error) {
-	req := c.c.NewRequest(c.name, "CourseClassService.AddCourseClass", in)
-	out := new(EditResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *courseClassService) DeleteCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error) {
@@ -193,7 +183,7 @@ func (c *courseClassService) SearchTakeByCourse(ctx context.Context, in *CourseI
 // Server API for CourseClassService service
 
 type CourseClassServiceHandler interface {
-	AddCourseClass(context.Context, *CourseClass, *EditResponse) error
+	//rpc AddCourseClass (CourseClass) returns (EditResponse) {}
 	DeleteCourseClass(context.Context, *CourseID, *EditResponse) error
 	UpdateCourseClass(context.Context, *CourseClass, *EditResponse) error
 	SearchCourseClass(context.Context, *CourseID, *SearchCourseClassResponse) error
@@ -209,7 +199,6 @@ type CourseClassServiceHandler interface {
 
 func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceHandler, opts ...server.HandlerOption) error {
 	type courseClassService interface {
-		AddCourseClass(ctx context.Context, in *CourseClass, out *EditResponse) error
 		DeleteCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error
 		UpdateCourseClass(ctx context.Context, in *CourseClass, out *EditResponse) error
 		SearchCourseClass(ctx context.Context, in *CourseID, out *SearchCourseClassResponse) error
@@ -231,10 +220,6 @@ func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceH
 
 type courseClassServiceHandler struct {
 	CourseClassServiceHandler
-}
-
-func (h *courseClassServiceHandler) AddCourseClass(ctx context.Context, in *CourseClass, out *EditResponse) error {
-	return h.CourseClassServiceHandler.AddCourseClass(ctx, in, out)
 }
 
 func (h *courseClassServiceHandler) DeleteCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error {
