@@ -1,0 +1,46 @@
+//声明proto本版
+syntax = "proto3";
+//服务名
+package go.micro.service.verification;
+//生成go文件的包路径
+option go_package = "proto/verification";
+
+//定义task服务的接口，主要是增删改查
+//结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
+
+service VerificationService {
+    rpc SendCodeEmail(SendCodeEmailParam)returns (SendCodeEmailResponse){}
+    rpc VerifyCodeEmail(VerifyCodeEmailParam)returns (VerifyCodeEmailResponse){}
+}
+
+message SendCodeEmailParam {
+    string email = 1;
+    string username = 2;
+}
+
+message SendCodeEmailResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string message =2;
+}
+
+message VerifyCodeEmailParam {
+    string email = 1;
+    string username = 2;
+    string code = 3;
+}
+
+message VerifyCodeEmailResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string message =2;
+}
+
+
+  
