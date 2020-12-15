@@ -2,27 +2,25 @@ settings:
   files:
     outputs:
       status: false
-      name: outputs.log
+      path: ""
+      name: .r.outputs.log
     logs:
       status: false
-      name: logs.log
+      path: ""
+      name: .r.logs.log
     errors:
       status: false
-      name: errors.log
+      path: ""
+      name: .r.errors.log
   legacy:
-    force: false
-    interval: 0s
-server:
-  status: true
-  open: false
-  port: 8080
-  host: http://localhost
+    force: true
+    interval: 100ms
 schema:
-- name: api
-  path: service/api
-  args:
-  - main.go
+- name: jub
+  path: D:\Go_Program\src\boxin
   commands:
+    install:
+      status: true
     run:
       status: true
   watcher:
@@ -30,20 +28,16 @@ schema:
     - go
     paths:
     - /
-    scripts:
-    - type: before
-      command: tskill api
-      output: true
     ignore:
       paths:
       - .git
       - .realize
       - vendor
-- name: auth
-  path: service/auth
-  args:
-  - main.go
+- name: D:\Go_Program\src\boxin
+  path: D:\Go_Program\src\boxin
   commands:
+    install:
+      status: true
     run:
       status: true
   watcher:
@@ -51,20 +45,16 @@ schema:
     - go
     paths:
     - /
-    scripts:
-    - type: before
-      command: tskill auth
-      output: true
     ignore:
       paths:
       - .git
       - .realize
       - vendor
-- name: user
-  path: service/user
-  args:
-  - main.go
+- name: D:\Go_Program\src\boxin
+  path: D:\Go_Program\src\boxin
   commands:
+    install:
+      status: true
     run:
       status: true
   watcher:
@@ -72,10 +62,23 @@ schema:
     - go
     paths:
     - /
-    scripts:
-    - type: before
-      command: tskill user
-      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: D:\Go_Program\src\boxin
+  path: D:\Go_Program\src\boxin
+  commands:
+    install:
+      status: true
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
     ignore:
       paths:
       - .git

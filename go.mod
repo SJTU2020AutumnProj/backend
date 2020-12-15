@@ -26,6 +26,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a
 	github.com/valyala/fasttemplate v1.2.1 // indirect
+	go.mongodb.org/mongo-driver v1.4.4
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/urfave/cli.v2 v2.0.0-00010101000000-000000000000 // indirect

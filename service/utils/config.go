@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-12-08 19:21:22
  * @LastEditors: Seven
- * @LastEditTime: 2020-12-08 19:52:27
+ * @LastEditTime: 2020-12-15 18:56:19
  */
 package utils
 
@@ -19,10 +19,10 @@ import (
 )
 
 type Config struct {
-	Deploy    string            `json:"deploy"`
-	EctdAddr  string            `json:"etcdAddr"`
-	ConfigTTL int               `json:"config_ttl"`
-	Hosts     map[string]string `json:"hosts"`
+	Deploy   string `json:"deploy"`
+	EctdAddr string `json:"etcdAddr"`
+	// ConfigTTL int               `json:"config_ttl"`
+	Hosts map[string]string `json:"hosts"`
 }
 
 var LocalConf Config
@@ -40,4 +40,9 @@ func LoadLocalConfig() {
 	}
 	LogPanic(config.Scan(&LocalConf))
 	Info("Local config loaded")
+}
+
+// GetDeployHost return current deployed host
+func GetDeployHost(name string) string {
+	return LocalConf.Hosts[name+"_"+LocalConf.Deploy]
 }
