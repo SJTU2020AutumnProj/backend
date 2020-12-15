@@ -1,0 +1,108 @@
+//声明proto本版
+syntax = "proto3";
+//服务名
+package go.micro.service.answer;
+//生成go文件的包路径
+option go_package = "proto/answer";
+
+//定义task服务的接口，主要是增删改查
+//结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
+service AnswerService {
+    rpc CreateAnswer(CreateAnswerParam)returns (CreateAnswerResponse){}
+    rpc DeleteAnswer(AnswerID)returns(DeleteAnswerResponse){}
+    rpc UpdateAnswer(AnswerInfo)returns (UpdateAnswerResponse){}
+    rpc SearchAnswer(AnswerID)returns (SearchAnswerResponse){}
+    rpc SearchAnswerByStudentID(StudentID)returns (SearchAnswerByStudentIDResponse){}
+    rpc SearchAnswerByHomeworkID(HomeworkID)returns (SearchAnswerByHomeworkIDResponse){}
+}
+
+//Parameter protocol
+message CreateAnswerParam{
+    int32 homeworkID = 1;
+    int32 studentID = 2;
+    int32 status = 3;
+    int64 commit_time = 4;
+    string answer_json = 5;
+}
+
+message AnswerID{
+    int32 AnswerID = 1;
+}
+
+message AnswerInfo{
+    int32 AnswerID = 1;
+    int32 homeworkID = 2;
+    int32 studentID = 3;
+    int32 status = 4;
+    int64 commit_time = 5;
+    string answer_json = 6;
+}
+
+message StudentID{
+    int32 StudentID = 1;
+}
+
+message HomeworkID{
+    int32 HomeworkID = 1;
+}
+
+//Response protocol
+
+message CreateAnswerResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    int32 AnswerID = 3;
+}
+
+
+message DeleteAnswerResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message UpdateAnswerResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message SearchAnswerResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    AnswerInfo answer = 3;
+}
+
+message SearchAnswerByStudentIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated AnswerInfo answers = 3;
+}
+
+message SearchAnswerByHomeworkIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated AnswerInfo answers = 3;
+}

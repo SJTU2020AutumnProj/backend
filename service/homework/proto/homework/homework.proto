@@ -1,0 +1,92 @@
+//声明proto本版
+syntax = "proto3";
+//服务名
+package go.micro.service.homework;
+//生成go文件的包路径
+option go_package = "proto/homework";
+
+//定义task服务的接口，主要是增删改查
+//结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
+service HomeworkService {
+    rpc AssignHomework(AssignHomeworkParam)returns (AssignHomeworkResponse){}
+    rpc DeleteHomework(HomeworkID)returns(DeleteHomeworkResponse){}
+    rpc UpdateHomework(HomeworkInfo)returns (UpdateHomeworkResponse){}
+    rpc SearchHomework(HomeworkID)returns (SearchHomeworkResponse){}
+    rpc SearchHomeworkByTeacherID(TeacherID)returns (SearchHomeworkByTeacherIDResponse){}
+}
+
+//Parameter protocol
+message AssignHomeworkParam{
+    int32 courseID = 1;
+    int32 teacherID = 2;
+    int64 startTime = 3;
+    int64 endTime = 4;
+    string homework_json =5;
+}
+
+message HomeworkID{
+    int32 homeworkID = 1;
+}
+
+message HomeworkInfo{
+    int32 homeworkID = 1;
+    int32 courseID = 2;
+    int32 teacherID = 3;
+    int64 startTime = 4;
+    int64 endTime = 5;
+    string homework_json =6;
+}
+
+message TeacherID{
+    int32 teacherID = 1;
+}
+
+//Response protocol
+
+message AssignHomeworkResponse{
+     enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    int32 HomeworkID = 3;
+}
+
+message DeleteHomeworkResponse{
+         enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message UpdateHomeworkResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message SearchHomeworkResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    HomeworkInfo homework = 3;
+}
+
+message SearchHomeworkByTeacherIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated HomeworkInfo homeworks = 3;
+}
