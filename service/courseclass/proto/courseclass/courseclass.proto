@@ -8,7 +8,7 @@ option go_package = "proto/courseclass";
 //定义task服务的接口，主要是增删改查
 //结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
 service CourseClassService {
-	rpc AddCourseClass (CourseClass) returns (EditResponse) {}
+	//rpc AddCourseClass (CourseClass) returns (EditResponse) {}
 	rpc DeleteCourseClass (CourseID) returns (EditResponse) {}
 	rpc UpdateCourseClass (CourseClass) returns (EditResponse) {}
 	rpc SearchCourseClass (CourseID) returns (SearchCourseClassResponse) {}

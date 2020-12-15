@@ -136,8 +136,8 @@ func (h *AnswerHandler) SearchAnswer(ctx context.Context, req *pb.AnswerID, resp
 	return nil
 }
 
-func (h *AnswerHandler) SearchAnswerByStudentID(ctx context.Context, req *pb.AnswerID, resp *pb.SearchAnswerByStudentIDResponse) error {
-	answers, err := h.AnswerRepository.SearchAnswerByStudentID(ctx, req.AnswerID)
+func (h *AnswerHandler) SearchAnswerByStudentID(ctx context.Context, req *pb.StudentID, resp *pb.SearchAnswerByStudentIDResponse) error {
+	answers, err := h.AnswerRepository.SearchAnswerByStudentID(ctx, req.StudentID)
 
 	if nil != err {
 		resp.Status = -1

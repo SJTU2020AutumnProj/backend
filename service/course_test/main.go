@@ -53,26 +53,26 @@ func getCourse(courseClassService courseclass.CourseClassService, courseID int32
 	return resp.Courseclass, err
 }
 
-func addCourse(courseService courseclass.CourseClassService, courseName string, introduction string, textBooks string, startTime time.Time, endTime time.Time) {
-	// t := time.Now()
-	stime := startTime.Unix()
-	etime := startTime.Unix()
-	// log.Println("stime", stime)
-	resp, err := courseService.AddCourseClass(
-		context.Background(),
-		&courseclass.CourseClass{
-			CourseName:   courseName,
-			Introduction: introduction,
-			TextBooks:    textBooks,
-			StartTime:    stime,
-			EndTime:      etime,
-		})
-	if err != nil {
-		log.Println("addCourse error:", err)
-		return
-	}
-	log.Println("addCourse success:", resp)
-}
+// func addCourse(courseService courseclass.CourseClassService, courseName string, introduction string, textBooks string, startTime time.Time, endTime time.Time) {
+// 	// t := time.Now()
+// 	stime := startTime.Unix()
+// 	etime := startTime.Unix()
+// 	// log.Println("stime", stime)
+// 	resp, err := courseService.AddCourseClass(
+// 		context.Background(),
+// 		&courseclass.CourseClass{
+// 			CourseName:   courseName,
+// 			Introduction: introduction,
+// 			TextBooks:    textBooks,
+// 			StartTime:    stime,
+// 			EndTime:      etime,
+// 		})
+// 	if err != nil {
+// 		log.Println("addCourse error:", err)
+// 		return
+// 	}
+// 	log.Println("addCourse success:", resp)
+// }
 
 func getCourses(courseService courseclass.CourseClassService, courseIDs []int32) ([]*courseclass.CourseClass, error) {
 	resp, err := courseService.SearchCourseClasses(context.Background(), &courseclass.CourseIDArray{IDArray: courseIDs})
