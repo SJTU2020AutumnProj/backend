@@ -14,6 +14,7 @@ service AnswerService {
     rpc SearchAnswer(AnswerID)returns (SearchAnswerResponse){}
     rpc SearchAnswerByStudentID(StudentID)returns (SearchAnswerByStudentIDResponse){}
     rpc SearchAnswerByHomeworkID(HomeworkID)returns (SearchAnswerByHomeworkIDResponse){}
+    rpc SearchAnswerByStudentIDAndHomeworkID(StudentIDAndHomeworkID) returns (SearchAnswerByStudentIDAndHomeworkIDResponse){}
 }
 
 //Parameter protocol
@@ -46,6 +47,10 @@ message HomeworkID{
     int32 HomeworkID = 1;
 }
 
+message StudentIDAndHomeworkID{
+    int32 StudentID = 1;
+    int32 HomeworkID = 2;
+}
 //Response protocol
 
 message CreateAnswerResponse{
@@ -105,4 +110,14 @@ message SearchAnswerByHomeworkIDResponse{
     Status status = 1;
     string msg = 2;
     repeated AnswerInfo answers = 3;
+}
+
+message SearchAnswerByStudentIDAndHomeworkIDResponse{
+    enum Status{
+        SUCCESS = 0;
+        ERROR = 1;
+    }
+    Status status = 1;
+    string msg = 2;
+    AnswerInfo answer = 4;
 }
