@@ -3,8 +3,6 @@ package handler
 import (
 	answer "boxin/service/answer/proto/answer"
 	user "boxin/service/user/proto/user"
-	"context"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,13 +22,10 @@ func UserRouter(g *gin.Engine, s user.UserService) {
 
 func CreateAnswer(c *gin.Context) {
 	type param struct {
-		UserName string `form:"userName" json:"userName" binding:"required"`
-		Password string `form:"password" json:"password"  binding:"required"`
-		School   string `form:"school" json:"school"  binding:"required"`
-		ID       string `form:"ID" json:"ID" binding:"required"`
-		Phone    string `form:"phone" json:"phone" binding:"required"`
-		Email    string `form:"email" json:"email"  binding:"required"`
-		Authcode string `form:"authcode" json:"authcode" binding:"required"`
+		HwId       string `form:"hwId" json:"hwId" binding:"required"`
+		StuId      string `form:"stuId" json:"stuId"  binding:"required"`
+		Status     string `form:"status" json:"status"  binding:"required"`
+		CommitTime string `form:"commitTime" json:"commitTime" binding:"required"`
 	}
 	var p param
 
@@ -38,29 +33,26 @@ func CreateAnswer(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
 		return
 	}
-	log.Println("====== register username======")
-	log.Println(p.UserName)
-	if p.Authcode != "123456" {
-		c.JSON(200, gin.H{"status": 401, "msg": "验证码有误，请重新确认后再试"})
-		return
-	}
-	u := user.UserInfo{
-		UserName: p.UserName,
-		Password: p.Password,
-		School:   p.School,
-		Id:       p.ID,
-		Phone:    p.Phone,
-		Email:    p.Email}
+	log.Println("====== create Answer======")
+	log.Println(p.HwId)
+	a:=answer.Answer
+	// u := user.UserInfo{
+	// 	UserName: p.UserName,
+	// 	Password: p.Password,
+	// 	School:   p.School,
+	// 	Id:       p.ID,
+	// 	Phone:    p.Phone,
+	// 	Email:    p.Email}
 
-	result, err := userService.RegisterStudent(context.Background(), &u)
-	log.Println(result)
-	log.Println(err)
-	if err != nil {
-		c.JSON(200, gin.H{"status": 401, "msg": "写入数据库失败"})
-		return
-	}
-	c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
-	return
+	// result, err := userService.RegisterStudent(context.Background(), &u)
+	// log.Println(result)
+	// log.Println(err)
+	// if err != nil {
+	// 	c.JSON(200, gin.H{"status": 401, "msg": "写入数据库失败"})
+	// 	return
+	// }
+	// c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
+	// return
 
 }
 

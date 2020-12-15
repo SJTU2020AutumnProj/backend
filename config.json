@@ -9,5 +9,4 @@
     "etcdAddr":"localhost:2379",
     "config_ttl": 300,
     "test": "Do_not_modify_this"
-    // "api_config":""
 }
