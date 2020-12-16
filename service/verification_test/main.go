@@ -24,15 +24,15 @@ func main() {
 	)
 	server.Init()
 	verificationService := verification.NewVerificationService("go.micro.service.verification", server.Client())
-	// sendCode(verificationService, "chengke", "chengke3@163.com")
-	verifyCode(verificationService, "chengke", "chengke3@163.com", "20221")
+	sendCode(verificationService, "chengke", "chengke3@163.com")
+	verifyCode(verificationService, "chengke", "chengke3@163.com", "499613")
 }
 
 func sendCode(verificationService verification.VerificationService, username string, email string) {
 	resp, err := verificationService.SendCodeEmail(
 		context.Background(),
 		&verification.SendCodeEmailParam{
-			Email: email,
+			Email:    email,
 			Username: username,
 		},
 	)
@@ -51,9 +51,9 @@ func verifyCode(verificationService verification.VerificationService, username s
 	resp, err := verificationService.VerifyCodeEmail(
 		context.Background(),
 		&verification.VerifyCodeEmailParam{
-			Email: email,
+			Email:    email,
 			Username: username,
-			Code: code,
+			Code:     code,
 		},
 	)
 	if nil != err {

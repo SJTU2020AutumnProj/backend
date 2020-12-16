@@ -5,11 +5,11 @@ import (
 	repo "boxin/service/verification/repository"
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/smtp"
 	"strconv"
 	"time"
-	"log"
 )
 
 /*
@@ -27,7 +27,7 @@ const (
 	SMTPMailPort = "25"
 	SMTPMailUser = "sjtuboxin@163.com"
 	SMTPMailPwd  = "RBMJNDBOVZPEKFJQ"
-	ExpireTime = "300"
+	ExpireTime   = "300"
 )
 
 /*
@@ -44,8 +44,8 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 	err := smtp.SendMail(fmt.Sprintf("%s:%s", SMTPMailHost, SMTPMailPort), auth, SMTPMailUser, []string{in.Email}, msg)
 	if nil != err {
 		log.Println("VerificationHandler SendCodeEmail error ", err)
-		out = &pb.SendCodeEmailResponse{
-			Status: -1,
+		*out = pb.SendCodeEmailResponse{
+			Status:  -1,
 			Message: "SMTP send email error",
 		}
 		return err
@@ -53,8 +53,8 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 	setErr := v.VerificationRepository.Set(ctx, in.Email, randomNumber, ExpireTime)
 	if nil != setErr {
 		log.Println("VerificationHandler redis error ", setErr)
-		out = &pb.SendCodeEmailResponse{
-			Status: -1,
+		*out = pb.SendCodeEmailResponse{
+			Status:  -1,
 			Message: "Redis set key value error",
 		}
 		return setErr
@@ -69,22 +69,22 @@ func (v *VerificationHandler) VerifyCodeEmail(ctx context.Context, in *pb.Verify
 	actualCode, err := v.VerificationRepository.Get(ctx, in.Email)
 	if nil != err {
 		log.Println("VerificationHandler reids error ", err)
-		out = &pb.VerifyCodeEmailResponse{
-			Status: -1,
+		*out = pb.VerifyCodeEmailResponse{
+			Status:  -1,
 			Message: "Redis error: " + err.Error(),
 		}
 		return err
 	}
 	if !(actualCode == in.Code) {
 		log.Println("VerificationHandler verification code mismatch, given ", in.Code, "actual ", actualCode)
-		out = &pb.VerifyCodeEmailResponse{
-			Status: -1,
+		*out = pb.VerifyCodeEmailResponse{
+			Status:  -1,
 			Message: "Verification code mismatch",
 		}
 		return nil
 	}
-	out = &pb.VerifyCodeEmailResponse{
-		Status: 0,
+	*out = pb.VerifyCodeEmailResponse{
+		Status:  0,
 		Message: "Verified",
 	}
 	return nil
