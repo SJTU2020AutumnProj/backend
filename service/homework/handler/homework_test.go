@@ -78,10 +78,13 @@ func TestAssignAndDeleteHomework(t *testing.T) {
 
 	Convey("Test Assign and delete homework", t, func() {
 		req.CourseID = 99632
-		req.TeacherID = 99632
+		req.UserID = 99632
 		req.StartTime = time.Now().Unix()
 		req.EndTime = time.Now().Unix()
-		req.HomeworkJson = "测试文字2"
+		req.Title = "cccc"
+		req.State = 1
+		req.Description = "测试用例2"
+		req.Content = "哈哈哈哈"
 
 		id := tf(homework.AssignHomeworkResponse_SUCCESS)
 		So(id, ShouldBeGreaterThanOrEqualTo, 0)
@@ -136,19 +139,23 @@ func TestUpdateHomework(t *testing.T) { //这里偷了个懒，直接用了Assig
 
 	Convey("Test UpdateHomework", t, func() {
 		req.CourseID = 99632
-		req.TeacherID = 99632
+		req.UserID = 99632
 		req.StartTime = time.Now().Unix()
 		req.EndTime = time.Now().Unix()
-		req.HomeworkJson = "测试文字2"
+		req.Title = "Homework"
+		req.State = 1
+		req.Description = "测试用例2"
+		req.Content = "哈哈哈哈"
 
 		h.AssignHomework(context.TODO(), &req, &rsp)
 
 		ureq.HomeworkID = rsp.HomeworkID
 		ureq.CourseID = 99999
-		ureq.TeacherID = 99999
+		ureq.UserID = 99999
 		ureq.StartTime = time.Now().Unix()
 		ureq.EndTime = time.Now().Unix()
-		ureq.HomeworkJson = "测试修改"
+		ureq.Description = "测试用例2"
+		ureq.Content = "哈哈哈哈哈"
 		id := tf(homework.UpdateHomeworkResponse_SUCCESS)
 		So(id, ShouldBeGreaterThanOrEqualTo, 0)
 
@@ -201,10 +208,13 @@ func TestSearchHomework(t *testing.T) {
 
 	Convey("Test SearchHomework", t, func() {
 		req.CourseID = 99632
-		req.TeacherID = 99632
+		req.UserID = 99632
 		req.StartTime = time.Now().Unix()
 		req.EndTime = time.Now().Unix()
-		req.HomeworkJson = "测试文字2"
+		req.Title = "Homework"
+		req.State = 1
+		req.Description = "测试用例2"
+		req.Content = "哈哈哈哈"
 
 		h.AssignHomework(context.TODO(), &req, &rsp)
 
@@ -217,7 +227,7 @@ func TestSearchHomework(t *testing.T) {
 	})
 }
 
-func TestSearchHomeworkByTeacherID(t *testing.T) {
+func TestSearchHomeworkByUserID(t *testing.T) {
 	db, err := gorm.Open("mysql", MysqlUri)
 	if nil != err {
 		panic(err)
@@ -247,13 +257,13 @@ func TestSearchHomeworkByTeacherID(t *testing.T) {
 	var dreq homework.HomeworkID
 	var drsp homework.DeleteHomeworkResponse
 
-	var sreq homework.TeacherID
-	var srsp homework.SearchHomeworkByTeacherIDResponse
+	var sreq homework.UserID
+	var srsp homework.SearchHomeworkByUserIDResponse
 
-	tf := func(status homework.SearchHomeworkByTeacherIDResponse_Status) int32 {
-		So(h.SearchHomeworkByTeacherID(context.TODO(), &sreq, &srsp), ShouldBeNil)
+	tf := func(status homework.SearchHomeworkByUserIDResponse_Status) int32 {
+		So(h.SearchHomeworkByUserID(context.TODO(), &sreq, &srsp), ShouldBeNil)
 		So(srsp.Status, ShouldEqual, status)
-		if srsp.Status == homework.SearchHomeworkByTeacherIDResponse_SUCCESS {
+		if srsp.Status == homework.SearchHomeworkByUserIDResponse_SUCCESS {
 			return 0
 		}
 		return -1
@@ -261,15 +271,18 @@ func TestSearchHomeworkByTeacherID(t *testing.T) {
 
 	Convey("Test SearchHomework", t, func() {
 		req.CourseID = 99632
-		req.TeacherID = 99632
+		req.UserID = 99632
 		req.StartTime = time.Now().Unix()
 		req.EndTime = time.Now().Unix()
-		req.HomeworkJson = "测试文字2"
+		req.Title = "ccc"
+		req.State = 1
+		req.Description = "测试用例"
+		req.Content = "哈哈哈哈哈"
 
 		h.AssignHomework(context.TODO(), &req, &rsp)
 
-		sreq.TeacherID = req.TeacherID
-		id := tf(homework.SearchHomeworkByTeacherIDResponse_SUCCESS)
+		sreq.UserID = req.UserID
+		id := tf(homework.SearchHomeworkByUserIDResponse_SUCCESS)
 		So(id, ShouldBeGreaterThanOrEqualTo, 0)
 
 		dreq.HomeworkID = rsp.HomeworkID

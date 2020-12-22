@@ -13,9 +13,11 @@ import (
 type Homework struct {
 	HomeworkID int32 `gorm:"auto_increment;column:homework_id;primary_key:true;unique;index:"`
 	CourseID int32 `gorm:"not null;column:course_id"`
-	TeacherID int32 `gorm:"not null;column:teacher_id"`
+	UserID int32 `gorm:"not null;column:user_id"`
 	StartTime time.Time `gorm:"not null;column:start_time"`
 	EndTime time.Time `gorm:"not null;column:end_time"`
+	Title string `gorm:"not null;column:title"`
+	State int32 `gorm:"not null;column:state"`
 }
 
 func (Homework) TableName() string {
@@ -27,7 +29,7 @@ type HomeworkRepository interface {
 	DeleteHomework(ctx context.Context,homeworkID int32) error
 	UpdateHomework(ctx context.Context,homework Homework) error
 	SearchHomework(ctx context.Context,homeworkID int32) (Homework, error)
-	SearchHomeworkByTeacherID(ctx context.Context,teacherID int32) ([]*Homework, error)
+	SearchHomeworkByUserID(ctx context.Context,userID int32) ([]*Homework, error)
 }
 
 type HomeworkRepositoryImpl struct {
@@ -51,7 +53,7 @@ func(repo *HomeworkRepositoryImpl) DeleteHomework(ctx context.Context,homeworkID
 func(repo *HomeworkRepositoryImpl) UpdateHomework(ctx context.Context,homework Homework) error{
 	tmp, err := repo.SearchHomework(ctx, homework.HomeworkID)
 	tmp.CourseID = homework.CourseID
-	tmp.TeacherID = homework.TeacherID
+	tmp.UserID = homework.UserID
 	tmp.StartTime = homework.StartTime
 	tmp.EndTime = homework.EndTime
 	if err = repo.DB.Save(tmp).Error; nil != err {
@@ -69,14 +71,13 @@ func(repo *HomeworkRepositoryImpl) SearchHomework(ctx context.Context,homeworkID
 	return homework, result.Error
 }
 
-func(repo *HomeworkRepositoryImpl) SearchHomeworkByTeacherID(ctx context.Context,teacherID int32) ([]*Homework, error){
+func(repo *HomeworkRepositoryImpl) SearchHomeworkByUserID(ctx context.Context,userID int32) ([]*Homework, error){
 	var homeworks []*Homework
 
-	result := repo.DB.Table("homework").Where("teacher_id = ?", teacherID)
+	result := repo.DB.Table("homework").Where("user_id = ?", userID)
 
 	if err := result.Find(&homeworks).Error; nil != err {
 		return []*Homework{}, err
 	}
-
 	return homeworks, nil
 }
