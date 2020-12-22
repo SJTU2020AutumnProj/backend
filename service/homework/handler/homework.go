@@ -25,9 +25,11 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 	etime := time.Unix(req.EndTime, 0)
 	homework := repo.Homework{
 		CourseID:  req.CourseID,
-		TeacherID: req.TeacherID,
+		UserID:    req.UserID,
 		StartTime: stime,
 		EndTime:   etime,
+		Title:     req.Title,
+		State:     req.State,
 	}
 	var resp_homework repo.Homework
 	var err error
@@ -42,8 +44,9 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 	resp.HomeworkID = resp_homework.HomeworkID
 
 	mongo_homework := mongoDB.Homework{
-		HomeworkID:   resp_homework.HomeworkID,
-		HomeworkJson: req.HomeworkJson,
+		HomeworkID:  resp_homework.HomeworkID,
+		Description: req.Description,
+		Content:     req.Content,
 	}
 	if err = h.HomeworkMongo.AddHomework(ctx, mongo_homework); nil != err {
 		resp.Status = -1
@@ -81,9 +84,11 @@ func (h *HomeworkHandler) UpdateHomework(ctx context.Context, req *pb.HomeworkIn
 	homework := repo.Homework{
 		HomeworkID: req.HomeworkID,
 		CourseID:   req.CourseID,
-		TeacherID:  req.TeacherID,
+		UserID:     req.UserID,
 		StartTime:  stime,
 		EndTime:    etime,
+		Title:      req.Title,
+		State:      req.State,
 	}
 
 	if err := h.HomeworkRepository.UpdateHomework(ctx, homework); nil != err {
@@ -96,11 +101,12 @@ func (h *HomeworkHandler) UpdateHomework(ctx context.Context, req *pb.HomeworkIn
 	resp.Msg = "Success"
 
 	mongo_homework := mongoDB.Homework{
-		HomeworkID:   req.HomeworkID,
-		HomeworkJson: req.HomeworkJson,
+		HomeworkID:  req.HomeworkID,
+		Description: req.Description,
+		Content:     req.Content,
 	}
 
-	if err := h.HomeworkMongo.UpdateHomework(ctx,mongo_homework);nil!=err {
+	if err := h.HomeworkMongo.UpdateHomework(ctx, mongo_homework); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("HomeworkHandler DeleteHomework error: ", err)
@@ -122,35 +128,38 @@ func (h *HomeworkHandler) SearchHomework(ctx context.Context, req *pb.HomeworkID
 		return err
 	}
 
-	mongo_homework,err:=h.HomeworkMongo.SearchHomework(ctx,req.HomeworkID)
+	mongo_homework, err := h.HomeworkMongo.SearchHomework(ctx, req.HomeworkID)
 
 	*resp = pb.SearchHomeworkResponse{
 		Status: 0,
 		Homework: &pb.HomeworkInfo{
-			HomeworkID: homework.HomeworkID,
-			CourseID:   homework.CourseID,
-			TeacherID:  homework.TeacherID,
-			StartTime:  homework.StartTime.Unix(),
-			EndTime:    homework.EndTime.Unix(),
-			HomeworkJson: mongo_homework.HomeworkJson,
+			HomeworkID:  homework.HomeworkID,
+			CourseID:    homework.CourseID,
+			UserID:      homework.UserID,
+			StartTime:   homework.StartTime.Unix(),
+			EndTime:     homework.EndTime.Unix(),
+			Title:       homework.Title,
+			State:       homework.State,
+			Description: mongo_homework.Description,
+			Content:     mongo_homework.Content,
 		},
 	}
 	return nil
 }
 
-func (h *HomeworkHandler) SearchHomeworkByTeacherID(ctx context.Context, req *pb.TeacherID, resp *pb.SearchHomeworkByTeacherIDResponse) error {
-	homeworks, err := h.HomeworkRepository.SearchHomeworkByTeacherID(ctx, req.TeacherID)
+func (h *HomeworkHandler) SearchHomeworkByUserID(ctx context.Context, req *pb.UserID, resp *pb.SearchHomeworkByUserIDResponse) error {
+	homeworks, err := h.HomeworkRepository.SearchHomeworkByUserID(ctx, req.UserID)
 
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("Handler SearchHomeByTeacherID error: ", err)
+		log.Println("Handler SearchHomeByUserID error: ", err)
 		return err
 	}
 
 	var ans []*pb.HomeworkInfo
 	for i := range homeworks {
-		homework_json,err := h.HomeworkMongo.SearchHomework(ctx,homeworks[i].HomeworkID)
+		homework_json, err := h.HomeworkMongo.SearchHomework(ctx, homeworks[i].HomeworkID)
 		if nil != err {
 			resp.Status = -1
 			resp.Msg = "Error"
@@ -158,16 +167,19 @@ func (h *HomeworkHandler) SearchHomeworkByTeacherID(ctx context.Context, req *pb
 			return err
 		}
 		ans = append(ans, &pb.HomeworkInfo{
-			HomeworkID: homeworks[i].HomeworkID,
-			CourseID:   homeworks[i].CourseID,
-			TeacherID:  homeworks[i].TeacherID,
-			StartTime:  homeworks[i].StartTime.Unix(),
-			EndTime:    homeworks[i].EndTime.Unix(),
-			HomeworkJson: homework_json.HomeworkJson,
+			HomeworkID:  homeworks[i].HomeworkID,
+			CourseID:    homeworks[i].CourseID,
+			UserID:      homeworks[i].UserID,
+			StartTime:   homeworks[i].StartTime.Unix(),
+			EndTime:     homeworks[i].EndTime.Unix(),
+			Title:       homeworks[i].Title,
+			State:       homeworks[i].State,
+			Description: homework_json.Description,
+			Content:     homework_json.Content,
 		})
 	}
 
-	*resp = pb.SearchHomeworkByTeacherIDResponse{
+	*resp = pb.SearchHomeworkByUserIDResponse{
 		Status:    0,
 		Msg:       "Success",
 		Homeworks: ans,

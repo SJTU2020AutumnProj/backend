@@ -13,7 +13,8 @@ import (
 
 type Homework struct {
 	HomeworkID   int32 `json:"homework_id,omitempty" bson:"homework_id,omitempty"`
-	HomeworkJson string `json:"homework_json,omitempty" bson:"homework_json,omitempty"`
+	Description string `json:"description,omitempty" bson:"homework_json,omitempty"`
+	Content string `json:"content,omitempty" bson:"content,omitempty"`
 }
 
 func (Homework) TableName() string {
@@ -34,8 +35,9 @@ type HomeworkMongoImpl struct {
 
 func (repo *HomeworkMongoImpl) AddHomework(ctx context.Context, homework Homework) error {
 	id := homework.HomeworkID
-	json := homework.HomeworkJson
-	h := Homework{id, json}
+	description := homework.Description
+	content := homework.Content
+	h := Homework{id, description, content}
 
 	insertResult, err := repo.CL.InsertOne(ctx, h)
 	if err != nil {
@@ -57,7 +59,7 @@ func (repo *HomeworkMongoImpl) DeleteHomework(ctx context.Context,homeworkID int
 
 func (repo *HomeworkMongoImpl) UpdateHomework(ctx context.Context,homework Homework) error {
 	filter := bson.M{"homework_id": homework.HomeworkID}
-	update := bson.M{"$set": bson.M{ "homework_json": homework.HomeworkJson, }}
+	update := bson.M{"$set": bson.M{ "description": homework.Description, "content":homework.Content }}
 	updateResult, err := repo.CL.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return err

@@ -48,7 +48,7 @@ type HomeworkService interface {
 	DeleteHomework(ctx context.Context, in *HomeworkID, opts ...client.CallOption) (*DeleteHomeworkResponse, error)
 	UpdateHomework(ctx context.Context, in *HomeworkInfo, opts ...client.CallOption) (*UpdateHomeworkResponse, error)
 	SearchHomework(ctx context.Context, in *HomeworkID, opts ...client.CallOption) (*SearchHomeworkResponse, error)
-	SearchHomeworkByTeacherID(ctx context.Context, in *TeacherID, opts ...client.CallOption) (*SearchHomeworkByTeacherIDResponse, error)
+	SearchHomeworkByUserID(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchHomeworkByUserIDResponse, error)
 }
 
 type homeworkService struct {
@@ -103,9 +103,9 @@ func (c *homeworkService) SearchHomework(ctx context.Context, in *HomeworkID, op
 	return out, nil
 }
 
-func (c *homeworkService) SearchHomeworkByTeacherID(ctx context.Context, in *TeacherID, opts ...client.CallOption) (*SearchHomeworkByTeacherIDResponse, error) {
-	req := c.c.NewRequest(c.name, "HomeworkService.SearchHomeworkByTeacherID", in)
-	out := new(SearchHomeworkByTeacherIDResponse)
+func (c *homeworkService) SearchHomeworkByUserID(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchHomeworkByUserIDResponse, error) {
+	req := c.c.NewRequest(c.name, "HomeworkService.SearchHomeworkByUserID", in)
+	out := new(SearchHomeworkByUserIDResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ type HomeworkServiceHandler interface {
 	DeleteHomework(context.Context, *HomeworkID, *DeleteHomeworkResponse) error
 	UpdateHomework(context.Context, *HomeworkInfo, *UpdateHomeworkResponse) error
 	SearchHomework(context.Context, *HomeworkID, *SearchHomeworkResponse) error
-	SearchHomeworkByTeacherID(context.Context, *TeacherID, *SearchHomeworkByTeacherIDResponse) error
+	SearchHomeworkByUserID(context.Context, *UserID, *SearchHomeworkByUserIDResponse) error
 }
 
 func RegisterHomeworkServiceHandler(s server.Server, hdlr HomeworkServiceHandler, opts ...server.HandlerOption) error {
@@ -129,7 +129,7 @@ func RegisterHomeworkServiceHandler(s server.Server, hdlr HomeworkServiceHandler
 		DeleteHomework(ctx context.Context, in *HomeworkID, out *DeleteHomeworkResponse) error
 		UpdateHomework(ctx context.Context, in *HomeworkInfo, out *UpdateHomeworkResponse) error
 		SearchHomework(ctx context.Context, in *HomeworkID, out *SearchHomeworkResponse) error
-		SearchHomeworkByTeacherID(ctx context.Context, in *TeacherID, out *SearchHomeworkByTeacherIDResponse) error
+		SearchHomeworkByUserID(ctx context.Context, in *UserID, out *SearchHomeworkByUserIDResponse) error
 	}
 	type HomeworkService struct {
 		homeworkService
@@ -158,6 +158,6 @@ func (h *homeworkServiceHandler) SearchHomework(ctx context.Context, in *Homewor
 	return h.HomeworkServiceHandler.SearchHomework(ctx, in, out)
 }
 
-func (h *homeworkServiceHandler) SearchHomeworkByTeacherID(ctx context.Context, in *TeacherID, out *SearchHomeworkByTeacherIDResponse) error {
-	return h.HomeworkServiceHandler.SearchHomeworkByTeacherID(ctx, in, out)
+func (h *homeworkServiceHandler) SearchHomeworkByUserID(ctx context.Context, in *UserID, out *SearchHomeworkByUserIDResponse) error {
+	return h.HomeworkServiceHandler.SearchHomeworkByUserID(ctx, in, out)
 }
