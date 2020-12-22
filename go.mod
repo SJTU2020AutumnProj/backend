@@ -13,6 +13,7 @@ require (
 	github.com/astaxie/beego v1.12.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.10.0 // indirect
+	github.com/garyburd/redigo v1.6.2
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-siris/siris v7.4.0+incompatible // indirect
 	github.com/golang/protobuf v1.4.3
