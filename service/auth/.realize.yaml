@@ -3,13 +3,9 @@ settings:
     force: false
     interval: 0s
 schema:
-- name: JUB
-  path: D:\Go_Program\src\boxin
-  commands:
-    install:
-      status: true
-    run:
-      status: true
+- name: auth
+  path: .
+  commands: {}
   watcher:
     extensions:
     - go

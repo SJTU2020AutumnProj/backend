@@ -1,60 +1,67 @@
 package handler
 
-import (
-	answer "boxin/service/answer/proto/answer"
-	user "boxin/service/user/proto/user"
+// import (
+// 	answer "boxin/service/answer/proto/answer"
+// 	repo "boxin/service/answer/repository"
+// 	user "boxin/service/user/proto/user"
+// 	"context"
+// 	"log"
+// 	"time"
 
-	"github.com/gin-gonic/gin"
-)
+// 	"github.com/gin-gonic/gin"
+// )
 
-var answerService answer.AnswerService
+// var answerService answer.AnswerService
 
-//UserRouter 注册user有关接口
-func UserRouter(g *gin.Engine, s user.UserService) {
-	userService = s
-	v1 := g.Group("/answer")
-	{
-		v1.POST("/new", CreateAnswer) //学生提交答案
-		v1.GET("/info", getinfo)      //获取个人信息
-		v1.POST("/info", editinfo)    //修改个人信息
-	}
-}
+// //AnswerRouter 注册answer有关接口
+// func AnswerRouter(g *gin.Engine, s user.UserService) {
+// 	userService = s
+// 	v1 := g.Group("/answer")
+// 	{
+// 		v1.POST("/new", CreateAnswer) //学生提交答案
+// 		// v1.GET("/info", getinfo)      //获取个人信息
+// 		// v1.POST("/info", editinfo)    //修改个人信息
+// 	}
+// }
 
-func CreateAnswer(c *gin.Context) {
-	type param struct {
-		HwId       string `form:"hwId" json:"hwId" binding:"required"`
-		StuId      string `form:"stuId" json:"stuId"  binding:"required"`
-		Status     string `form:"status" json:"status"  binding:"required"`
-		CommitTime string `form:"commitTime" json:"commitTime" binding:"required"`
-	}
-	var p param
+// // createAnswer
+// func CreateAnswer(c *gin.Context) {
+// 	type param struct {
+// 		HwID       int32  `form:"hwId" json:"hwId" binding:"required"`
+// 		StuID      int32  `form:"stuId" json:"stuId"  binding:"required"`
+// 		Status     int32  `form:"status" json:"status"  binding:"required"`
+// 		CommitTime string `form:"commitTime" json:"commitTime" binding:"required"`
+// 	}
+// 	var p param
 
-	if err := c.ShouldBindJSON(&p); err != nil {
-		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
-		return
-	}
-	log.Println("====== create Answer======")
-	log.Println(p.HwId)
-	a:=answer.Answer
-	// u := user.UserInfo{
-	// 	UserName: p.UserName,
-	// 	Password: p.Password,
-	// 	School:   p.School,
-	// 	Id:       p.ID,
-	// 	Phone:    p.Phone,
-	// 	Email:    p.Email}
+// 	if err := c.ShouldBindJSON(&p); err != nil {
+// 		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+// 		return
+// 	}
+// 	log.Println("====== create Answer======")
+// 	log.Println(p.HwID)
 
-	// result, err := userService.RegisterStudent(context.Background(), &u)
-	// log.Println(result)
-	// log.Println(err)
-	// if err != nil {
-	// 	c.JSON(200, gin.H{"status": 401, "msg": "写入数据库失败"})
-	// 	return
-	// }
-	// c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
-	// return
+// 	timeTemplate1 := "2019-01-08 13:50:30" //常规类型
+// 	ctime, _ := time.ParseInLocation(timeTemplate1, p.CommitTime, time.Local)
+// 	commitTime := ctime.Unix()
+// 	log.Println(commitTime)
+// 	a := answerService.Answer{
+// 		HomeworkID: p.HwID,
+// 		StudentID:  p.StuID,
+// 		Status:     p.Status,
+// 		CommitTime: ctime,
+// 	}
+// 	result, err := answerService.CreateAnswer(context.Background(), &a)
+// 	log.Println(result)
+// 	log.Println(err)
+// 	if err != nil {
+// 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
+// 		return
+// 	}
 
-}
+// 	c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
+
+// }
 
 // func getinfo(c *gin.Context) {
 // 	type param struct {
