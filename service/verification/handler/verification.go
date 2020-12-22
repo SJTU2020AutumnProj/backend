@@ -1,15 +1,16 @@
 package handler
 
 import (
+	email "boxin/service/email/proto/email"
 	pb "boxin/service/verification/proto/verification"
 	repo "boxin/service/verification/repository"
 	"context"
-	"fmt"
 	"log"
 	"math/rand"
-	"net/smtp"
 	"strconv"
 	"time"
+
+	"github.com/micro/go-micro/v2/client"
 )
 
 /*
@@ -20,33 +21,34 @@ type VerificationHandler struct {
 }
 
 /*
-Configuration of smtp service
+Configuration of verification
 */
 const (
-	SMTPMailHost = "smtp.163.com"
-	SMTPMailPort = "25"
-	SMTPMailUser = "sjtuboxin@163.com"
-	SMTPMailPwd  = "RBMJNDBOVZPEKFJQ"
-	ExpireTime   = "300"
+	ExpireTime = "300"
 )
 
 /*
 SendCodeEmail send verification code to the given email address
 */
 func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCodeEmailParam, out *pb.SendCodeEmailResponse) error {
-	auth := smtp.PlainAuth(in.Username, SMTPMailUser, SMTPMailPwd, SMTPMailHost)
-	nickname := "Boxin"
-	contentType := "Content-Type: text/html; charset=UTF-8"
 	randomNumber := strconv.Itoa(int(rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000)))
-	body := "Dear " + in.Username + ", your verification code is " + "<b>" + randomNumber + "</b>"
-	msg := []byte("To: " + in.Email + "\r\nFrom: " + nickname + "<" + SMTPMailUser + ">\r\nSubject: " + "Your verification code" +
-		"\r\n" + contentType + "\r\n\r\n" + body)
-	err := smtp.SendMail(fmt.Sprintf("%s:%s", SMTPMailHost, SMTPMailPort), auth, SMTPMailUser, []string{in.Email}, msg)
+	content := "\tYour verification code is " + "<b>" + randomNumber + "</b>"
+	title := "Your verification code"
+	emailService := email.NewEmailService("go.micro.service.email", client.DefaultClient)
+	resp, err := emailService.SendEmail(
+		ctx,
+		&email.SendEmailParam{
+			Email:    in.Email,
+			Username: in.Username,
+			Title:    title,
+			Content:  content,
+		},
+	)
 	if nil != err {
-		log.Println("VerificationHandler SendCodeEmail error ", err)
+		log.Println("VerificationHandler SendCodeEmail error ", resp.Message)
 		*out = pb.SendCodeEmailResponse{
 			Status:  -1,
-			Message: "SMTP send email error",
+			Message: resp.Message,
 		}
 		return err
 	}
