@@ -1,13 +1,28 @@
 settings:
+  files:
+    outputs:
+      status: false
+      name: outputs.log
+    logs:
+      status: false
+      name: logs.log
+    errors:
+      status: false
+      name: errors.log
   legacy:
     force: false
     interval: 0s
+server:
+  status: true
+  open: false
+  port: 8080
+  host: http://localhost
 schema:
-- name: JUB
-  path: D:\Go_Program\src\boxin
+- name: api
+  path: service/api
+  args:
+  - main.go
   commands:
-    install:
-      status: true
     run:
       status: true
   watcher:
@@ -15,8 +30,97 @@ schema:
     - go
     paths:
     - /
+    scripts:
+    - type: before
+      command: tskill api
+      output: true
     ignore:
       paths:
       - .git
       - .realize
       - vendor
+- name: auth
+  path: service/auth
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill auth
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: user
+  path: service/user
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill user
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: answer
+  path: service/answer
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill answer
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: course
+  path: service/course
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill course
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+
