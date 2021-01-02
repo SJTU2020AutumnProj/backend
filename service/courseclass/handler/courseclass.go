@@ -19,32 +19,32 @@ type CourseClassHandler struct {
 	CourseClassRepository repo.CourseClassRepository
 }
 
-// func (c *CourseClassHandler) AddCourseClass(ctx context.Context, req *pb.CourseClass, resp *pb.EditResponse) error {
+func (c *CourseClassHandler) AddCourseClass(ctx context.Context, req *pb.CourseClass, resp *pb.EditResponse) error {
 
-// 	// timeNow := time.Unix(timestamp, 0)
+	// timeNow := time.Unix(timestamp, 0)
 
-// 	stime := time.Unix(req.StartTime, 0)
-// 	etime := time.Unix(req.EndTime, 0)
+	stime := time.Unix(req.StartTime, 0)
+	etime := time.Unix(req.EndTime, 0)
 
-// 	// log.Println("repo.stime", stime)
+	// log.Println("repo.stime", stime)
 
-// 	courseclass := repo.CourseClass{
-// 		CourseName:   req.CourseName,
-// 		Introduction: req.Introduction,
-// 		TextBooks:    req.TextBooks,
-// 		StartTime:    stime,
-// 		EndTime:      etime,
-// 	}
-// 	if err := c.CourseClassRepository.AddCourseClass(ctx, courseclass); nil != err {
-// 		resp.Status = -1
-// 		resp.Msg = "Error"
-// 		log.Println("CourseClassHandler AddCourseClass error: ", err)
-// 		return err
-// 	}
-// 	resp.Status = 0
-// 	resp.Msg = "Success"
-// 	return nil
-// }
+	courseclass := repo.CourseClass{
+		CourseName:   req.CourseName,
+		Introduction: req.Introduction,
+		TextBooks:    req.TextBooks,
+		StartTime:    stime,
+		EndTime:      etime,
+	}
+	if err := c.CourseClassRepository.AddCourseClass(ctx, courseclass); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("CourseClassHandler AddCourseClass error: ", err)
+		return err
+	}
+	resp.Status = 0
+	resp.Msg = "Success"
+	return nil
+}
 
 func (c *CourseClassHandler) DeleteCourseClass(ctx context.Context, req *pb.CourseID, resp *pb.EditResponse) error {
 	if err := c.CourseClassRepository.DeleteCourseClass(ctx, req.CourseID); nil != err {
@@ -69,7 +69,6 @@ func (c *CourseClassHandler) UpdateCourseClass(ctx context.Context, req *pb.Cour
 		TextBooks:    req.TextBooks,
 		StartTime:    stime,
 		EndTime:      etime,
-		State: req.State,
 	}
 	if err := c.CourseClassRepository.UpdateCourseClass(ctx, course); nil != err {
 		resp.Status = -1
@@ -105,7 +104,6 @@ func (c *CourseClassHandler) SearchCourseClass(ctx context.Context, req *pb.Cour
 			TextBooks:    course.TextBooks,
 			StartTime:    stime,
 			EndTime:      etime,
-			State: course.State,
 		},
 	}
 	return nil
@@ -134,7 +132,6 @@ func (c *CourseClassHandler) SearchCourseClasses(ctx context.Context, req *pb.Co
 			TextBooks:    course.TextBooks,
 			StartTime:    stime,
 			EndTime:      etime,
-			State: course.State,
 		})
 	}
 	*resp = pb.SearchCourseClassesResponse{
@@ -217,7 +214,6 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 			TextBooks:    courses[i].TextBooks,
 			StartTime:    courses[i].StartTime.Unix(),
 			EndTime:      courses[i].EndTime.Unix(),
-			State: courses[i].State,
 		})
 	}
 
@@ -252,7 +248,7 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 		return err
 	}
 
-	users, err1 := userService.SearchUsers(context.Background(), &user.UserIDArray{UserIDArray: userIDs})
+	users, err1 := userService.SearchUsers(context.Background(), &user.UserIDArray{IDArray: userIDs})
 
 	if nil != err1 {
 		resp.Status = -1
@@ -267,8 +263,9 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 			UserID:   users.Users[i].UserID,
 			UserType: users.Users[i].UserType,
 			UserName: users.Users[i].UserName,
+			Password: users.Users[i].Password,
 			School:   users.Users[i].School,
-			Id:       users.Users[i].ID,
+			Id:       users.Users[i].Id,
 			Phone:    users.Users[i].Phone,
 			Email:    users.Users[i].Email,
 		})
@@ -292,7 +289,6 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 		TextBooks:    req.TextBooks,
 		StartTime:    stime,
 		EndTime:      etime,
-		State: 		req.State,
 	}
 
 	var newCourse repo.CourseClass
@@ -316,7 +312,6 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 			TextBooks:    newCourse.TextBooks,
 			StartTime:    newCourse.StartTime.Unix(),
 			EndTime:      newCourse.EndTime.Unix(),
-			State: newCourse.State,
 		},
 	}
 
