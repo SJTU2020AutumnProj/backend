@@ -83,7 +83,10 @@ func (repo *UserRepositoryImpl) UpdateUser(ctx context.Context, user User) error
 	tmp.Phone = user.Phone
 	tmp.Email = user.Email
 	tmp.Name = user.Name
-	if err = repo.DB.Save(tmp).Error; nil != err {
+	// if err = repo.DB.Save(tmp).Error; nil != err {
+	// 	return err
+	// }
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
 		return err
 	}
 	return nil
