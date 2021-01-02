@@ -16,6 +16,7 @@ type CourseClass struct {
 	TextBooks    string    `gorm:"size:1000;not null"`
 	StartTime    time.Time `gorm:"not null"`
 	EndTime      time.Time `gorm:"not null"`
+	State		 int32     `gorm:"not null"`
 }
 
 type Take struct {
@@ -84,6 +85,7 @@ func (repo *CourseClassRepositoryImpl) UpdateCourseClass(ctx context.Context, c 
 	tmp.TextBooks = c.TextBooks
 	tmp.StartTime = c.StartTime
 	tmp.EndTime = c.EndTime
+	tmp.State = c.State
 
 	if err = repo.DB.Save(tmp).Error; nil != err {
 		return err
@@ -124,7 +126,7 @@ func (repo *CourseClassRepositoryImpl) AddTake(ctx context.Context, take Take) e
 }
 
 func (repo *CourseClassRepositoryImpl) DeleteTake(ctx context.Context, userID int32, courseID int32) error {
-	if err := repo.DB.Where("user_id = ?", userID).Delete(&Take{}, courseID).Error; nil != err {
+	if err := repo.DB.Where("user_id = ?", userID).Where("course_id = ?", courseID).Delete(&Take{}).Error; nil != err {
 		return err
 	}
 	return nil
