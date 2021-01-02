@@ -69,6 +69,7 @@ func (c *CourseClassHandler) UpdateCourseClass(ctx context.Context, req *pb.Cour
 		TextBooks:    req.TextBooks,
 		StartTime:    stime,
 		EndTime:      etime,
+		State: req.State,
 	}
 	if err := c.CourseClassRepository.UpdateCourseClass(ctx, course); nil != err {
 		resp.Status = -1
@@ -104,6 +105,7 @@ func (c *CourseClassHandler) SearchCourseClass(ctx context.Context, req *pb.Cour
 			TextBooks:    course.TextBooks,
 			StartTime:    stime,
 			EndTime:      etime,
+			State: course.State,
 		},
 	}
 	return nil
@@ -132,6 +134,7 @@ func (c *CourseClassHandler) SearchCourseClasses(ctx context.Context, req *pb.Co
 			TextBooks:    course.TextBooks,
 			StartTime:    stime,
 			EndTime:      etime,
+			State: course.State,
 		})
 	}
 	*resp = pb.SearchCourseClassesResponse{
@@ -214,6 +217,7 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 			TextBooks:    courses[i].TextBooks,
 			StartTime:    courses[i].StartTime.Unix(),
 			EndTime:      courses[i].EndTime.Unix(),
+			State: courses[i].State,
 		})
 	}
 
@@ -288,6 +292,7 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 		TextBooks:    req.TextBooks,
 		StartTime:    stime,
 		EndTime:      etime,
+		State: 		req.State,
 	}
 
 	var newCourse repo.CourseClass
@@ -311,6 +316,7 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 			TextBooks:    newCourse.TextBooks,
 			StartTime:    newCourse.StartTime.Unix(),
 			EndTime:      newCourse.EndTime.Unix(),
+			State: newCourse.State,
 		},
 	}
 

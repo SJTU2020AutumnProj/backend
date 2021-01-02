@@ -61,6 +61,7 @@ func TestRegisterAdmin(t *testing.T) {
 		req.ID = "111"
 		req.Phone = "111"
 		req.Email = "111@sjtu.edu.cn"
+		req.Name = "hahaha"
 
 		id1 := tf(user.RegisterUserResponse_SUCCESS)
 		So(id1, ShouldBeGreaterThanOrEqualTo, 0)
@@ -71,6 +72,7 @@ func TestRegisterAdmin(t *testing.T) {
 		req.ID = "222"
 		req.Phone = "222"
 		req.Email = "222@sjtu.edu.cn"
+		req.Name = "hahaha"
 		id2 := tf_error(user.RegisterUserResponse_SUCCESS)
 		So(id2, ShouldBeGreaterThanOrEqualTo, -1)
 
@@ -80,6 +82,7 @@ func TestRegisterAdmin(t *testing.T) {
 		req.ID = "333"
 		req.Phone = "111"
 		req.Email = "333@sjtu.edu.cn"
+		req.Name = "hahaha"
 		id3 := tf_error(user.RegisterUserResponse_SUCCESS)
 		So(id3, ShouldBeGreaterThanOrEqualTo, -1)
 
@@ -89,6 +92,7 @@ func TestRegisterAdmin(t *testing.T) {
 		req.ID = "444"
 		req.Phone = "444"
 		req.Email = "111@sjtu.edu.cn"
+		req.Name = "hahaha"
 		id4 := tf_error(user.RegisterUserResponse_SUCCESS)
 		So(id4, ShouldBeGreaterThanOrEqualTo, -1)
 
@@ -137,6 +141,7 @@ func TestRegisterTeacher(t *testing.T) {
 		req.ID = "111"
 		req.Phone = "111"
 		req.Email = "111@sjtu.edu.cn"
+		req.Name = "hahahaha"
 
 		id1 := tf(user.RegisterUserResponse_SUCCESS)
 		So(id1, ShouldBeGreaterThanOrEqualTo, 0)
@@ -147,6 +152,7 @@ func TestRegisterTeacher(t *testing.T) {
 		req.ID = "222"
 		req.Phone = "222"
 		req.Email = "222@sjtu.edu.cn"
+		req.Name = "hahaha"
 		id2 := tf_error(user.RegisterUserResponse_SUCCESS)
 		So(id2, ShouldBeGreaterThanOrEqualTo, -1)
 
@@ -156,6 +162,7 @@ func TestRegisterTeacher(t *testing.T) {
 		req.ID = "333"
 		req.Phone = "111"
 		req.Email = "333@sjtu.edu.cn"
+		req.Name = "hahaha"
 		id3 := tf_error(user.RegisterUserResponse_SUCCESS)
 		So(id3, ShouldBeGreaterThanOrEqualTo, -1)
 
@@ -165,6 +172,7 @@ func TestRegisterTeacher(t *testing.T) {
 		req.ID = "444"
 		req.Phone = "444"
 		req.Email = "111@sjtu.edu.cn"
+		req.Name = "hahahah"
 		id4 := tf_error(user.RegisterUserResponse_SUCCESS)
 		So(id4, ShouldBeGreaterThanOrEqualTo, -1)
 
@@ -213,6 +221,7 @@ func TestRegisterStudent(t *testing.T) {
 		req.ID = "111"
 		req.Phone = "111"
 		req.Email = "111@sjtu.edu.cn"
+		req.Name = "hahahha"
 
 		id1 := tf(user.RegisterUserResponse_SUCCESS)
 		So(id1, ShouldBeGreaterThanOrEqualTo, 0)
@@ -223,6 +232,7 @@ func TestRegisterStudent(t *testing.T) {
 		req.ID = "222"
 		req.Phone = "222"
 		req.Email = "222@sjtu.edu.cn"
+		req.Name = "hahahha"
 		id2 := tf_error(user.RegisterUserResponse_SUCCESS)
 		So(id2, ShouldBeGreaterThanOrEqualTo, -1)
 
@@ -232,6 +242,7 @@ func TestRegisterStudent(t *testing.T) {
 		req.ID = "333"
 		req.Phone = "111"
 		req.Email = "333@sjtu.edu.cn"
+		req.Name = "hahahah"
 		id3 := tf_error(user.RegisterUserResponse_SUCCESS)
 		So(id3, ShouldBeGreaterThanOrEqualTo, -1)
 
@@ -241,6 +252,7 @@ func TestRegisterStudent(t *testing.T) {
 		req.ID = "444"
 		req.Phone = "444"
 		req.Email = "111@sjtu.edu.cn"
+		req.Name = "ahhaha"
 		id4 := tf_error(user.RegisterUserResponse_SUCCESS)
 		So(id4, ShouldBeGreaterThanOrEqualTo, -1)
 
@@ -273,6 +285,15 @@ func TestUpdateUser(t *testing.T) {
 		return -1
 	}
 
+	tf_error := func(status user.UpdateUserResponse_Status) int32 {
+		So(u.UpdateUser(context.TODO(), &req, &rsp), ShouldNotBeNil)
+		So(rsp.Status, ShouldNotEqual, status)
+		if rsp.Status == user.UpdateUserResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
 	Convey("Test Update", t, func() {
 		nreq.UserName = "测试用户1"
 		nreq.Password = "111"
@@ -280,6 +301,7 @@ func TestUpdateUser(t *testing.T) {
 		nreq.ID = "111"
 		nreq.Phone = "111"
 		nreq.Email = "111@sjtu.edu.cn"
+		nreq.Name = "hahahah"
 
 		u.RegisterStudent(context.TODO(), &nreq, &nrsp)
 
@@ -290,11 +312,16 @@ func TestUpdateUser(t *testing.T) {
 		req.UserName = "测试用户3"
 		req.School = "SJTU"
 		req.ID = "333"
-		req.Phone = "111"
+		req.Phone = "1211"
 		req.Email = "333@sjtu.edu.cn"
+		req.Name = "hahahhhah"
 
 		id2 := tf(user.UpdateUserResponse_SUCCESS)
 		So(id2, ShouldBeGreaterThanOrEqualTo, 0)
+
+		req.UserID = 999999999
+		id3 := tf_error(user.UpdateUserResponse_SUCCESS)
+		So(id3, ShouldBeGreaterThanOrEqualTo, -1)
 
 		defer func() {
 			So(db.Delete(&repo.User{}, id1).Error, ShouldBeNil)
@@ -325,6 +352,15 @@ func TestSearchUser(t *testing.T) {
 		return -1
 	}
 
+	tf_error := func(status user.SearchUserResponse_Status) int32 {
+		So(u.SearchUser(context.TODO(), &req, &rsp), ShouldNotBeNil)
+		So(rsp.Status, ShouldNotEqual, status)
+		if rsp.Status == user.SearchUserResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
 	Convey("Test SearchUser", t, func() {
 		nreq.UserName = "测试用户1"
 		nreq.Password = "111"
@@ -332,6 +368,7 @@ func TestSearchUser(t *testing.T) {
 		nreq.ID = "111"
 		nreq.Phone = "111"
 		nreq.Email = "111@sjtu.edu.cn"
+		nreq.Name = "hahahah"
 
 		u.RegisterStudent(context.TODO(), &nreq, &nrsp)
 
@@ -341,6 +378,10 @@ func TestSearchUser(t *testing.T) {
 
 		id2 := tf(user.SearchUserResponse_SUCCESS)
 		So(id2, ShouldBeGreaterThanOrEqualTo, 0)
+
+		req.UserID = 9999999
+		id3 := tf_error(user.SearchUserResponse_SUCCESS)
+		So(id3, ShouldBeGreaterThanOrEqualTo, -1)
 
 		defer func() {
 			So(db.Delete(&repo.User{}, id1).Error, ShouldBeNil)
@@ -371,6 +412,15 @@ func TestSearchUsers(t *testing.T) {
 		return -1
 	}
 
+	tf_error := func(status user.SearchUsersResponse_Status) int32 {
+		So(u.SearchUsers(context.TODO(), &req, &rsp), ShouldBeNil)
+		So(rsp.Status, ShouldEqual, status)
+		if rsp.Status == user.SearchUsersResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
 	Convey("Test SearchUser", t, func() {
 		nreq.UserName = "测试用户1"
 		nreq.Password = "111"
@@ -378,6 +428,7 @@ func TestSearchUsers(t *testing.T) {
 		nreq.ID = "111"
 		nreq.Phone = "111"
 		nreq.Email = "111@sjtu.edu.cn"
+		nreq.Name = "hahahah"
 
 		u.RegisterStudent(context.TODO(), &nreq, &nrsp)
 
@@ -389,8 +440,15 @@ func TestSearchUsers(t *testing.T) {
 		id2 := tf(user.SearchUserResponse_SUCCESS)
 		So(id2, ShouldBeGreaterThanOrEqualTo, 0)
 
+		req.UserIDArray = []int32{99999}
+		id3 := tf_error(user.SearchUsersResponse_SUCCESS)
+		So(id3, ShouldBeGreaterThanOrEqualTo, -1)
+
 		defer func() {
 			So(db.Delete(&repo.User{}, id1).Error, ShouldBeNil)
 		}()
 	})
 }
+
+
+

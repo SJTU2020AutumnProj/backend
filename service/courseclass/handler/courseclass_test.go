@@ -48,12 +48,13 @@ func TestNewCourseClass(t *testing.T) {
 	}
 
 	Convey("Test NewCourseClass", t, func() {
-		req.UserID = 99632
+		req.UserID = 99635
 		req.CourseName = "测试课程"
 		req.Introduction = "希望别出错"
 		req.TextBooks = "编译原理"
 		req.StartTime = time.Now().Unix()
 		req.EndTime = time.Now().Unix()
+		req.State = 0
 
 		id := tf(courseclass.NewCourseResponse_SUCCESS)
 		So(id, ShouldBeGreaterThanOrEqualTo, 0)
@@ -92,19 +93,33 @@ func TestDeleteCourseClass(t *testing.T) {
 		return -1
 	}
 
+	tf_error := func(status courseclass.EditResponse_Status) int32 {
+		So(c.DeleteCourseClass(context.TODO(), &req, &rsp), ShouldBeNil)
+		So(rsp.Status, ShouldEqual, status)
+		if rsp.Status == courseclass.EditResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
 	Convey("Test DeleteCourseClass", t, func() {
 
-		nreq.UserID = 99632
+		nreq.UserID = 99635
 		nreq.CourseName = "测试课程"
 		nreq.Introduction = "希望别出错"
 		nreq.TextBooks = "编译原理"
 		nreq.StartTime = time.Now().Unix()
 		nreq.EndTime = time.Now().Unix()
+		nreq.State = 0
 		c.NewCourse(context.TODO(), &nreq, &nrsp)
 
 		req.CourseID = nrsp.Courseclass.CourseID
 		id := tf(courseclass.EditResponse_SUCCESS)
 		So(id, ShouldEqual, 0)
+
+		req.CourseID = 99999999
+		id2 := tf_error(courseclass.EditResponse_SUCCESS)
+		So(id2, ShouldBeGreaterThanOrEqualTo, -1)
 
 		// error_req.CourseID = -1
 		// So(c.DeleteCourseClass(context.TODO(), &error_req, &error_rsp), ShouldBeNil)
@@ -140,14 +155,24 @@ func TestUpdateCourseClass(t *testing.T) {
 		return -1
 	}
 
+	tf_error := func(status courseclass.EditResponse_Status) int32 {
+		So(c.UpdateCourseClass(context.TODO(), &req, &rsp), ShouldNotBeNil)
+		So(rsp.Status, ShouldNotEqual, status)
+		if rsp.Status == courseclass.EditResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
 	Convey("Test UpdateCourseClass", t, func() {
 
-		nreq.UserID = 99632
+		nreq.UserID = 99635
 		nreq.CourseName = "测试课程"
 		nreq.Introduction = "希望别出错"
 		nreq.TextBooks = "编译原理"
 		nreq.StartTime = time.Now().Unix()
 		nreq.EndTime = time.Now().Unix()
+		nreq.State = 0
 		c.NewCourse(context.TODO(), &nreq, &nrsp)
 
 		req.CourseID = nrsp.Courseclass.CourseID
@@ -156,9 +181,14 @@ func TestUpdateCourseClass(t *testing.T) {
 		req.TextBooks = "更新的书"
 		req.StartTime = time.Now().Unix()
 		req.EndTime = time.Now().Unix()
+		req.State = 0
 
 		id := tf(courseclass.EditResponse_SUCCESS)
 		So(id, ShouldEqual, 0)
+
+		req.CourseID = 99999
+		id2:=tf_error(courseclass.EditResponse_SUCCESS)
+		So(id2, ShouldBeGreaterThanOrEqualTo, -1)
 
 		// So(c.UpdateCourseClass(context.TODO(), &error_req, &error_rsp), ShouldNotBeNil)
 		defer func() { So(db.Delete(&repo.CourseClass{}, nrsp.Courseclass.CourseID).Error, ShouldBeNil) }()
@@ -183,7 +213,7 @@ func TestSearchCourseClass(t *testing.T) {
 	var nreq courseclass.NewCourseMessage
 	var nrsp courseclass.NewCourseResponse
 
-	tf := func(status courseclass.EditResponse_Status) int32 {
+	tf := func(status courseclass.SearchCourseClassResponse_Status) int32 {
 		So(c.SearchCourseClass(context.TODO(), &req, &rsp), ShouldBeNil)
 		So(rsp.Status, ShouldEqual, status)
 		if rsp.Status == courseclass.SearchCourseClassResponse_SUCCESS {
@@ -194,20 +224,34 @@ func TestSearchCourseClass(t *testing.T) {
 		return -1
 	}
 
+	tf_error := func(status courseclass.SearchCourseClassResponse_Status) int32 {
+		So(c.SearchCourseClass(context.TODO(), &req, &rsp), ShouldNotBeNil)
+		So(rsp.Status, ShouldNotEqual, status)
+		if rsp.Status == courseclass.SearchCourseClassResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
 	Convey("Test SearchCourseClass", t, func() {
 
-		nreq.UserID = 99632
+		nreq.UserID = 99635
 		nreq.CourseName = "测试课程"
 		nreq.Introduction = "希望别出错"
 		nreq.TextBooks = "编译原理"
 		nreq.StartTime = time.Now().Unix()
 		nreq.EndTime = time.Now().Unix()
+		nreq.State = 0
 		c.NewCourse(context.TODO(), &nreq, &nrsp)
 
 		req.CourseID = nrsp.Courseclass.CourseID
 
-		id := tf(courseclass.EditResponse_SUCCESS)
+		id := tf(courseclass.SearchCourseClassResponse_SUCCESS)
 		So(id, ShouldEqual, 0)
+
+		req.CourseID = 99999
+		id2:= tf_error(courseclass.SearchCourseClassResponse_SUCCESS)
+		So(id2, ShouldEqual,-1)
 
 		// So(c.UpdateCourseClass(context.TODO(), &error_req, &error_rsp), ShouldNotBeNil)
 		defer func() { So(db.Delete(&repo.CourseClass{}, nrsp.Courseclass.CourseID).Error, ShouldBeNil) }()
@@ -242,12 +286,13 @@ func TestSeaechCourseClasses(t *testing.T) {
 
 	Convey("Test SearchCourseClass", t, func() {
 
-		nreq.UserID = 99632
+		nreq.UserID = 99635
 		nreq.CourseName = "测试课程"
 		nreq.Introduction = "希望别出错"
 		nreq.TextBooks = "编译原理"
 		nreq.StartTime = time.Now().Unix()
 		nreq.EndTime = time.Now().Unix()
+		nreq.State = 0
 		c.NewCourse(context.TODO(), &nreq, &nrsp)
 
 		tmp := []int32{nrsp.Courseclass.CourseID}
@@ -281,14 +326,14 @@ func TestAddTake(t *testing.T) {
 	}
 
 	Convey("Test AddTake", t, func() {
-		req.UserID = 99632
-		req.CourseID = 66982
+		req.UserID = 99635
+		req.CourseID = 66988
 		req.Role = 1
 
 		id := tf(courseclass.EditResponse_SUCCESS)
 		So(id, ShouldBeGreaterThanOrEqualTo, 0)
 		// defer func() { So(db.Delete(&repo.Take{}, rsp.Courseclass.CourseID).Error, ShouldBeNil) }()
-		defer func() { db.Where("user_id = ?", 99632).Delete(&repo.Take{}) }()
+		defer func() { db.Where("user_id = ?", 99635).Delete(&repo.Take{}) }()
 	})
 }
 
@@ -316,12 +361,12 @@ func TestDeleteTake(t *testing.T) {
 	}
 
 	Convey("Test DeleteTake", t, func() {
-		nreq.UserID = 99632
+		nreq.UserID = 99635
 		nreq.CourseID = 1
 		nreq.Role = 1
 
 		req.CourseID = 1
-		req.UserID = 99632
+		req.UserID = 99635
 
 		c.AddTake(context.TODO(), &nreq, &nrsp)
 
@@ -355,11 +400,11 @@ func TestDeleteTakeByUser(t *testing.T) {
 	}
 
 	Convey("Test DeleteTakeByUser", t, func() {
-		nreq.UserID = 99632
+		nreq.UserID = 99635
 		nreq.CourseID = 1
 		nreq.Role = 1
 
-		req.UserID = 99632
+		req.UserID = 99635
 
 		c.AddTake(context.TODO(), &nreq, &nrsp)
 
@@ -393,11 +438,11 @@ func TestDeleteTakeByCourseClass(t *testing.T) {
 	}
 
 	Convey("TestDeleteTakeByCourseClass", t, func() {
-		nreq.UserID = 99632
-		nreq.CourseID = 99632
+		nreq.UserID = 99635
+		nreq.CourseID = 99635
 		nreq.Role = 1
 
-		req.CourseID = 99632
+		req.CourseID = 99635
 
 		c.AddTake(context.TODO(), &nreq, &nrsp)
 
@@ -434,19 +479,20 @@ func TestSearchTakeByUser(t *testing.T) {
 	}
 
 	Convey("Test NewCourseClass", t, func() {
-		ncreq.UserID = 99632
+		ncreq.UserID = 99635
 		ncreq.CourseName = "测试课程"
 		ncreq.Introduction = "希望别出错"
 		ncreq.TextBooks = "编译原理"
 		ncreq.StartTime = time.Now().Unix()
 		ncreq.EndTime = time.Now().Unix()
+		ncreq.State = 0
 		c.NewCourse(context.TODO(), &ncreq, &ncrsp)
 
-		nreq.UserID = 99632
+		nreq.UserID = 99635
 		nreq.CourseID = ncrsp.Courseclass.CourseID
 		nreq.Role = 1
 
-		req.UserID = 99632
+		req.UserID = 99635
 
 		c.AddTake(context.TODO(), &nreq, &nrsp)
 
@@ -489,18 +535,20 @@ func TestSearchTakeByCourse(t *testing.T) {
 
 	Convey("TestSearchTakeByCourse", t, func() {
 		ureq.UserName = "测试用户111"
+		ureq.Type = 0
 		ureq.Password = "123"
 		ureq.School = "SJTU"
 		ureq.ID = "1111"
 		ureq.Phone = "1223"
 		ureq.Email = "11@sjtu.edu.cn"
+		ureq.School = "SJTU"
 		u.RegisterStudent(context.TODO(),&ureq,&ursp)
 
 		nreq.UserID = ursp.UserID.UserID
-		nreq.CourseID = 99632
+		nreq.CourseID = 99635
 		nreq.Role = 1
 
-		req.CourseID = 99632
+		req.CourseID = 99635
 
 		c.AddTake(context.TODO(), &nreq, &nrsp)
 
@@ -552,7 +600,7 @@ func TestSearchTakeByCourse(t *testing.T) {
 // 		// 	return 0
 // 		// }
 // 		// return -1
-// 		rsp, err1 := courseClassService.SearchTakeByCourse(context.Background(), &courseclass.CourseID{CourseID: 99632})
+// 		rsp, err1 := courseClassService.SearchTakeByCourse(context.Background(), &courseclass.CourseID{CourseID: 99635})
 // 		So(err1, ShouldBeNil)
 // 		So(rsp, ShouldNotBeNil)
 // 		return 0
@@ -568,10 +616,10 @@ func TestSearchTakeByCourse(t *testing.T) {
 // 		u.RegisterStudent(context.TODO(), &ureq, &ursp)
 
 // 		nreq.UserID = ursp.UserID.UserID
-// 		nreq.CourseID = 99632
+// 		nreq.CourseID = 99635
 // 		nreq.Role = 1
 
-// 		// req.CourseID = 99632
+// 		// req.CourseID = 99635
 
 // 		c.AddTake(context.TODO(), &nreq, &nrsp)
 

@@ -31,6 +31,7 @@ message CourseClass {
 	string textBooks = 4;
 	int64 startTime = 5;
 	int64 endTime = 6;
+	int32 state = 7;
 }
 
 message CourseID {
@@ -106,6 +107,7 @@ message User {
     string id = 6;
     string phone = 7;
     string email = 8;
+	string name = 9;
 }
 
 message SearchTakeByCourseResponse {
@@ -125,6 +127,7 @@ message NewCourseMessage {
 	string textBooks = 4;
 	int64 startTime = 5;
 	int64 endTime = 6;
+	int32 state = 7;
 }
 
 message NewCourseResponse {
