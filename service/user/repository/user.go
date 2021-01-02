@@ -20,6 +20,7 @@ type User struct {
 	ID       string `gorm:"size:100;not null;column:ID"`
 	Phone    string `gorm:"size:100;column:phone"`
 	Email    string `gorm:"size:100;column:email"`
+	Name     string `gorm:"size:100;column:name"`
 }
 
 /*
@@ -81,6 +82,7 @@ func (repo *UserRepositoryImpl) UpdateUser(ctx context.Context, user User) error
 	tmp.ID = user.ID
 	tmp.Phone = user.Phone
 	tmp.Email = user.Email
+	tmp.Name = user.Name
 	if err = repo.DB.Save(tmp).Error; nil != err {
 		return err
 	}

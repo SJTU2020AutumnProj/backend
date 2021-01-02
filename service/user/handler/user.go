@@ -54,6 +54,7 @@ func (u *UserHandler) RegisterAdmin(ctx context.Context, in *pb.RegisterUserPara
 		ID:       in.ID,
 		Phone:    in.Phone,
 		Email:    in.Email,
+		Name:     in.Name,
 	}
 	res, err := u.UserRepository.AddUser(ctx, user)
 	if nil != err {
@@ -112,6 +113,7 @@ func (u *UserHandler) RegisterTeacher(ctx context.Context, in *pb.RegisterUserPa
 		ID:       in.ID,
 		Phone:    in.Phone,
 		Email:    in.Email,
+		Name:     in.Name,
 	}
 	res, err := u.UserRepository.AddUser(ctx, user)
 	if nil != err {
@@ -170,6 +172,7 @@ func (u *UserHandler) RegisterStudent(ctx context.Context, in *pb.RegisterUserPa
 		ID:       in.ID,
 		Phone:    in.Phone,
 		Email:    in.Email,
+		Name:     in.Name,
 	}
 	res, err := u.UserRepository.AddUser(ctx, user)
 	if nil != err {
@@ -201,6 +204,7 @@ func (u *UserHandler) UpdateUser(ctx context.Context, in *pb.UpdateUserParam, ou
 		ID:       in.ID,
 		Phone:    in.Phone,
 		Email:    in.Email,
+		Name:     in.Name,
 	}
 	err := u.UserRepository.UpdateUser(ctx, user)
 	if nil != err {
@@ -243,6 +247,7 @@ func (u *UserHandler) SearchUser(ctx context.Context, in *pb.UserID, out *pb.Sea
 			ID:       user.ID,
 			Phone:    user.Phone,
 			Email:    user.Email,
+			Name:     user.Name,
 		},
 	}
 	return nil
@@ -271,6 +276,7 @@ func (u *UserHandler) SearchUsers(ctx context.Context, in *pb.UserIDArray, out *
 			ID:       user.ID,
 			Phone:    user.Phone,
 			Email:    user.Email,
+			Name:     user.Name,
 		})
 	}
 	*out = pb.SearchUsersResponse{
