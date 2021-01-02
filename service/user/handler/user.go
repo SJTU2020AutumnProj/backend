@@ -54,24 +54,24 @@ func (u *UserHandler) RegisterAdmin(ctx context.Context, in *pb.RegisterUserPara
 		ID:       in.ID,
 		Phone:    in.Phone,
 		Email:    in.Email,
-		Name:     in.Name,
+		Name: in.Name,
 	}
 	res, err := u.UserRepository.AddUser(ctx, user)
-	if nil != err {
-		log.Println("RegisterAdmin error: ", err)
-		*out = pb.RegisterUserResponse{
-			Status: -1,
-			Msg:    "Error",
-			UserID: nil,
-		}
-		return err
-	}
+	// if nil != err {
+	// 	log.Println("RegisterAdmin error: ", err)
+	// 	*out = pb.RegisterUserResponse{
+	// 		Status: -1,
+	// 		Msg:    "Error",
+	// 		UserID: nil,
+	// 	}
+	// 	return err
+	// }
 	*out = pb.RegisterUserResponse{
 		Status: 0,
 		Msg:    "Success",
 		UserID: &pb.UserID{UserID: res.UserID},
 	}
-	return nil
+	return err
 }
 
 /*
@@ -113,24 +113,24 @@ func (u *UserHandler) RegisterTeacher(ctx context.Context, in *pb.RegisterUserPa
 		ID:       in.ID,
 		Phone:    in.Phone,
 		Email:    in.Email,
-		Name:     in.Name,
+		Name: in.Name,
 	}
 	res, err := u.UserRepository.AddUser(ctx, user)
-	if nil != err {
-		log.Println("RegisterTeacher error: ", err)
-		*out = pb.RegisterUserResponse{
-			Status: -1,
-			Msg:    "Error",
-			UserID: nil,
-		}
-		return err
-	}
+	// if nil != err {
+	// 	log.Println("RegisterTeacher error: ", err)
+	// 	*out = pb.RegisterUserResponse{
+	// 		Status: -1,
+	// 		Msg:    "Error",
+	// 		UserID: nil,
+	// 	}
+	// 	return err
+	// }
 	*out = pb.RegisterUserResponse{
 		Status: 0,
 		Msg:    "Success",
 		UserID: &pb.UserID{UserID: res.UserID},
 	}
-	return nil
+	return err
 }
 
 /*
@@ -172,24 +172,24 @@ func (u *UserHandler) RegisterStudent(ctx context.Context, in *pb.RegisterUserPa
 		ID:       in.ID,
 		Phone:    in.Phone,
 		Email:    in.Email,
-		Name:     in.Name,
+		Name: in.Name,
 	}
 	res, err := u.UserRepository.AddUser(ctx, user)
-	if nil != err {
-		log.Println("RegisterStudent error: ", err)
-		*out = pb.RegisterUserResponse{
-			Status: -1,
-			Msg:    "Error",
-			UserID: nil,
-		}
-		return err
-	}
+	// if nil != err {
+	// 	log.Println("RegisterStudent error: ", err)
+	// 	*out = pb.RegisterUserResponse{
+	// 		Status: -1,
+	// 		Msg:    "Error",
+	// 		UserID: nil,
+	// 	}
+	// 	return err
+	// }
 	*out = pb.RegisterUserResponse{
 		Status: 0,
 		Msg:    "Success",
 		UserID: &pb.UserID{UserID: res.UserID},
 	}
-	return nil
+	return err
 }
 
 /*
@@ -204,7 +204,7 @@ func (u *UserHandler) UpdateUser(ctx context.Context, in *pb.UpdateUserParam, ou
 		ID:       in.ID,
 		Phone:    in.Phone,
 		Email:    in.Email,
-		Name:     in.Name,
+		Name: in.Name,
 	}
 	err := u.UserRepository.UpdateUser(ctx, user)
 	if nil != err {
@@ -247,7 +247,7 @@ func (u *UserHandler) SearchUser(ctx context.Context, in *pb.UserID, out *pb.Sea
 			ID:       user.ID,
 			Phone:    user.Phone,
 			Email:    user.Email,
-			Name:     user.Name,
+			Name: user.Name,
 		},
 	}
 	return nil
@@ -276,7 +276,7 @@ func (u *UserHandler) SearchUsers(ctx context.Context, in *pb.UserIDArray, out *
 			ID:       user.ID,
 			Phone:    user.Phone,
 			Email:    user.Email,
-			Name:     user.Name,
+			Name: user.Name,
 		})
 	}
 	*out = pb.SearchUsersResponse{
