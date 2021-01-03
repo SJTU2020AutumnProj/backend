@@ -41,6 +41,7 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		EndTime:   etime,
 		Title:     req.Title,
 		State:     req.State,
+		AnswerID: req.AnswerID,
 	}
 	var resp_homework repo.Homework
 	var err error
@@ -58,6 +59,7 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		HomeworkID:  resp_homework.HomeworkID,
 		Description: req.Description,
 		Content:     req.Content,
+		Note: 		req.Note,
 	}
 	if err = h.HomeworkMongo.AddHomework(ctx, mongo_homework); nil != err {
 		resp.Status = -1
@@ -74,6 +76,8 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 	// 	Title:       resp_homework.Title,
 	// 	State:       resp_homework.State,
 	// 	Description: req.Description,
+	// 	Content: req.Content,  
+	// 	Note:req.Note,
 	// }
 	// if err = h.HomeworkAssignedPubEvent.Publish(ctx, assignedHomework); err != nil {
 	// 	log.Println("HomeworkHandler AssignHomework error when sending message: ", err)
@@ -113,6 +117,7 @@ func (h *HomeworkHandler) UpdateHomework(ctx context.Context, req *pb.HomeworkIn
 		EndTime:    etime,
 		Title:      req.Title,
 		State:      req.State,
+		AnswerID: req.AnswerID,
 	}
 
 	if err := h.HomeworkRepository.UpdateHomework(ctx, homework); nil != err {
@@ -128,6 +133,7 @@ func (h *HomeworkHandler) UpdateHomework(ctx context.Context, req *pb.HomeworkIn
 		HomeworkID:  req.HomeworkID,
 		Description: req.Description,
 		Content:     req.Content,
+		Note:	 req.Note,
 	}
 
 	if err := h.HomeworkMongo.UpdateHomework(ctx, mongo_homework); nil != err {
@@ -164,8 +170,10 @@ func (h *HomeworkHandler) SearchHomework(ctx context.Context, req *pb.HomeworkID
 			EndTime:     homework.EndTime.Unix(),
 			Title:       homework.Title,
 			State:       homework.State,
+			AnswerID: homework.AnswerID,
 			Description: mongo_homework.Description,
 			Content:     mongo_homework.Content,
+			Note: 		mongo_homework.Note,
 		},
 	}
 	return nil
@@ -198,8 +206,10 @@ func (h *HomeworkHandler) SearchHomeworkByUserID(ctx context.Context, req *pb.Us
 			EndTime:     homeworks[i].EndTime.Unix(),
 			Title:       homeworks[i].Title,
 			State:       homeworks[i].State,
+			AnswerID: homeworks[i].AnswerID,
 			Description: homework_json.Description,
 			Content:     homework_json.Content,
+			Note: homework_json.Note,
 		})
 	}
 
@@ -211,42 +221,24 @@ func (h *HomeworkHandler) SearchHomeworkByUserID(ctx context.Context, req *pb.Us
 	return nil
 }
 
-func (h *HomeworkHandler) SearchHomeworkByCourseID(ctx context.Context, req *pb.CourseID, resp *pb.SearchHomeworkByCourseIDResponse) error {
-	homeworks, err := h.HomeworkRepository.SearchHomeworkByCourseID(ctx, req.CourseID)
-
+//发布作业答案
+func (h*HomeworkHandler) PostHomeworkAnswer(ctx context.Context, req *pb.HomeworkAnswer,resp *pb.PostHomeworkAnswerResponse) error{
+	homework,err:=h.HomeworkRepository.SearchHomework(ctx,req.HomeworkID)
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("Handler SearchHomeByCourseID error: ", err)
+		log.Println("Handler PostHomeworkAnswer error: ", err)
 		return err
 	}
+	homework.AnswerID = req.AnswerID
 
-	var ans []*pb.HomeworkInfo
-	for i := range homeworks {
-		homework_json, err := h.HomeworkMongo.SearchHomework(ctx, homeworks[i].HomeworkID)
-		if nil != err {
-			resp.Status = -1
-			resp.Msg = "Error"
-			log.Println("Handler SearchHomework error:", err)
-			return err
-		}
-		ans = append(ans, &pb.HomeworkInfo{
-			HomeworkID:  homeworks[i].HomeworkID,
-			CourseID:    homeworks[i].CourseID,
-			UserID:      homeworks[i].UserID,
-			StartTime:   homeworks[i].StartTime.Unix(),
-			EndTime:     homeworks[i].EndTime.Unix(),
-			Title:       homeworks[i].Title,
-			State:       homeworks[i].State,
-			Description: homework_json.Description,
-			Content:     homework_json.Content,
-		})
+	if err := h.HomeworkRepository.UpdateHomework(ctx, homework); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("HomeworkHandler UpdateHomework error:", err)
+		return err
 	}
-
-	*resp = pb.SearchHomeworkByCourseIDResponse{
-		Status:    0,
-		Msg:       "Success",
-		Homeworks: ans,
-	}
+	resp.Status = 0
+	resp.Msg = "Success"
 	return nil
 }

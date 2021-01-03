@@ -15,6 +15,13 @@ type Homework struct {
 	HomeworkID   int32 `json:"homework_id,omitempty" bson:"homework_id,omitempty"`
 	Description string `json:"description,omitempty" bson:"homework_json,omitempty"`
 	Content string `json:"content,omitempty" bson:"content,omitempty"`
+	Note string `json:"note,omitempty" bson:"note,omitempty"`
+}
+
+type Answer struct {
+	AnswerID int32 `json:"answer_id,omitempty" bson:"answer_id,omitempty"`
+	Content string `json:"content,omitempty" bson:"content,omitempty"`
+	Note string `json:"note,omitempty" bson:"note,omitempty"`
 }
 
 func (Homework) TableName() string {
@@ -37,7 +44,8 @@ func (repo *HomeworkMongoImpl) AddHomework(ctx context.Context, homework Homewor
 	id := homework.HomeworkID
 	description := homework.Description
 	content := homework.Content
-	h := Homework{id, description, content}
+	note := homework.Note
+	h := Homework{id, description, content,note}
 
 	insertResult, err := repo.CL.InsertOne(ctx, h)
 	if err != nil {

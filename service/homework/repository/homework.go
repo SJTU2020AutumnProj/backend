@@ -11,13 +11,14 @@ import (
 )
 
 type Homework struct {
-	HomeworkID int32 `gorm:"auto_increment;column:homework_id;primary_key:true;unique;index:"`
+	HomeworkID int32 `gorm:"auto_increment;column:homework_id;primary_key:true;unique;index"`
 	CourseID int32 `gorm:"not null;column:course_id"`
 	UserID int32 `gorm:"not null;column:user_id"`
 	StartTime time.Time `gorm:"not null;column:start_time"`
 	EndTime time.Time `gorm:"not null;column:end_time"`
 	Title string `gorm:"not null;column:title"`
 	State int32 `gorm:"not null;column:state"`
+	AnswerID int32 `gorm:"column:answer_id"`
 }
 
 func (Homework) TableName() string {
@@ -30,7 +31,6 @@ type HomeworkRepository interface {
 	UpdateHomework(ctx context.Context,homework Homework) error
 	SearchHomework(ctx context.Context,homeworkID int32) (Homework, error)
 	SearchHomeworkByUserID(ctx context.Context,userID int32) ([]*Homework, error)
-	SearchHomeworkByCourseID(ctx context.Context,courseID int32) ([]*Homework, error)
 }
 
 type HomeworkRepositoryImpl struct {
@@ -57,7 +57,14 @@ func(repo *HomeworkRepositoryImpl) UpdateHomework(ctx context.Context,homework H
 	tmp.UserID = homework.UserID
 	tmp.StartTime = homework.StartTime
 	tmp.EndTime = homework.EndTime
-	if err = repo.DB.Save(tmp).Error; nil != err {
+	tmp.Title = homework.Title
+	tmp.State = homework.State
+	tmp.AnswerID = homework.AnswerID
+	// if err = repo.DB.Save(tmp).Error; nil != err {
+	// 	return err
+	// }
+	// return nil
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
 		return err
 	}
 	return nil
@@ -76,17 +83,6 @@ func(repo *HomeworkRepositoryImpl) SearchHomeworkByUserID(ctx context.Context,us
 	var homeworks []*Homework
 
 	result := repo.DB.Table("homework").Where("user_id = ?", userID)
-
-	if err := result.Find(&homeworks).Error; nil != err {
-		return []*Homework{}, err
-	}
-	return homeworks, nil
-}
-
-func(repo *HomeworkRepositoryImpl) SearchHomeworkByCourseID(ctx context.Context,courseID int32) ([]*Homework, error){
-	var homeworks []*Homework
-
-	result := repo.DB.Table("homework").Where("course_id = ?", courseID)
 
 	if err := result.Find(&homeworks).Error; nil != err {
 		return []*Homework{}, err
