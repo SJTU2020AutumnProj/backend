@@ -13,7 +13,7 @@ service HomeworkService {
     rpc UpdateHomework(HomeworkInfo)returns (UpdateHomeworkResponse){}
     rpc SearchHomework(HomeworkID)returns (SearchHomeworkResponse){}
     rpc SearchHomeworkByUserID(UserID)returns (SearchHomeworkByUserIDResponse){}
-    rpc PostHomeworkAnswer(HomeworkAnswer)returns (PostHomeworkAnswerResponse) {}
+    rpc SearchHomeworkByCourseID(CourseID)returns(SearchHomeworkByCourseIDResponse){}
 }
 
 //Parameter protocol
@@ -24,10 +24,8 @@ message AssignHomeworkParam{
     int64 endTime = 4;
     string title = 5;
     int32 state = 6;
-    int32 answerID = 7;
-    string description = 8;
-    string content = 9;
-    string note = 10;
+    string description = 7;
+    string content = 8;
 }
 
 message AssignedHomework {
@@ -38,10 +36,7 @@ message AssignedHomework {
     int64 endTime = 5;
     string title = 6;
     int32 state = 7;
-    int32 answerID = 8;
-    string description = 9;
-    string content = 10;
-    string note = 11;
+    string description = 8;
 }
 
 message HomeworkID{
@@ -56,19 +51,16 @@ message HomeworkInfo{
     int64 endTime = 5;
     string title = 6;
     int32 state = 7;
-    int32 answerID = 8;
-    string description = 9;
-    string content = 10;
-    string note = 11;
+    string description = 8;
+    string content = 9;
 }
 
 message UserID{
     int32 userID = 1;
 }
 
-message HomeworkAnswer{
-    int32 homeworkID = 1;
-    int32 answerID = 2;
+message CourseID{
+    int32 courseID = 1;
 }
 
 //Response protocol
@@ -121,11 +113,12 @@ message SearchHomeworkByUserIDResponse{
     repeated HomeworkInfo homeworks = 3;
 }
 
-message PostHomeworkAnswerResponse{
+message SearchHomeworkByCourseIDResponse{
     enum Status {
         SUCCESS = 0;
         ERROR = -1;
     }
     Status status = 1;
     string msg = 2;
+    repeated HomeworkInfo homeworks = 3;
 }
