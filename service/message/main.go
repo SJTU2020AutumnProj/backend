@@ -77,7 +77,7 @@ func main() {
 		},
 	}
 	// 这里的topic注意与homework注册的要一致
-	if err := micro.RegisterSubscriber("go.micro.service.homework.assigned", service.Server(), handler); err != nil {
+	if err := micro.RegisterSubscriber("go.micro.service.homework.assigned", service.Server(), handler.Assigned); err != nil {
 		log.Fatal(errors.WithMessage(err, "subscribe"))
 	}
 
