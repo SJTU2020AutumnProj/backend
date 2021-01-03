@@ -49,6 +49,7 @@ type HomeworkService interface {
 	UpdateHomework(ctx context.Context, in *HomeworkInfo, opts ...client.CallOption) (*UpdateHomeworkResponse, error)
 	SearchHomework(ctx context.Context, in *HomeworkID, opts ...client.CallOption) (*SearchHomeworkResponse, error)
 	SearchHomeworkByUserID(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchHomeworkByUserIDResponse, error)
+	PostHomeworkAnswer(ctx context.Context, in *HomeworkAnswer, opts ...client.CallOption) (*PostHomeworkAnswerResponse, error)
 }
 
 type homeworkService struct {
@@ -113,6 +114,16 @@ func (c *homeworkService) SearchHomeworkByUserID(ctx context.Context, in *UserID
 	return out, nil
 }
 
+func (c *homeworkService) PostHomeworkAnswer(ctx context.Context, in *HomeworkAnswer, opts ...client.CallOption) (*PostHomeworkAnswerResponse, error) {
+	req := c.c.NewRequest(c.name, "HomeworkService.PostHomeworkAnswer", in)
+	out := new(PostHomeworkAnswerResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for HomeworkService service
 
 type HomeworkServiceHandler interface {
@@ -121,6 +132,7 @@ type HomeworkServiceHandler interface {
 	UpdateHomework(context.Context, *HomeworkInfo, *UpdateHomeworkResponse) error
 	SearchHomework(context.Context, *HomeworkID, *SearchHomeworkResponse) error
 	SearchHomeworkByUserID(context.Context, *UserID, *SearchHomeworkByUserIDResponse) error
+	PostHomeworkAnswer(context.Context, *HomeworkAnswer, *PostHomeworkAnswerResponse) error
 }
 
 func RegisterHomeworkServiceHandler(s server.Server, hdlr HomeworkServiceHandler, opts ...server.HandlerOption) error {
@@ -130,6 +142,7 @@ func RegisterHomeworkServiceHandler(s server.Server, hdlr HomeworkServiceHandler
 		UpdateHomework(ctx context.Context, in *HomeworkInfo, out *UpdateHomeworkResponse) error
 		SearchHomework(ctx context.Context, in *HomeworkID, out *SearchHomeworkResponse) error
 		SearchHomeworkByUserID(ctx context.Context, in *UserID, out *SearchHomeworkByUserIDResponse) error
+		PostHomeworkAnswer(ctx context.Context, in *HomeworkAnswer, out *PostHomeworkAnswerResponse) error
 	}
 	type HomeworkService struct {
 		homeworkService
@@ -160,4 +173,8 @@ func (h *homeworkServiceHandler) SearchHomework(ctx context.Context, in *Homewor
 
 func (h *homeworkServiceHandler) SearchHomeworkByUserID(ctx context.Context, in *UserID, out *SearchHomeworkByUserIDResponse) error {
 	return h.HomeworkServiceHandler.SearchHomeworkByUserID(ctx, in, out)
+}
+
+func (h *homeworkServiceHandler) PostHomeworkAnswer(ctx context.Context, in *HomeworkAnswer, out *PostHomeworkAnswerResponse) error {
+	return h.HomeworkServiceHandler.PostHomeworkAnswer(ctx, in, out)
 }
