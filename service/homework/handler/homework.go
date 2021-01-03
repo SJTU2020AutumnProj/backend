@@ -5,6 +5,8 @@ import (
 	pb "boxin/service/homework/proto/homework"
 	repo "boxin/service/homework/repository"
 
+	"github.com/micro/go-micro/v2"
+
 	// "boxin/service/homework/proto/homework"
 	"context"
 	"log"
@@ -15,11 +17,20 @@ import (
 	// "github.com/micro/go-micro/v2/registry/etcd"
 )
 
+// HomeworkHandler struct
 type HomeworkHandler struct {
 	HomeworkRepository repo.HomeworkRepository
 	HomeworkMongo      mongoDB.HomeworkMongo
+	// 由go-micro封装，用于发送消息的接口，老版本叫micro.Publisher
+	HomeworkAssignedPubEvent micro.Event
 }
 
+const (
+	// HomeworkAssignedTopic topic of AssignHomework message
+	HomeworkAssignedTopic = "assigned"
+)
+
+// AssignHomework assign homework
 func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHomeworkParam, resp *pb.AssignHomeworkResponse) error {
 	stime := time.Unix(req.StartTime, 0)
 	etime := time.Unix(req.EndTime, 0)
@@ -53,6 +64,19 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		resp.Msg = "Error"
 		log.Println("HomeworkHandler AssignHomework error: ", err)
 		return err
+	}
+	assignedHomework := &pb.AssignedHomework{
+		HomeworkID:  resp_homework.HomeworkID,
+		CourseID:    resp_homework.CourseID,
+		UserID:      resp_homework.UserID,
+		StartTime:   resp_homework.StartTime.Unix(),
+		EndTime:     resp_homework.EndTime.Unix(),
+		Title:       resp_homework.Title,
+		State:       resp_homework.State,
+		Description: req.Description,
+	}
+	if err = h.HomeworkAssignedPubEvent.Publish(ctx, assignedHomework); err != nil {
+		log.Println("HomeworkHandler AssignHomework error when sending message: ", err)
 	}
 	return nil
 }

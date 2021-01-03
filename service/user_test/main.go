@@ -38,6 +38,7 @@ func main() {
 	// registerTest(userService)
 	userID := registerStudent(userService, "ck", "12345", "SJTU", "518021910095", "19901714261", "chengke3@163.com", "chengke")
 	searchUser(userService, userID)
+	updateUser(userService, userID, 2, "ck",  "12345", "SJTU", "518021910095", "19901714261", "chengke3@163.com", "chengke")
 	// loginTest(authService)
 }
 
@@ -134,18 +135,32 @@ func updateUser(
 	userService user.UserService,
 	userID int32,
 	userType int32,
-	userName
+	userName string,
+	password string,
+	school string,
+	id string,
+	phone string,
+	email string,
+	name string,
 ) {
 	resp, err := userService.UpdateUser(
 		context.Background(),
 		&user.UpdateUserParam{
+			UserID: userID,
+			UserType: userType,
 			UserName: userName,
+			Password: password,
+			School: school,
+			ID: id,
+			Phone: phone,
+			Email: email,
+			Name: name,
 		},
 	)
 	if nil != err {
-		log.Println("searchUser error: ", err)
+		log.Println("updateUser error: ", err)
 	} else {
-		log.Println("searchUser success: ", resp)
+		log.Println("updateUser success: ", resp)
 	}
 }
 
