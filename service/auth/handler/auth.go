@@ -3,9 +3,12 @@ package handler
 import (
 	pb "boxin/service/auth/proto/auth"
 	repo "boxin/service/auth/repository"
+	redis "boxin/service/auth/redis"
 	"boxin/utils"
+	"strconv"
 	"context"
 	"log"
+	"time"
 )
 
 /*
@@ -13,6 +16,7 @@ AuthHandler : handler of auth service
 */
 type AuthHandler struct {
 	AuthRepository repo.AuthRepository
+	AuthRedis redis.AuthRedis
 }
 
 /*
@@ -61,6 +65,16 @@ func (a *AuthHandler) Login(ctx context.Context, in *pb.LoginParam, out *pb.Logi
 CheckAuth : check user's permission
 */
 func (a *AuthHandler) CheckAuth(ctx context.Context, in *pb.CheckAuthParam, out *pb.CheckAuthResponse) error {
+	_, err := a.AuthRedis.Get(ctx, in.Token)
+	if nil == err {
+		log.Println("AuthHandler CheckAuth reids error ", err)
+		*out = pb.CheckAuthResponse{
+			Status:  -1,
+			Msg: "Token already logout",
+			Data: nil,
+		}
+		return nil
+	}
 	claims, err := utils.JWTVerify(in.Token)
 	if err != nil {
 		*out = pb.CheckAuthResponse{
@@ -80,6 +94,42 @@ func (a *AuthHandler) CheckAuth(ctx context.Context, in *pb.CheckAuthParam, out 
 			UserName: claims.UserName,
 			Password: claims.Password,
 		},
+	}
+	return nil
+}
+
+/*
+Logout : invalid the token
+*/
+func (a *AuthHandler) Logout(ctx context.Context, in *pb.LogoutParam, out *pb.LogoutResponse) error {
+	claims, err := utils.JWTVerify(in.Token)
+	if nil != err {
+		*out = pb.LogoutResponse{
+			Status: 0,
+			Msg:    "Logout success",
+		}
+		return nil
+	}
+
+	expTime := claims.StandardClaims.ExpiresAt
+	now := time.Now().Unix()
+	expireTime := expTime - now
+	if expireTime < 0 {
+		expireTime = 0
+	}
+	setErr := a.AuthRedis.Set(ctx, in.Token, "", strconv.FormatInt(expireTime, 10))
+	if nil != setErr {
+		log.Println("AuthHandler Logout redis error ", setErr)
+		*out = pb.LogoutResponse{
+			Status:  -1,
+			Msg: "Redis set key value error",
+		}
+		return setErr
+	}
+
+	*out = pb.LogoutResponse{
+		Status:  0,
+		Msg: "Logout success",
 	}
 	return nil
 }
