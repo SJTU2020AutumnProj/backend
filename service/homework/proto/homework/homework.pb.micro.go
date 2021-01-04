@@ -52,6 +52,7 @@ type HomeworkService interface {
 	SearchHomeworkByCourseID(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchHomeworkByCourseIDResponse, error)
 	PostHomeworkAnswer(ctx context.Context, in *PostParam, opts ...client.CallOption) (*PostHomeworkAnswerResponse, error)
 	ReleaseHomeworkAnswer(ctx context.Context, in *RealeaseParam, opts ...client.CallOption) (*ReleaseHomeworkAnswerResponse, error)
+	StudentSearchHomework(ctx context.Context, in *StudentSearchHomeworkParam, opts ...client.CallOption) (*StudentSearchHomeworkResponse, error)
 }
 
 type homeworkService struct {
@@ -146,6 +147,16 @@ func (c *homeworkService) ReleaseHomeworkAnswer(ctx context.Context, in *Realeas
 	return out, nil
 }
 
+func (c *homeworkService) StudentSearchHomework(ctx context.Context, in *StudentSearchHomeworkParam, opts ...client.CallOption) (*StudentSearchHomeworkResponse, error) {
+	req := c.c.NewRequest(c.name, "HomeworkService.StudentSearchHomework", in)
+	out := new(StudentSearchHomeworkResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for HomeworkService service
 
 type HomeworkServiceHandler interface {
@@ -157,6 +168,7 @@ type HomeworkServiceHandler interface {
 	SearchHomeworkByCourseID(context.Context, *CourseID, *SearchHomeworkByCourseIDResponse) error
 	PostHomeworkAnswer(context.Context, *PostParam, *PostHomeworkAnswerResponse) error
 	ReleaseHomeworkAnswer(context.Context, *RealeaseParam, *ReleaseHomeworkAnswerResponse) error
+	StudentSearchHomework(context.Context, *StudentSearchHomeworkParam, *StudentSearchHomeworkResponse) error
 }
 
 func RegisterHomeworkServiceHandler(s server.Server, hdlr HomeworkServiceHandler, opts ...server.HandlerOption) error {
@@ -169,6 +181,7 @@ func RegisterHomeworkServiceHandler(s server.Server, hdlr HomeworkServiceHandler
 		SearchHomeworkByCourseID(ctx context.Context, in *CourseID, out *SearchHomeworkByCourseIDResponse) error
 		PostHomeworkAnswer(ctx context.Context, in *PostParam, out *PostHomeworkAnswerResponse) error
 		ReleaseHomeworkAnswer(ctx context.Context, in *RealeaseParam, out *ReleaseHomeworkAnswerResponse) error
+		StudentSearchHomework(ctx context.Context, in *StudentSearchHomeworkParam, out *StudentSearchHomeworkResponse) error
 	}
 	type HomeworkService struct {
 		homeworkService
@@ -211,4 +224,8 @@ func (h *homeworkServiceHandler) PostHomeworkAnswer(ctx context.Context, in *Pos
 
 func (h *homeworkServiceHandler) ReleaseHomeworkAnswer(ctx context.Context, in *RealeaseParam, out *ReleaseHomeworkAnswerResponse) error {
 	return h.HomeworkServiceHandler.ReleaseHomeworkAnswer(ctx, in, out)
+}
+
+func (h *homeworkServiceHandler) StudentSearchHomework(ctx context.Context, in *StudentSearchHomeworkParam, out *StudentSearchHomeworkResponse) error {
+	return h.HomeworkServiceHandler.StudentSearchHomework(ctx, in, out)
 }
