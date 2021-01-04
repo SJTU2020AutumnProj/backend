@@ -13,7 +13,7 @@ import (
 // Check struct
 type Check struct {
 	CheckID int32 `gorm:"auto_increment;column:check_id;primary_key:true;unique;index:"`
-	CheckTime time.Time `gorm:"not null;column:commit_time"`
+	CheckTime time.Time `gorm:"not null;column:check_time"`
 	Score int32 `gorm:"not null;column:score"`
 }
 
@@ -62,7 +62,18 @@ func(repo *CheckRepositoryImpl) AddCheck(ctx context.Context,check Check) (Check
 
 // RecordCheck record a check in user_homework table
 func(repo *CheckRepositoryImpl) RecordCheck(ctx context.Context, studentID int32, homeworkID int32, checkID int32) error{
-
+	var userHomework UserHomework
+	result := repo.DB.Table("user_homework").Where("user_id = ? and homework_id = ?", studentID, homeworkID)
+	if err := result.First(&userHomework).Error; nil != err {
+		log.Println("CheckRepository RecordCheck error ", err)
+		return err
+	}
+	userHomework.CheckID = checkID
+	if err := repo.DB.Table("user_homework").Model(&userHomework).Updates(userHomework).Error; nil != err {
+		log.Println("CheckRepository RecordCheck error ", err)
+		return err
+	}
+	return nil
 }
 
 // DeleteCheck delete a check in Mysql by its ID

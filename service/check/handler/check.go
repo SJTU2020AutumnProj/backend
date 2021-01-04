@@ -46,6 +46,15 @@ func (h *CheckHandler) CreateCheck(ctx context.Context, in *pb.CreateCheckParam,
 		return err
 	}
 
+	if err = h.CheckRepository.RecordCheck(ctx, in.StudentID, in.HomeworkID, respCheck.CheckID); nil != err {
+		*out = pb.CreateCheckResponse {
+			Status: -1,
+			Msg: "CreateCheck error",
+		}
+		log.Println("CheckHandler CreateCheck error: ", err)
+		return err
+	}
+
 	*out = pb.CreateCheckResponse {
 		Status: 0,
 		Msg: "CreateCheck success",
