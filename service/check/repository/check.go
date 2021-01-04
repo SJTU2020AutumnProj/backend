@@ -17,14 +17,30 @@ type Check struct {
 	Score int32 `gorm:"not null;column:score"`
 }
 
-// TableName configure table name
+// UserHomework struct
+type UserHomework struct {
+	HomeworkID int32 `gorm:"column:homework_id;primary_key:true;index:"`
+	UserID int32 `gorm:"column:user_id;primary_key:true;index:"`
+	AnswerID int32 `gorm:"column:answer_id"`
+	CheckID int32 `gorm:"column:check_id"`
+	State int32 `gorm:"column:state"`
+}
+
+
+// TableName configure Check table name
 func (Check) TableName() string {
 	return "check"
+}
+
+// TableName UserHomework table name
+func (UserHomework) TableName() string {
+	return "user_homework"
 }
 
 // CheckRepository interface
 type CheckRepository interface {
 	AddCheck(ctx context.Context, check Check)(Check, error)
+	RecordCheck(ctx context.Context, studentID int32, homeworkID int32, checkID int32) error
 	DeleteCheck(ctx context.Context, checkID int32) error
 	UpdateCheck(ctx context.Context, check Check) error
 	SearchCheckByID(ctx context.Context, checkID int32) (Check, error)
@@ -42,6 +58,11 @@ func(repo *CheckRepositoryImpl) AddCheck(ctx context.Context,check Check) (Check
 		return check,err
 	}
 	return check,nil
+}
+
+// RecordCheck record a check in user_homework table
+func(repo *CheckRepositoryImpl) RecordCheck(ctx context.Context, studentID int32, homeworkID int32, checkID int32) error{
+
 }
 
 // DeleteCheck delete a check in Mysql by its ID

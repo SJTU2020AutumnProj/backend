@@ -57,15 +57,15 @@ func (u *UserHandler) RegisterAdmin(ctx context.Context, in *pb.RegisterUserPara
 		Name:     in.Name,
 	}
 	res, err := u.UserRepository.AddUser(ctx, user)
-	// if nil != err {
-	// 	log.Println("RegisterAdmin error: ", err)
-	// 	*out = pb.RegisterUserResponse{
-	// 		Status: -1,
-	// 		Msg:    "Error",
-	// 		UserID: nil,
-	// 	}
-	// 	return err
-	// }
+	if nil != err {
+		log.Println("RegisterAdmin error: ", err)
+		*out = pb.RegisterUserResponse{
+			Status: -1,
+			Msg:    "Error",
+			UserID: nil,
+		}
+		return err
+	}
 	*out = pb.RegisterUserResponse{
 		Status: 0,
 		Msg:    "Success",
@@ -116,15 +116,15 @@ func (u *UserHandler) RegisterTeacher(ctx context.Context, in *pb.RegisterUserPa
 		Name:     in.Name,
 	}
 	res, err := u.UserRepository.AddUser(ctx, user)
-	// if nil != err {
-	// 	log.Println("RegisterTeacher error: ", err)
-	// 	*out = pb.RegisterUserResponse{
-	// 		Status: -1,
-	// 		Msg:    "Error",
-	// 		UserID: nil,
-	// 	}
-	// 	return err
-	// }
+	if nil != err {
+		log.Println("RegisterTeacher error: ", err)
+		*out = pb.RegisterUserResponse{
+			Status: -1,
+			Msg:    "Error",
+			UserID: nil,
+		}
+		return err
+	}
 	*out = pb.RegisterUserResponse{
 		Status: 0,
 		Msg:    "Success",
@@ -175,15 +175,15 @@ func (u *UserHandler) RegisterStudent(ctx context.Context, in *pb.RegisterUserPa
 		Name:     in.Name,
 	}
 	res, err := u.UserRepository.AddUser(ctx, user)
-	// if nil != err {
-	// 	log.Println("RegisterStudent error: ", err)
-	// 	*out = pb.RegisterUserResponse{
-	// 		Status: -1,
-	// 		Msg:    "Error",
-	// 		UserID: nil,
-	// 	}
-	// 	return err
-	// }
+	if nil != err {
+		log.Println("RegisterStudent error: ", err)
+		*out = pb.RegisterUserResponse{
+			Status: -1,
+			Msg:    "Error",
+			UserID: nil,
+		}
+		return err
+	}
 	*out = pb.RegisterUserResponse{
 		Status: 0,
 		Msg:    "Success",
