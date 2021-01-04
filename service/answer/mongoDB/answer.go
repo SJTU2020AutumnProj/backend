@@ -13,7 +13,8 @@ import (
 
 type Answer struct {
 	AnswerID   int32 `json:"answer_id,omitempty" bson:"answer_id,omitempty"`
-	AnswerJson string `json:"answer_json,omitempty" bson:"answer_json,omitempty"`
+	Content string `json:"content,omitempty" bson:"content,omitempty"`
+	Note string  `json:"note,omitempty" bson:"note,omitempty"`
 }
 
 func (Answer) TableName() string {
@@ -34,8 +35,9 @@ type AnswerMongoImpl struct {
 
 func (repo *AnswerMongoImpl) AddAnswer(ctx context.Context, answer Answer) error {
 	id := answer.AnswerID
-	json := answer.AnswerJson
-	h := Answer{id, json}
+	content := answer.Content
+	note := answer.Note
+	h := Answer{id, content , note}
 
 	insertResult, err := repo.CL.InsertOne(ctx, h)
 	if err != nil {
@@ -57,7 +59,7 @@ func (repo *AnswerMongoImpl) DeleteAnswer(ctx context.Context,answerID int32) er
 
 func (repo *AnswerMongoImpl) UpdateAnswer(ctx context.Context,answer Answer) error {
 	filter := bson.M{"answer_id": answer.AnswerID}
-	update := bson.M{"$set": bson.M{ "answer_json": answer.AnswerJson, }}
+	update := bson.M{"$set": bson.M{ "content": answer.Content, "note":answer.Note}}
 	updateResult, err := repo.CL.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return err

@@ -21,8 +21,20 @@ type Homework struct {
 	AnswerID int32 `gorm:"column:answer_id"`
 }
 
+type UserHomework struct {
+	HomeworkID int32 `gorm:"column:homework_id;primary_key:true;index:"`
+	UserID int32 `gorm:"column:user_id;primary_key:true;index:"`
+	AnswerID int32 `gorm:"column:answer_id"`
+	CheckID int32 `gorm:"column:check_id"`
+	State int32 `gorm:"column:state"`
+}
+
 func (Homework) TableName() string {
 	return "homework"
+}
+
+func (UserHomework) TableName() string {
+	return "user_homework"
 }
 
 type HomeworkRepository interface {
@@ -31,6 +43,9 @@ type HomeworkRepository interface {
 	UpdateHomework(ctx context.Context,homework Homework) error
 	SearchHomework(ctx context.Context,homeworkID int32) (Homework, error)
 	SearchHomeworkByUserID(ctx context.Context,userID int32) ([]*Homework, error)
+	SearchHomeworkByCourseID(ctx context.Context,courseID int32) ([]*Homework, error)
+	PostHomeworkAnswer(ctx context.Context,homeworkID int32, answerID int32) error
+	ReleaseHomeworkAnswer(ctx context.Context,homeworkID int32) error
 }
 
 type HomeworkRepositoryImpl struct {
@@ -88,4 +103,35 @@ func(repo *HomeworkRepositoryImpl) SearchHomeworkByUserID(ctx context.Context,us
 		return []*Homework{}, err
 	}
 	return homeworks, nil
+}
+
+func(repo *HomeworkRepositoryImpl) SearchHomeworkByCourseID(ctx context.Context,courseID int32) ([]*Homework, error){
+	var homeworks []*Homework
+
+	result := repo.DB.Table("homework").Where("course_id = ?", courseID)
+
+	if err := result.Find(&homeworks).Error; nil != err {
+		return []*Homework{}, err
+	}
+	return homeworks, nil
+}
+
+//这个函数仅仅把homework表中的answer_id填上
+func (repo*HomeworkRepositoryImpl) PostHomeworkAnswer(ctx context.Context,homeworkID int32, answerID int32) error {
+	tmp, err := repo.SearchHomework(ctx, homeworkID)
+	tmp.AnswerID = answerID
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
+		return err
+	}
+	return nil
+}
+
+//这个函数把homework表中的state更改
+func (repo*HomeworkRepositoryImpl) ReleaseHomeworkAnswer(ctx context.Context,homeworkID int32) error{
+	tmp, err := repo.SearchHomework(ctx, homeworkID)
+	tmp.State = 2
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
+		return err
+	}
+	return nil
 }

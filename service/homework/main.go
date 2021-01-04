@@ -78,7 +78,6 @@ func main() {
 		HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL:collection},
 		HomeworkRepository:&repo.HomeworkRepositoryImpl{DB: db},
 		HomeworkAssignedPubEvent: micro.NewEvent("go.micro.service.homework.assigned", service.Client()),
-		HomeworkAssignedPubEvent: micro.NewEvent("go.micro.service.homework.post", service.Client()),
 	}
 
 	if err := homework.RegisterHomeworkServiceHandler(service.Server(), homeworkHandler); nil != err {
