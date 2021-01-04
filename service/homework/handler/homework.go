@@ -349,3 +349,41 @@ func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.Rea
 	}
 	return nil
 }
+
+func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.HomeworkID, resp *pb.StudentSearchHomeworkResponse) error {
+	homework, err := h.HomeworkRepository.SearchHomework(ctx, req.HomeworkID)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchHomework error:", err)
+		return err
+	}
+
+	mongo_homework, err := h.HomeworkMongo.SearchHomework(ctx, req.HomeworkID)
+
+	*resp = pb.StudentSearchHomeworkResponse{
+		Status: 0,
+		Homework: &pb.HomeworkInfo{
+			HomeworkID:  homework.HomeworkID,
+			CourseID:    homework.CourseID,
+			UserID:      homework.UserID,
+			StartTime:   homework.StartTime.Unix(),
+			EndTime:     homework.EndTime.Unix(),
+			Title:       homework.Title,
+			State:       homework.State,
+			AnswerID:    homework.AnswerID,
+			Description: mongo_homework.Description,
+			Content:     mongo_homework.Content,
+			Note:        mongo_homework.Note,
+		},
+	}
+
+	err = h.HomeworkRepository.UpdateUserHomeworkState(ctx, homework.UserID, homework.HomeworkID, homework.State)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchHomework error:", err)
+		return err
+	}
+	return nil
+}

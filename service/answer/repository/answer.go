@@ -155,7 +155,7 @@ func (repo *AnswerRepositoryImpl) PostAnswerByTeacher(ctx context.Context,userID
 		State:		-1,
 	}
 
-	if err := repo.DB.Create(&um).Error;nil != err {
+	if err := repo.DB.Save(um).Error; nil != err {
 		return Answer{},err
 	}
 	return answer,nil
