@@ -46,6 +46,7 @@ type HomeworkRepository interface {
 	SearchHomeworkByCourseID(ctx context.Context,courseID int32) ([]*Homework, error)
 	PostHomeworkAnswer(ctx context.Context,homeworkID int32, answerID int32) error
 	ReleaseHomeworkAnswer(ctx context.Context,homeworkID int32) error
+	AddUserHomework(ctx context.Context,userID int32,homeworkID int32) error
 }
 
 type HomeworkRepositoryImpl struct {
@@ -131,6 +132,17 @@ func (repo*HomeworkRepositoryImpl) ReleaseHomeworkAnswer(ctx context.Context,hom
 	tmp, err := repo.SearchHomework(ctx, homeworkID)
 	tmp.State = 2
 	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
+		return err
+	}
+	return nil
+}
+
+func (repo*HomeworkRepositoryImpl) AddUserHomework(ctx context.Context,userID int32,homeworkID int32) error{
+	userhomework := UserHomework{
+		UserID: userID,
+		HomeworkID:homeworkID,
+	}
+	if err := repo.DB.Create(&userhomework).Error;nil != err {
 		return err
 	}
 	return nil
