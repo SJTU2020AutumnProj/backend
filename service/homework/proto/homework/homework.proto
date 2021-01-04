@@ -44,6 +44,17 @@ message AssignedHomework {
     string note = 11;
 }
 
+message PostHomeworkAnswer {
+    int32 homeworkID = 1;
+    int32 courseID = 2;
+    int32 userID = 3;
+    int64 startTime = 4;
+    int64 endTime = 5;
+    string title = 6;
+    int32 state = 7;
+    int32 answerID = 8;
+}
+
 message HomeworkID{
     int32 homeworkID = 1;
 }

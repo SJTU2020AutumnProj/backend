@@ -28,6 +28,7 @@ type HomeworkHandler struct {
 const (
 	// HomeworkAssignedTopic topic of AssignHomework message
 	HomeworkAssignedTopic = "assigned"
+	HomeworkAnswerPostTopic = "post"
 )
 
 // AssignHomework assign homework
@@ -67,21 +68,21 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		log.Println("HomeworkHandler AssignHomework error: ", err)
 		return err
 	}
-	// assignedHomework := &pb.AssignedHomework{
-	// 	HomeworkID:  resp_homework.HomeworkID,
-	// 	CourseID:    resp_homework.CourseID,
-	// 	UserID:      resp_homework.UserID,
-	// 	StartTime:   resp_homework.StartTime.Unix(),
-	// 	EndTime:     resp_homework.EndTime.Unix(),
-	// 	Title:       resp_homework.Title,
-	// 	State:       resp_homework.State,
-	// 	Description: req.Description,
-	// 	Content: req.Content,  
-	// 	Note:req.Note,
-	// }
-	// if err = h.HomeworkAssignedPubEvent.Publish(ctx, assignedHomework); err != nil {
-	// 	log.Println("HomeworkHandler AssignHomework error when sending message: ", err)
-	// }
+	assignedHomework := &pb.AssignedHomework{
+		HomeworkID:  resp_homework.HomeworkID,
+		CourseID:    resp_homework.CourseID,
+		UserID:      resp_homework.UserID,
+		StartTime:   resp_homework.StartTime.Unix(),
+		EndTime:     resp_homework.EndTime.Unix(),
+		Title:       resp_homework.Title,
+		State:       resp_homework.State,
+		Description: req.Description,
+		Content: req.Content,  
+		Note:req.Note,
+	}
+	if err = h.HomeworkAssignedPubEvent.Publish(ctx, assignedHomework); err != nil {
+		log.Println("HomeworkHandler AssignHomework error when sending message: ", err)
+	}
 	return nil
 }
 
@@ -240,5 +241,18 @@ func (h*HomeworkHandler) PostHomeworkAnswer(ctx context.Context, req *pb.Homewor
 	}
 	resp.Status = 0
 	resp.Msg = "Success"
+	postHomeworkAnswer := &pb.PostHomeworkAnswer {
+		HomeworkID: homework.HomeworkID,
+    	CourseID: homework.CourseID,
+    	UserID: homework.UserID,
+    	StartTime: homework.StartTime.Unix(),
+    	EndTime: homework.EndTime.Unix(),
+    	Title: homework.Title,
+    	State: homework.State,
+    	AnswerID: homework.AnswerID,
+	}
+	if err = h.HomeworkAssignedPubEvent.Publish(ctx, postHomeworkAnswer); err != nil {
+		log.Println("HomeworkHandler PostHomeworkAnswer error when sending message: ", err)
+	}
 	return nil
 }
