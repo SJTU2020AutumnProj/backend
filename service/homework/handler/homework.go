@@ -387,3 +387,18 @@ func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.Hom
 	}
 	return nil
 }
+
+//老师公布批改情况,即修改user_homework表中的state为4
+func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheckParam, resp *pb.ReleaseHomeworkAnswerResponse) error {
+	if err := h.HomeworkRepository.UpdateUserHomeworkState(ctx, req.UserID, req.HomeworkID, 4); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("HomeworkHandler ReleaseCheck error:", err)
+		return err
+	}
+	*resp = pb.ReleaseHomeworkAnswerResponse{
+		Status: 0,
+		Msg:    "Success",
+	}
+	return nil
+}
