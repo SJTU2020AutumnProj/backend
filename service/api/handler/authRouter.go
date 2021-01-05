@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-18 08:38:54
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-05 16:32:05
+ * @LastEditTime: 2021-01-05 21:59:01
  */
 package handler
 
@@ -37,8 +37,8 @@ func login(c *gin.Context) {
 		Password string `form:"password" json:"password"  binding:"required"`
 	}
 	type resdata struct {
-		User  auth.UserData `form:"user" json:"user"`
-		Token string        `form:"token" json:"token"`
+		User auth.UserData `form:"user" json:"user"`
+		// Token string        `form:"token" json:"token"`
 	}
 
 	var p param
@@ -58,12 +58,13 @@ func login(c *gin.Context) {
 	log.Println(result)
 	log.Println(err)
 	if err != nil {
-		c.JSON(200, gin.H{"status": 401, "msg": err})
+		c.JSON(200, gin.H{"status": 401, "msg": "登录失败", "data": err})
 		return
 	}
+	c.SetCookie("token", result.Token, 3600, "/", "localhost", false, true)
 	user := resdata{
-		User:  *result.Data,
-		Token: result.Token}
+		User: *result.Data}
+	// Token: result.Token}
 	c.JSON(200, gin.H{"status": 200, "msg": "登录成功", "data": user})
 	return
 
