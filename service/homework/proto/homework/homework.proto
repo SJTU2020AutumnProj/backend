@@ -15,7 +15,7 @@ service HomeworkService {
     rpc SearchHomeworkByUserID(UserID)returns (SearchHomeworkByUserIDResponse){}
     rpc SearchHomeworkByCourseID(CourseID)returns(SearchHomeworkByCourseIDResponse){}
     rpc PostHomeworkAnswer(PostParam)returns (PostHomeworkAnswerResponse) {}
-    rpc ReleaseHomeworkAnswer(RealeaseParam)returns (ReleaseHomeworkAnswerResponse) {}
+    rpc ReleaseHomeworkAnswer(ReleaseParam)returns (ReleaseHomeworkAnswerResponse) {}
     rpc StudentSearchHomework (StudentSearchHomeworkParam)returns (StudentSearchHomeworkResponse){} 
     rpc ReleaseCheck (ReleaseCheckParam)returns (ReleaseCheckResponse) {}
 }
@@ -77,7 +77,7 @@ message PostParam{
     string note = 5;
 }
 
-message RealeaseParam{
+message ReleaseParam{
     int32 HomeworkID = 1;
     int32 AnswerID = 2;
     int32 teacherID = 3;
