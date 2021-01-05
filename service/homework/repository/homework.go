@@ -48,7 +48,6 @@ type HomeworkRepository interface {
 	ReleaseHomeworkAnswer(ctx context.Context, homeworkID int32) error
 	AddUserHomework(ctx context.Context, userID int32, homeworkID int32) error
 	UpdateUserHomeworkState(ctx context.Context,userID int32,homeworkID int32,state int32) error
-	// ReleaseCheck(ctx context.Context,userID int32,homeworkID int32,state int32) error
 }
 
 type HomeworkRepositoryImpl struct {
@@ -166,12 +165,3 @@ func (repo* HomeworkRepositoryImpl) UpdateUserHomeworkState(ctx context.Context,
 	return nil
 }
 
-
-// func (repo *HomeworkRepositoryImpl) ReleaseCheck(ctx context.Context, userID int32,homeworkID int32) error {
-// 	tmp, err := repo.SearchHomework(ctx, homeworkID)
-// 	tmp.State = 2
-// 	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
-// 		return err
-// 	}
-// 	return nil
-// }

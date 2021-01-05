@@ -236,28 +236,6 @@ func (h *HomeworkHandler) SearchHomeworkByUserID(ctx context.Context, req *pb.Us
 	return nil
 }
 
-//发布作业答案
-// func (h*HomeworkHandler) PostHomeworkAnswer(ctx context.Context, req *pb.HomeworkAnswer,resp *pb.PostHomeworkAnswerResponse) error{
-// 	homework,err:=h.HomeworkRepository.SearchHomework(ctx,req.HomeworkID)
-// 	if nil != err {
-// 		resp.Status = -1
-// 		resp.Msg = "Error"
-// 		log.Println("Handler PostHomeworkAnswer error: ", err)
-// 		return err
-// 	}
-// 	homework.AnswerID = req.AnswerID
-
-// 	if err := h.HomeworkRepository.UpdateHomework(ctx, homework); nil != err {
-// 		resp.Status = -1
-// 		resp.Msg = "Error"
-// 		log.Println("HomeworkHandler UpdateHomework error:", err)
-// 		return err
-// 	}
-// 	resp.Status = 0
-// 	resp.Msg = "Success"
-// 	return nil
-// }
-
 func (h *HomeworkHandler) SearchHomeworkByCourseID(ctx context.Context, req *pb.CourseID, resp *pb.SearchHomeworkByCourseIDResponse) error {
 	homeworks, err := h.HomeworkRepository.SearchHomeworkByCourseID(ctx, req.CourseID)
 
@@ -350,7 +328,7 @@ func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.Rea
 	return nil
 }
 
-func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.HomeworkID, resp *pb.StudentSearchHomeworkResponse) error {
+func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.StudentSearchHomeworkParam, resp *pb.StudentSearchHomeworkResponse) error {
 	homework, err := h.HomeworkRepository.SearchHomework(ctx, req.HomeworkID)
 	if nil != err {
 		resp.Status = -1
@@ -389,14 +367,14 @@ func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.Hom
 }
 
 //老师公布批改情况,即修改user_homework表中的state为4
-func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheckParam, resp *pb.ReleaseHomeworkAnswerResponse) error {
+func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheckParam, resp *pb.ReleaseCheckResponse) error {
 	if err := h.HomeworkRepository.UpdateUserHomeworkState(ctx, req.UserID, req.HomeworkID, 4); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("HomeworkHandler ReleaseCheck error:", err)
 		return err
 	}
-	*resp = pb.ReleaseHomeworkAnswerResponse{
+	*resp = pb.ReleaseCheckResponse{
 		Status: 0,
 		Msg:    "Success",
 	}
