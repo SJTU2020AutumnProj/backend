@@ -319,7 +319,7 @@ func TestUpdateUser(t *testing.T) {
 		id2 := tf(user.UpdateUserResponse_SUCCESS)
 		So(id2, ShouldBeGreaterThanOrEqualTo, 0)
 
-		req.UserID = 999999999
+		req.UserID = 99999999
 		id3 := tf_error(user.UpdateUserResponse_SUCCESS)
 		So(id3, ShouldBeGreaterThanOrEqualTo, -1)
 

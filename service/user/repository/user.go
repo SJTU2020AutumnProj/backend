@@ -75,6 +75,9 @@ UpdateUser : update an tuple in table `user` with the given information
 */
 func (repo *UserRepositoryImpl) UpdateUser(ctx context.Context, user User) error {
 	tmp, err := repo.SearchUser(ctx, user.UserID)
+	if nil!=err {
+		return err
+	}
 	tmp.UserType = user.UserType
 	tmp.UserName = user.UserName
 	tmp.Password = user.Password
@@ -83,6 +86,7 @@ func (repo *UserRepositoryImpl) UpdateUser(ctx context.Context, user User) error
 	tmp.Phone = user.Phone
 	tmp.Email = user.Email
 	tmp.Name = user.Name
+
 	// if err = repo.DB.Save(tmp).Error; nil != err {
 	// 	return err
 	// }
