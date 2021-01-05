@@ -33,8 +33,8 @@ const (
 	HomeworkAssignedTopic = "assigned"
 	// HomeworkAnswerPubTopic topic of ReleaseHomeworkAnswer message
 	HomeworkAnswerPubTopic = "published"
-	//CheckPubEvent topic of ReleaseCheck message
-	CheckPubEvent = "checkReleased"
+	//CheckPubTopic topic of ReleaseCheck message
+	CheckPubTopic = "checkReleased"
 )
 
 // AssignHomework assign homework
@@ -428,6 +428,22 @@ func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheck
 	*resp = pb.ReleaseCheckResponse{
 		Status: 0,
 		Msg:    "Success",
+	}
+	homework, searchErr := h.HomeworkRepository.SearchHomework(ctx, req.HomeworkID)
+	if nil != searchErr {
+		log.Println("HomeworkHandler ReleaseCheck error ", searchErr)
+		return nil
+	}
+	releasedCheck := &pb.ReleasedCheck {
+		HomeworkID: req.HomeworkID,
+    	TeacherID: req.TeacherID,
+    	StudentID: userIDs,
+    	CourseID: req.CourseID,
+    	ReleaseTime: req.ReleaseTime,
+    	Title: homework.Title,
+	}
+	if err := h.CheckPubEvent.Publish(ctx, releasedCheck); err != nil {
+		log.Println("HomeworkHandler ReleaseCheck send message error ", err)
 	}
 	return nil
 }

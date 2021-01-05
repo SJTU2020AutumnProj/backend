@@ -113,10 +113,10 @@ message ReleaseCheckParam {
 message ReleasedCheck {
     int32 homeworkID = 1;
     int32 teacherID = 2;
-    int32 studentID = 3;
+    repeated int32 studentID = 3;
     int32 courseID = 4;
     int64 releaseTime = 5;
-    int32 title = 6;
+    string title = 6;
 }
 
 //Response protocol
