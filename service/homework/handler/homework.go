@@ -356,7 +356,7 @@ func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.Stu
 		},
 	}
 
-	err = h.HomeworkRepository.UpdateUserHomeworkState(ctx, homework.UserID, homework.HomeworkID, homework.State)
+	err = h.HomeworkRepository.UpdateUserHomeworkState(ctx, req.UserID, req.HomeworkID, 1)
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
