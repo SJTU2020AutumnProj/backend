@@ -86,7 +86,7 @@ func assignHomeworkTest(
 	}
 }
 
-func postAnswerTest(
+func homeworkAnswerPubTest(
 	homeworkService homework.HomeworkService,
 	homeworkID int32,
 	courseID int32,
