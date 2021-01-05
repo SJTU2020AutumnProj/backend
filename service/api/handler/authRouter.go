@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-18 08:38:54
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-18 23:36:12
+ * @LastEditTime: 2020-12-22 19:49:16
  */
 package handler
 
@@ -25,9 +25,9 @@ func AuthRouter(g *gin.Engine, s auth.AuthService) {
 	authService = s
 	v1 := g.Group("/auth")
 	{
-		v1.POST("/login", login)  //登录
-		v1.GET("/logout", logout) //退出登录
-
+		v1.POST("/login", login)    //登录
+		v1.GET("/logout", logout)   //退出登录
+		v1.GET("/check", checkAuth) //检测权限
 	}
 }
 
@@ -37,7 +37,8 @@ func login(c *gin.Context) {
 		Password string `form:"password" json:"password"  binding:"required"`
 	}
 	type resdata struct {
-		User auth.UserData `form:"user" json:"user"`
+		User  auth.UserData `form:"user" json:"user"`
+		Token string        `form:"token" json:"token"`
 	}
 
 	var p param
@@ -61,14 +62,32 @@ func login(c *gin.Context) {
 		return
 	}
 	user := resdata{
-		User: *result.Data}
+		User:  *result.Data,
+		Token: result.Token}
 	c.JSON(200, gin.H{"status": 200, "msg": "登录成功", "data": user})
 	return
 
 }
 
 func logout(c *gin.Context) {
-
+	token := c.Request.Header.Get("token")
+	log.Println(token)
 	c.JSON(200, gin.H{"status": 200, "msg": "退出登录成功"})
+	return
+}
+
+func checkAuth(c *gin.Context) {
+	// 获取header参数
+	token := c.Request.Header.Get("token")
+	log.Println(token)
+	ck := auth.CheckAuthParam{Token: token}
+	result, err := authService.CheckAuth(context.Background(), &ck)
+	log.Println(result)
+	log.Println(err)
+	if nil != err {
+		c.JSON(200, gin.H{"status": 401, "msg": err})
+		return
+	}
+	c.JSON(200, gin.H{"status": 200, "msg": "check auth success"})
 	return
 }

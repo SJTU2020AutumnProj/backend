@@ -43,11 +43,11 @@ func register(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "验证码有误，请重新确认后再试"})
 		return
 	}
-	u := user.UserInfo{
+	u := user.RegisterUserParam{
 		UserName: p.UserName,
 		Password: p.Password,
 		School:   p.School,
-		Id:       p.ID,
+		ID:       p.ID,
 		Phone:    p.Phone,
 		Email:    p.Email}
 
@@ -103,7 +103,7 @@ func getinfo(c *gin.Context) {
 			UserName: result.User.UserName,
 			UserType: result.User.UserType,
 			School:   result.User.School,
-			ID:       result.User.Id,
+			ID:       result.User.ID,
 			Phone:    result.User.Phone,
 			Email:    result.User.Email,
 		},
@@ -135,7 +135,8 @@ func editinfo(c *gin.Context) {
 	ID := user.UserID{
 		UserID: p.User.UserID}
 	data, err := userService.SearchUser(context.Background(), &ID)
-
+	log.Println(data)
+	log.Println(err)
 	user := data.User
 
 	var flag bool
@@ -148,8 +149,8 @@ func editinfo(c *gin.Context) {
 		user.School = p.User.School
 		flag = true
 	}
-	if user.Id != p.User.ID {
-		user.Id = p.User.ID
+	if user.ID != p.User.ID {
+		user.ID = p.User.ID
 		flag = true
 	}
 	if user.Phone != p.User.Phone {
@@ -165,12 +166,13 @@ func editinfo(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 200, "msg": "未发生改动，修改信息与数据库信息一致"})
 		return
 	}
-	result, err := userService.UpdateUser(context.Background(), user)
-	log.Println(result)
-	log.Println(err)
-	if err != nil {
-		c.JSON(200, gin.H{"status": 401, "msg": "数据库更新失败"})
-		return
-	}
-	c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
+
+	// result, err := userService.UpdateUser(context.Background(), &user)
+	// log.Println(result)
+	// log.Println(err)
+	// if err != nil {
+	// 	c.JSON(200, gin.H{"status": 401, "msg": "数据库更新失败"})
+	// 	return
+	// }
+	// c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
 }

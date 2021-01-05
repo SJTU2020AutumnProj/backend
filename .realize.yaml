@@ -81,3 +81,46 @@ schema:
       - .git
       - .realize
       - vendor
+- name: answer
+  path: service/answer
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill answer
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: course
+  path: service/course
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill course
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+
