@@ -46,6 +46,7 @@ func NewMessageServiceEndpoints() []*api.Endpoint {
 type MessageService interface {
 	GetMessageByUserID(ctx context.Context, in *GetMessageByUserIDParam, opts ...client.CallOption) (*GetMessageByUserIDResponse, error)
 	GetMessageByCourseID(ctx context.Context, in *GetMessageByCourseIDParam, opts ...client.CallOption) (*GetMessageByCourseIDResponse, error)
+	GetMessageByID(ctx context.Context, in *GetMessageByIDParam, opts ...client.CallOption) (*GetMessageByIDResponse, error)
 }
 
 type messageService struct {
@@ -80,17 +81,29 @@ func (c *messageService) GetMessageByCourseID(ctx context.Context, in *GetMessag
 	return out, nil
 }
 
+func (c *messageService) GetMessageByID(ctx context.Context, in *GetMessageByIDParam, opts ...client.CallOption) (*GetMessageByIDResponse, error) {
+	req := c.c.NewRequest(c.name, "MessageService.GetMessageByID", in)
+	out := new(GetMessageByIDResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for MessageService service
 
 type MessageServiceHandler interface {
 	GetMessageByUserID(context.Context, *GetMessageByUserIDParam, *GetMessageByUserIDResponse) error
 	GetMessageByCourseID(context.Context, *GetMessageByCourseIDParam, *GetMessageByCourseIDResponse) error
+	GetMessageByID(context.Context, *GetMessageByIDParam, *GetMessageByIDResponse) error
 }
 
 func RegisterMessageServiceHandler(s server.Server, hdlr MessageServiceHandler, opts ...server.HandlerOption) error {
 	type messageService interface {
 		GetMessageByUserID(ctx context.Context, in *GetMessageByUserIDParam, out *GetMessageByUserIDResponse) error
 		GetMessageByCourseID(ctx context.Context, in *GetMessageByCourseIDParam, out *GetMessageByCourseIDResponse) error
+		GetMessageByID(ctx context.Context, in *GetMessageByIDParam, out *GetMessageByIDResponse) error
 	}
 	type MessageService struct {
 		messageService
@@ -109,4 +122,8 @@ func (h *messageServiceHandler) GetMessageByUserID(ctx context.Context, in *GetM
 
 func (h *messageServiceHandler) GetMessageByCourseID(ctx context.Context, in *GetMessageByCourseIDParam, out *GetMessageByCourseIDResponse) error {
 	return h.MessageServiceHandler.GetMessageByCourseID(ctx, in, out)
+}
+
+func (h *messageServiceHandler) GetMessageByID(ctx context.Context, in *GetMessageByIDParam, out *GetMessageByIDResponse) error {
+	return h.MessageServiceHandler.GetMessageByID(ctx, in, out)
 }
