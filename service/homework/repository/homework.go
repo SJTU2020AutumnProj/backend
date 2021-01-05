@@ -44,11 +44,11 @@ type HomeworkRepository interface {
 	SearchHomework(ctx context.Context, homeworkID int32) (Homework, error)
 	SearchHomeworkByUserID(ctx context.Context, userID int32) ([]*Homework, error)
 	SearchHomeworkByCourseID(ctx context.Context, courseID int32) ([]*Homework, error)
-	SearchUserIDByHomeworkID(ctx context.Context,homeworkID int32)([]int32,error)
+	SearchUserIDByHomeworkID(ctx context.Context, homeworkID int32) ([]int32, error)
 	PostHomeworkAnswer(ctx context.Context, homeworkID int32, answerID int32) error
 	ReleaseHomeworkAnswer(ctx context.Context, homeworkID int32) error
 	AddUserHomework(ctx context.Context, userID int32, homeworkID int32) error
-	UpdateUserHomeworkState(ctx context.Context,userID int32,homeworkID int32,state int32) error
+	UpdateUserHomeworkState(ctx context.Context, userID int32, homeworkID int32, state int32) error
 }
 
 type HomeworkRepositoryImpl struct {
@@ -63,7 +63,13 @@ func (repo *HomeworkRepositoryImpl) AddHomework(ctx context.Context, homework Ho
 }
 
 func (repo *HomeworkRepositoryImpl) DeleteHomework(ctx context.Context, homeworkID int32) error {
-	if err := repo.DB.Delete(&Homework{}, homeworkID).Error; nil != err {
+	// if err := repo.DB.Delete(&Homework{}, homeworkID).Error; nil != err {
+	// 	return err
+	// }
+	// return nil
+	tmp, err := repo.SearchHomework(ctx, homeworkID)
+	tmp.State = -1
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
 		return err
 	}
 	return nil
@@ -119,17 +125,17 @@ func (repo *HomeworkRepositoryImpl) SearchHomeworkByCourseID(ctx context.Context
 	return homeworks, nil
 }
 
-func (repo *HomeworkRepositoryImpl) SearchUserIDByHomeworkID(ctx context.Context,homeworkID int32) ([]int32,error) {
+func (repo *HomeworkRepositoryImpl) SearchUserIDByHomeworkID(ctx context.Context, homeworkID int32) ([]int32, error) {
 	var uh []*UserHomework
 	var userIDs []int32
-	result := repo.DB.Table("user_homework").Where("homework_id = ?",homeworkID)
+	result := repo.DB.Table("user_homework").Where("homework_id = ?", homeworkID)
 
 	if err := result.Find(&uh).Error; nil != err {
 		return []int32{}, err
 	}
 
-	for i := range uh{
-		userIDs = append(userIDs , uh[i].UserID) 
+	for i := range uh {
+		userIDs = append(userIDs, uh[i].UserID)
 	}
 
 	if nil != result.Error {
@@ -162,7 +168,7 @@ func (repo *HomeworkRepositoryImpl) AddUserHomework(ctx context.Context, userID 
 	userhomework := UserHomework{
 		UserID:     userID,
 		HomeworkID: homeworkID,
-		AnswerID: -1,
+		AnswerID:   -1,
 		CheckID:    -1,
 		State:      0,
 	}
@@ -173,15 +179,14 @@ func (repo *HomeworkRepositoryImpl) AddUserHomework(ctx context.Context, userID 
 }
 
 //这个函数把user_homework表中的state更改
-func (repo* HomeworkRepositoryImpl) UpdateUserHomeworkState(ctx context.Context,userID int32,homeworkID int32,state int32) error {
-	userhomework:=UserHomework {
-		UserID:userID,
-		HomeworkID:homeworkID,
-		State:state,
+func (repo *HomeworkRepositoryImpl) UpdateUserHomeworkState(ctx context.Context, userID int32, homeworkID int32, state int32) error {
+	userhomework := UserHomework{
+		UserID:     userID,
+		HomeworkID: homeworkID,
+		State:      state,
 	}
 	if err := repo.DB.Create(&userhomework).Error; nil != err {
 		return err
 	}
 	return nil
 }
-
