@@ -48,9 +48,11 @@ type AnswerService interface {
 	DeleteAnswer(ctx context.Context, in *AnswerID, opts ...client.CallOption) (*DeleteAnswerResponse, error)
 	UpdateAnswer(ctx context.Context, in *AnswerInfo, opts ...client.CallOption) (*UpdateAnswerResponse, error)
 	SearchAnswer(ctx context.Context, in *AnswerID, opts ...client.CallOption) (*SearchAnswerResponse, error)
-	SearchAnswerByStudentID(ctx context.Context, in *StudentID, opts ...client.CallOption) (*SearchAnswerByStudentIDResponse, error)
+	SearchAnswerByUserID(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchAnswerByUserIDResponse, error)
 	SearchAnswerByHomeworkID(ctx context.Context, in *HomeworkID, opts ...client.CallOption) (*SearchAnswerByHomeworkIDResponse, error)
-	SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, in *StudentIDAndHomeworkID, opts ...client.CallOption) (*SearchAnswerByStudentIDAndHomeworkIDResponse, error)
+	SearchAnswerByUserIDAndHomeworkID(ctx context.Context, in *UserIDAndHomeworkID, opts ...client.CallOption) (*SearchAnswerByUserIDAndHomeworkIDResponse, error)
+	PostAnswerByStudent(ctx context.Context, in *PostAnswerParam, opts ...client.CallOption) (*PostAnswerResponse, error)
+	PostAnswerByTeacher(ctx context.Context, in *PostAnswerParam, opts ...client.CallOption) (*PostAnswerResponse, error)
 }
 
 type answerService struct {
@@ -105,9 +107,9 @@ func (c *answerService) SearchAnswer(ctx context.Context, in *AnswerID, opts ...
 	return out, nil
 }
 
-func (c *answerService) SearchAnswerByStudentID(ctx context.Context, in *StudentID, opts ...client.CallOption) (*SearchAnswerByStudentIDResponse, error) {
-	req := c.c.NewRequest(c.name, "AnswerService.SearchAnswerByStudentID", in)
-	out := new(SearchAnswerByStudentIDResponse)
+func (c *answerService) SearchAnswerByUserID(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchAnswerByUserIDResponse, error) {
+	req := c.c.NewRequest(c.name, "AnswerService.SearchAnswerByUserID", in)
+	out := new(SearchAnswerByUserIDResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -125,9 +127,29 @@ func (c *answerService) SearchAnswerByHomeworkID(ctx context.Context, in *Homewo
 	return out, nil
 }
 
-func (c *answerService) SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, in *StudentIDAndHomeworkID, opts ...client.CallOption) (*SearchAnswerByStudentIDAndHomeworkIDResponse, error) {
-	req := c.c.NewRequest(c.name, "AnswerService.SearchAnswerByStudentIDAndHomeworkID", in)
-	out := new(SearchAnswerByStudentIDAndHomeworkIDResponse)
+func (c *answerService) SearchAnswerByUserIDAndHomeworkID(ctx context.Context, in *UserIDAndHomeworkID, opts ...client.CallOption) (*SearchAnswerByUserIDAndHomeworkIDResponse, error) {
+	req := c.c.NewRequest(c.name, "AnswerService.SearchAnswerByUserIDAndHomeworkID", in)
+	out := new(SearchAnswerByUserIDAndHomeworkIDResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *answerService) PostAnswerByStudent(ctx context.Context, in *PostAnswerParam, opts ...client.CallOption) (*PostAnswerResponse, error) {
+	req := c.c.NewRequest(c.name, "AnswerService.PostAnswerByStudent", in)
+	out := new(PostAnswerResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *answerService) PostAnswerByTeacher(ctx context.Context, in *PostAnswerParam, opts ...client.CallOption) (*PostAnswerResponse, error) {
+	req := c.c.NewRequest(c.name, "AnswerService.PostAnswerByTeacher", in)
+	out := new(PostAnswerResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -142,9 +164,11 @@ type AnswerServiceHandler interface {
 	DeleteAnswer(context.Context, *AnswerID, *DeleteAnswerResponse) error
 	UpdateAnswer(context.Context, *AnswerInfo, *UpdateAnswerResponse) error
 	SearchAnswer(context.Context, *AnswerID, *SearchAnswerResponse) error
-	SearchAnswerByStudentID(context.Context, *StudentID, *SearchAnswerByStudentIDResponse) error
+	SearchAnswerByUserID(context.Context, *UserID, *SearchAnswerByUserIDResponse) error
 	SearchAnswerByHomeworkID(context.Context, *HomeworkID, *SearchAnswerByHomeworkIDResponse) error
-	SearchAnswerByStudentIDAndHomeworkID(context.Context, *StudentIDAndHomeworkID, *SearchAnswerByStudentIDAndHomeworkIDResponse) error
+	SearchAnswerByUserIDAndHomeworkID(context.Context, *UserIDAndHomeworkID, *SearchAnswerByUserIDAndHomeworkIDResponse) error
+	PostAnswerByStudent(context.Context, *PostAnswerParam, *PostAnswerResponse) error
+	PostAnswerByTeacher(context.Context, *PostAnswerParam, *PostAnswerResponse) error
 }
 
 func RegisterAnswerServiceHandler(s server.Server, hdlr AnswerServiceHandler, opts ...server.HandlerOption) error {
@@ -153,9 +177,11 @@ func RegisterAnswerServiceHandler(s server.Server, hdlr AnswerServiceHandler, op
 		DeleteAnswer(ctx context.Context, in *AnswerID, out *DeleteAnswerResponse) error
 		UpdateAnswer(ctx context.Context, in *AnswerInfo, out *UpdateAnswerResponse) error
 		SearchAnswer(ctx context.Context, in *AnswerID, out *SearchAnswerResponse) error
-		SearchAnswerByStudentID(ctx context.Context, in *StudentID, out *SearchAnswerByStudentIDResponse) error
+		SearchAnswerByUserID(ctx context.Context, in *UserID, out *SearchAnswerByUserIDResponse) error
 		SearchAnswerByHomeworkID(ctx context.Context, in *HomeworkID, out *SearchAnswerByHomeworkIDResponse) error
-		SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, in *StudentIDAndHomeworkID, out *SearchAnswerByStudentIDAndHomeworkIDResponse) error
+		SearchAnswerByUserIDAndHomeworkID(ctx context.Context, in *UserIDAndHomeworkID, out *SearchAnswerByUserIDAndHomeworkIDResponse) error
+		PostAnswerByStudent(ctx context.Context, in *PostAnswerParam, out *PostAnswerResponse) error
+		PostAnswerByTeacher(ctx context.Context, in *PostAnswerParam, out *PostAnswerResponse) error
 	}
 	type AnswerService struct {
 		answerService
@@ -184,14 +210,22 @@ func (h *answerServiceHandler) SearchAnswer(ctx context.Context, in *AnswerID, o
 	return h.AnswerServiceHandler.SearchAnswer(ctx, in, out)
 }
 
-func (h *answerServiceHandler) SearchAnswerByStudentID(ctx context.Context, in *StudentID, out *SearchAnswerByStudentIDResponse) error {
-	return h.AnswerServiceHandler.SearchAnswerByStudentID(ctx, in, out)
+func (h *answerServiceHandler) SearchAnswerByUserID(ctx context.Context, in *UserID, out *SearchAnswerByUserIDResponse) error {
+	return h.AnswerServiceHandler.SearchAnswerByUserID(ctx, in, out)
 }
 
 func (h *answerServiceHandler) SearchAnswerByHomeworkID(ctx context.Context, in *HomeworkID, out *SearchAnswerByHomeworkIDResponse) error {
 	return h.AnswerServiceHandler.SearchAnswerByHomeworkID(ctx, in, out)
 }
 
-func (h *answerServiceHandler) SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, in *StudentIDAndHomeworkID, out *SearchAnswerByStudentIDAndHomeworkIDResponse) error {
-	return h.AnswerServiceHandler.SearchAnswerByStudentIDAndHomeworkID(ctx, in, out)
+func (h *answerServiceHandler) SearchAnswerByUserIDAndHomeworkID(ctx context.Context, in *UserIDAndHomeworkID, out *SearchAnswerByUserIDAndHomeworkIDResponse) error {
+	return h.AnswerServiceHandler.SearchAnswerByUserIDAndHomeworkID(ctx, in, out)
+}
+
+func (h *answerServiceHandler) PostAnswerByStudent(ctx context.Context, in *PostAnswerParam, out *PostAnswerResponse) error {
+	return h.AnswerServiceHandler.PostAnswerByStudent(ctx, in, out)
+}
+
+func (h *answerServiceHandler) PostAnswerByTeacher(ctx context.Context, in *PostAnswerParam, out *PostAnswerResponse) error {
+	return h.AnswerServiceHandler.PostAnswerByTeacher(ctx, in, out)
 }

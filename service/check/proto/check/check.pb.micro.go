@@ -46,10 +46,8 @@ func NewCheckServiceEndpoints() []*api.Endpoint {
 type CheckService interface {
 	CreateCheck(ctx context.Context, in *CreateCheckParam, opts ...client.CallOption) (*CreateCheckResponse, error)
 	DeleteCheck(ctx context.Context, in *CheckID, opts ...client.CallOption) (*DeleteCheckResponse, error)
-	UpdateCheck(ctx context.Context, in *CheckInfo, opts ...client.CallOption) (*UpdateCheckResponse, error)
-	SearchCheck(ctx context.Context, in *CheckID, opts ...client.CallOption) (*SearchCheckResponse, error)
-	SearchCheckByTeacherID(ctx context.Context, in *TeacherID, opts ...client.CallOption) (*SearchCheckByTeacherIDResponse, error)
-	SearchCheckByHomeworkID(ctx context.Context, in *HomeworkID, opts ...client.CallOption) (*SearchCheckByHomeworkIDResponse, error)
+	UpdateCheck(ctx context.Context, in *UpdateCheckParam, opts ...client.CallOption) (*UpdateCheckResponse, error)
+	SearchCheckByID(ctx context.Context, in *CheckID, opts ...client.CallOption) (*SearchCheckByIDResponse, error)
 }
 
 type checkService struct {
@@ -84,7 +82,7 @@ func (c *checkService) DeleteCheck(ctx context.Context, in *CheckID, opts ...cli
 	return out, nil
 }
 
-func (c *checkService) UpdateCheck(ctx context.Context, in *CheckInfo, opts ...client.CallOption) (*UpdateCheckResponse, error) {
+func (c *checkService) UpdateCheck(ctx context.Context, in *UpdateCheckParam, opts ...client.CallOption) (*UpdateCheckResponse, error) {
 	req := c.c.NewRequest(c.name, "CheckService.UpdateCheck", in)
 	out := new(UpdateCheckResponse)
 	err := c.c.Call(ctx, req, out, opts...)
@@ -94,29 +92,9 @@ func (c *checkService) UpdateCheck(ctx context.Context, in *CheckInfo, opts ...c
 	return out, nil
 }
 
-func (c *checkService) SearchCheck(ctx context.Context, in *CheckID, opts ...client.CallOption) (*SearchCheckResponse, error) {
-	req := c.c.NewRequest(c.name, "CheckService.SearchCheck", in)
-	out := new(SearchCheckResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *checkService) SearchCheckByTeacherID(ctx context.Context, in *TeacherID, opts ...client.CallOption) (*SearchCheckByTeacherIDResponse, error) {
-	req := c.c.NewRequest(c.name, "CheckService.SearchCheckByTeacherID", in)
-	out := new(SearchCheckByTeacherIDResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *checkService) SearchCheckByHomeworkID(ctx context.Context, in *HomeworkID, opts ...client.CallOption) (*SearchCheckByHomeworkIDResponse, error) {
-	req := c.c.NewRequest(c.name, "CheckService.SearchCheckByHomeworkID", in)
-	out := new(SearchCheckByHomeworkIDResponse)
+func (c *checkService) SearchCheckByID(ctx context.Context, in *CheckID, opts ...client.CallOption) (*SearchCheckByIDResponse, error) {
+	req := c.c.NewRequest(c.name, "CheckService.SearchCheckByID", in)
+	out := new(SearchCheckByIDResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -129,20 +107,16 @@ func (c *checkService) SearchCheckByHomeworkID(ctx context.Context, in *Homework
 type CheckServiceHandler interface {
 	CreateCheck(context.Context, *CreateCheckParam, *CreateCheckResponse) error
 	DeleteCheck(context.Context, *CheckID, *DeleteCheckResponse) error
-	UpdateCheck(context.Context, *CheckInfo, *UpdateCheckResponse) error
-	SearchCheck(context.Context, *CheckID, *SearchCheckResponse) error
-	SearchCheckByTeacherID(context.Context, *TeacherID, *SearchCheckByTeacherIDResponse) error
-	SearchCheckByHomeworkID(context.Context, *HomeworkID, *SearchCheckByHomeworkIDResponse) error
+	UpdateCheck(context.Context, *UpdateCheckParam, *UpdateCheckResponse) error
+	SearchCheckByID(context.Context, *CheckID, *SearchCheckByIDResponse) error
 }
 
 func RegisterCheckServiceHandler(s server.Server, hdlr CheckServiceHandler, opts ...server.HandlerOption) error {
 	type checkService interface {
 		CreateCheck(ctx context.Context, in *CreateCheckParam, out *CreateCheckResponse) error
 		DeleteCheck(ctx context.Context, in *CheckID, out *DeleteCheckResponse) error
-		UpdateCheck(ctx context.Context, in *CheckInfo, out *UpdateCheckResponse) error
-		SearchCheck(ctx context.Context, in *CheckID, out *SearchCheckResponse) error
-		SearchCheckByTeacherID(ctx context.Context, in *TeacherID, out *SearchCheckByTeacherIDResponse) error
-		SearchCheckByHomeworkID(ctx context.Context, in *HomeworkID, out *SearchCheckByHomeworkIDResponse) error
+		UpdateCheck(ctx context.Context, in *UpdateCheckParam, out *UpdateCheckResponse) error
+		SearchCheckByID(ctx context.Context, in *CheckID, out *SearchCheckByIDResponse) error
 	}
 	type CheckService struct {
 		checkService
@@ -163,18 +137,10 @@ func (h *checkServiceHandler) DeleteCheck(ctx context.Context, in *CheckID, out 
 	return h.CheckServiceHandler.DeleteCheck(ctx, in, out)
 }
 
-func (h *checkServiceHandler) UpdateCheck(ctx context.Context, in *CheckInfo, out *UpdateCheckResponse) error {
+func (h *checkServiceHandler) UpdateCheck(ctx context.Context, in *UpdateCheckParam, out *UpdateCheckResponse) error {
 	return h.CheckServiceHandler.UpdateCheck(ctx, in, out)
 }
 
-func (h *checkServiceHandler) SearchCheck(ctx context.Context, in *CheckID, out *SearchCheckResponse) error {
-	return h.CheckServiceHandler.SearchCheck(ctx, in, out)
-}
-
-func (h *checkServiceHandler) SearchCheckByTeacherID(ctx context.Context, in *TeacherID, out *SearchCheckByTeacherIDResponse) error {
-	return h.CheckServiceHandler.SearchCheckByTeacherID(ctx, in, out)
-}
-
-func (h *checkServiceHandler) SearchCheckByHomeworkID(ctx context.Context, in *HomeworkID, out *SearchCheckByHomeworkIDResponse) error {
-	return h.CheckServiceHandler.SearchCheckByHomeworkID(ctx, in, out)
+func (h *checkServiceHandler) SearchCheckByID(ctx context.Context, in *CheckID, out *SearchCheckByIDResponse) error {
+	return h.CheckServiceHandler.SearchCheckByID(ctx, in, out)
 }

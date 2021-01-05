@@ -85,3 +85,34 @@ func assignHomeworkTest(
 		log.Println("assignHomeworkTest success ", resp)
 	}
 }
+
+func postAnswerTest(
+	homeworkService homework.HomeworkService,
+	homeworkID int32,
+	courseID int32,
+	userID int32,
+	startTime int64,
+	endTime int64,
+	title string,
+	state int32,
+	answerID int32,
+) {
+	resp, err := homeworkService.PostHomeworkAnswer(
+		context.Background(),
+		&homework.HomeworkAnswer{
+			CourseID: courseID,
+			UserID: userID,
+			StartTime: startTime,
+			EndTime: endTime,
+			Title: title,
+			State: state,
+			Description: description,
+			Content: content,
+		},
+	)
+	if nil != err {
+		log.Println("assignHomeworkTest error ", err)
+	} else {
+		log.Println("assignHomeworkTest success ", resp)
+	}
+}

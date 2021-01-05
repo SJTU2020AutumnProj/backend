@@ -42,7 +42,9 @@ func main() {
 	)
 	server.Init()
 	authService := auth.NewAuthService("go.micro.service.auth", server.Client())
-	// validLogin(authService)
+	validLogin(authService)
+	checkAuth(authService)
+	logout(authService)
 	checkAuth(authService)
 }
 
@@ -76,8 +78,8 @@ func login(authService auth.AuthService, username string, password string) (Logi
 }
 
 func validLogin(authService auth.AuthService) {
-	username := "ck"
-	password := "123"
+	username := "chengke"
+	password := "12345"
 	resp, err := login(authService, username, password)
 	if nil == err {
 		log.Println("Login success: ", resp.Token)
@@ -86,15 +88,25 @@ func validLogin(authService auth.AuthService) {
 }
 
 func checkAuth(authService auth.AuthService) {
-	token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjMwNCwidXNlcm5hbWUiOiJjayIsInBhc3N3b3JkIjoiMTIzIiwidXNlcnR5cGUiOjAsImV4cCI6MTYwNzQzNDM1MiwiaXNzIjoiYm94aW4ifQ.5v6HW9aubw3f9C1XIGnA2xfBN7NdK_nldag-EU4mAdc"
-
-	resp, err := authService.CheckAuth(
+	resp, _ := authService.CheckAuth(
 		context.Background(),
 		&auth.CheckAuthParam{Token: token},
 	)
-	if nil != err {
-		log.Println("CheckAuth error: ", err)
+	if 0 != resp.Status {
+		log.Println("CheckAuth error: ", resp.Msg)
 	} else {
-		log.Println("CheckAuth success: ", resp.Data)
+		log.Println("CheckAuth success: ", resp.Msg)
+	}
+}
+
+func logout(authService auth.AuthService) {
+	resp, err := authService.Logout(
+		context.Background(),
+		&auth.LogoutParam{Token: token},
+	)
+	if nil != err {
+		log.Println("Logout error: ", err)
+	} else {
+		log.Println("Logout success: ", resp.Msg)
 	}
 }

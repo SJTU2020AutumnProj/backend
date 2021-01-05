@@ -12,44 +12,50 @@ service AnswerService {
     rpc DeleteAnswer(AnswerID)returns(DeleteAnswerResponse){}
     rpc UpdateAnswer(AnswerInfo)returns (UpdateAnswerResponse){}
     rpc SearchAnswer(AnswerID)returns (SearchAnswerResponse){}
-    rpc SearchAnswerByStudentID(StudentID)returns (SearchAnswerByStudentIDResponse){}
+    rpc SearchAnswerByUserID(UserID)returns (SearchAnswerByUserIDResponse){}
     rpc SearchAnswerByHomeworkID(HomeworkID)returns (SearchAnswerByHomeworkIDResponse){}
-    rpc SearchAnswerByStudentIDAndHomeworkID(StudentIDAndHomeworkID) returns (SearchAnswerByStudentIDAndHomeworkIDResponse){}
+    rpc SearchAnswerByUserIDAndHomeworkID(UserIDAndHomeworkID) returns (SearchAnswerByUserIDAndHomeworkIDResponse){}
+    rpc PostAnswerByStudent(PostAnswerParam) returns (PostAnswerResponse){}
+    rpc PostAnswerByTeacher(PostAnswerParam) returns (PostAnswerResponse){}
 }
 
 //Parameter protocol
 message CreateAnswerParam{
-    int32 homeworkID = 1;
-    int32 studentID = 2;
-    int32 status = 3;
-    int64 commit_time = 4;
-    string answer_json = 5;
+    int64 commit_time = 1;
+    string content = 2;
+    string note = 3;
 }
 
 message AnswerID{
-    int32 AnswerID = 1;
+    int32 answerID = 1;
 }
 
 message AnswerInfo{
-    int32 AnswerID = 1;
-    int32 homeworkID = 2;
-    int32 studentID = 3;
-    int32 status = 4;
-    int64 commit_time = 5;
-    string answer_json = 6;
+    int32 answerID = 1;
+    int64 commit_time = 2;
+    string content = 3;
+    string note = 4;
 }
 
-message StudentID{
-    int32 StudentID = 1;
+message UserID{
+    int32 userID = 1;
 }
 
 message HomeworkID{
-    int32 HomeworkID = 1;
+    int32 homeworkID = 1;
 }
 
-message StudentIDAndHomeworkID{
-    int32 StudentID = 1;
-    int32 HomeworkID = 2;
+message UserIDAndHomeworkID{
+    int32 userID = 1;
+    int32 homeworkID = 2;
+}
+
+message PostAnswerParam {
+    int32 homeworkID = 1;
+    int32 userID = 2;
+    int64 commitTime = 3;
+    string Content = 4;
+    string Note = 5;
 }
 //Response protocol
 
@@ -92,7 +98,7 @@ message SearchAnswerResponse{
     AnswerInfo answer = 3;
 }
 
-message SearchAnswerByStudentIDResponse{
+message SearchAnswerByUserIDResponse{
     enum Status {
         SUCCESS = 0;
         ERROR = -1;
@@ -112,7 +118,7 @@ message SearchAnswerByHomeworkIDResponse{
     repeated AnswerInfo answers = 3;
 }
 
-message SearchAnswerByStudentIDAndHomeworkIDResponse{
+message SearchAnswerByUserIDAndHomeworkIDResponse{
     enum Status{
         SUCCESS = 0;
         ERROR = 1;
@@ -120,4 +126,14 @@ message SearchAnswerByStudentIDAndHomeworkIDResponse{
     Status status = 1;
     string msg = 2;
     AnswerInfo answer = 4;
+}
+
+message PostAnswerResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    int32 AnswerID = 3;
 }

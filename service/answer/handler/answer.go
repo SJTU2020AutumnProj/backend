@@ -4,15 +4,17 @@ import (
 	mongoDB "boxin/service/answer/mongoDB"
 	pb "boxin/service/answer/proto/answer"
 	repo "boxin/service/answer/repository"
+	"boxin/service/homework/proto/homework"
 
 	// "boxin/service/answer/proto/answer"
 	"context"
 	"log"
 	"time"
+
 	// "golang.org/x/crypto/openpgp/errors"
-	// "github.com/micro/go-micro/v2"
-	// "github.com/micro/go-micro/v2/registry"
-	// "github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 )
 
 type AnswerHandler struct {
@@ -23,9 +25,6 @@ type AnswerHandler struct {
 func (h *AnswerHandler) CreateAnswer(ctx context.Context, req *pb.CreateAnswerParam, resp *pb.CreateAnswerResponse) error {
 	ctime := time.Unix(req.CommitTime, 0)
 	answer := repo.Answer{
-		HomeworkID: req.HomeworkID,
-		StudentID:  req.StudentID,
-		Status:     req.Status,
 		CommitTime: ctime,
 	}
 	var resp_answer repo.Answer
@@ -41,8 +40,9 @@ func (h *AnswerHandler) CreateAnswer(ctx context.Context, req *pb.CreateAnswerPa
 	resp.AnswerID = resp_answer.AnswerID
 
 	mongo_answer := mongoDB.Answer{
-		AnswerID:   resp_answer.AnswerID,
-		AnswerJson: req.AnswerJson,
+		AnswerID: resp_answer.AnswerID,
+		Content:  req.Content,
+		Note:     req.Note,
 	}
 	if err = h.AnswerMongo.AddAnswer(ctx, mongo_answer); nil != err {
 		resp.Status = -1
@@ -78,9 +78,6 @@ func (h *AnswerHandler) UpdateAnswer(ctx context.Context, req *pb.AnswerInfo, re
 	ctime := time.Unix(req.CommitTime, 0)
 	answer := repo.Answer{
 		AnswerID:   req.AnswerID,
-		HomeworkID: req.HomeworkID,
-		StudentID:  req.StudentID,
-		Status:     req.Status,
 		CommitTime: ctime,
 	}
 
@@ -94,8 +91,9 @@ func (h *AnswerHandler) UpdateAnswer(ctx context.Context, req *pb.AnswerInfo, re
 	resp.Msg = "Success"
 
 	mongo_answer := mongoDB.Answer{
-		AnswerID:   req.AnswerID,
-		AnswerJson: req.AnswerJson,
+		AnswerID: req.AnswerID,
+		Content:  req.Content,
+		Note:     req.Note,
 	}
 
 	if err := h.AnswerMongo.UpdateAnswer(ctx, mongo_answer); nil != err {
@@ -126,29 +124,27 @@ func (h *AnswerHandler) SearchAnswer(ctx context.Context, req *pb.AnswerID, resp
 		Status: 0,
 		Answer: &pb.AnswerInfo{
 			AnswerID:   answer.AnswerID,
-			HomeworkID: answer.HomeworkID,
-			StudentID:  answer.StudentID,
-			Status:     answer.Status,
 			CommitTime: answer.CommitTime.Unix(),
-			AnswerJson: mongo_answer.AnswerJson,
+			Content:    mongo_answer.Content,
+			Note:       mongo_answer.Note,
 		},
 	}
 	return nil
 }
 
-func (h *AnswerHandler) SearchAnswerByStudentID(ctx context.Context, req *pb.StudentID, resp *pb.SearchAnswerByStudentIDResponse) error {
-	answers, err := h.AnswerRepository.SearchAnswerByStudentID(ctx, req.StudentID)
+func (h *AnswerHandler) SearchAnswerByUserID(ctx context.Context, req *pb.UserID, resp *pb.SearchAnswerByUserIDResponse) error {
+	answers, err := h.AnswerRepository.SearchAnswerByUserID(ctx, req.UserID)
 
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("Handler SearchAnswerByStudentID error: ", err)
+		log.Println("Handler SearchAnswerByUserID error: ", err)
 		return err
 	}
 
 	var ans []*pb.AnswerInfo
 	for i := range answers {
-		answer_json, err := h.AnswerMongo.SearchAnswer(ctx, answers[i].AnswerID)
+		mongo_answer, err := h.AnswerMongo.SearchAnswer(ctx, answers[i].AnswerID)
 		if nil != err {
 			resp.Status = -1
 			resp.Msg = "Error"
@@ -157,15 +153,13 @@ func (h *AnswerHandler) SearchAnswerByStudentID(ctx context.Context, req *pb.Stu
 		}
 		ans = append(ans, &pb.AnswerInfo{
 			AnswerID:   answers[i].AnswerID,
-			HomeworkID: answers[i].HomeworkID,
-			StudentID:  answers[i].StudentID,
-			Status:     answers[i].Status,
 			CommitTime: answers[i].CommitTime.Unix(),
-			AnswerJson: answer_json.AnswerJson,
+			Content:    mongo_answer.Content,
+			Note:       mongo_answer.Note,
 		})
 	}
 
-	*resp = pb.SearchAnswerByStudentIDResponse{
+	*resp = pb.SearchAnswerByUserIDResponse{
 		Status:  0,
 		Msg:     "Success",
 		Answers: ans,
@@ -185,7 +179,7 @@ func (h *AnswerHandler) SearchAnswerByHomeworkID(ctx context.Context, req *pb.Ho
 
 	var ans []*pb.AnswerInfo
 	for i := range answers {
-		answer_json, err := h.AnswerMongo.SearchAnswer(ctx, answers[i].AnswerID)
+		mongo_answer, err := h.AnswerMongo.SearchAnswer(ctx, answers[i].AnswerID)
 		if nil != err {
 			resp.Status = -1
 			resp.Msg = "Error"
@@ -194,11 +188,9 @@ func (h *AnswerHandler) SearchAnswerByHomeworkID(ctx context.Context, req *pb.Ho
 		}
 		ans = append(ans, &pb.AnswerInfo{
 			AnswerID:   answers[i].AnswerID,
-			HomeworkID: answers[i].HomeworkID,
-			StudentID:  answers[i].StudentID,
-			Status:     answers[i].Status,
 			CommitTime: answers[i].CommitTime.Unix(),
-			AnswerJson: answer_json.AnswerJson,
+			Content: mongo_answer.Content,
+			Note: mongo_answer.Note,
 		})
 	}
 
@@ -210,37 +202,44 @@ func (h *AnswerHandler) SearchAnswerByHomeworkID(ctx context.Context, req *pb.Ho
 	return nil
 }
 
-func (h *AnswerHandler) SearchAnswerByStudentIDAndHomeworkID(ctx context.Context, req *pb.StudentIDAndHomeworkID, resp *pb.SearchAnswerByStudentIDAndHomeworkIDResponse) error {
+func (h *AnswerHandler) SearchAnswerByUserIDAndHomeworkID(ctx context.Context, req *pb.UserIDAndHomeworkID, resp *pb.SearchAnswerByUserIDAndHomeworkIDResponse) error {
 	answers, err := h.AnswerRepository.SearchAnswerByHomeworkID(ctx, req.HomeworkID)
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("Handler SearchAnswerByStudentIDAndHomeworkID error: ", err)
+		log.Println("Handler SearchAnswerByUserIDAndHomeworkID error: ", err)
+		return err
+	}
+
+	answers2,err := h.AnswerRepository.SearchAnswerByUserID(ctx,req.UserID) 
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchAnswerByUserIDAndHomeworkID error: ", err)
 		return err
 	}
 
 	var ans *pb.AnswerInfo
 	var flag bool = false
 	for i := range answers {
-		if answers[i].StudentID == req.StudentID {
-			answer_json, err := h.AnswerMongo.SearchAnswer(ctx, answers[i].AnswerID)
-			if nil != err {
-				resp.Status = -1
-				resp.Msg = "Error"
-				log.Println("Handler SearchAnswerByStudentAndHomeworkID error:", err)
-				return err
-			}
-
-			ans = &pb.AnswerInfo{
+		for j := range answers2{
+			if answers[i].AnswerID == answers2[j].AnswerID {
+				mongo_answer,err := h.AnswerMongo.SearchAnswer(ctx, answers[i].AnswerID)
+				if nil != err {
+					resp.Status = -1
+					resp.Msg = "Error"
+					log.Println("Handler SearchAnswerByUserAndHomeworkID error:", err)
+					return err
+				}
+				ans = &pb.AnswerInfo{
 				AnswerID:   answers[i].AnswerID,
-				HomeworkID: answers[i].HomeworkID,
-				StudentID:  answers[i].StudentID,
-				Status:     answers[i].Status,
 				CommitTime: answers[i].CommitTime.Unix(),
-				AnswerJson: answer_json.AnswerJson,
+				Content:	mongo_answer.Content,
+				Note:	   mongo_answer.Note,
+				}
+				flag = true
+				break
 			}
-			flag = true
-			break
 		}
 	}
 
@@ -248,13 +247,115 @@ func (h *AnswerHandler) SearchAnswerByStudentIDAndHomeworkID(ctx context.Context
 		var err error
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("Handler SearchAnswerByStudentIDAndHomeworkID error: Cannot find the answer.", err)
+		log.Println("Handler SearchAnswerByUserIDAndHomeworkID error: Cannot find the answer.", err)
 		return err
 	}
-	*resp = pb.SearchAnswerByStudentIDAndHomeworkIDResponse{
+	*resp = pb.SearchAnswerByUserIDAndHomeworkIDResponse{
 		Status: 0,
 		Msg:    "Success",
 		Answer: ans,
 	}
 	return nil
 }
+
+const (
+	ServiceName = "go.micro.client.homework"
+	EtcdAddr    = "localhost:2379"
+)
+
+func (h *AnswerHandler) PostAnswerByStudent(ctx context.Context,req*pb.PostAnswerParam,resp*pb.PostAnswerResponse) error{
+	//要比较commit_time和homework表中的end_time来填 user_homework表中的state 2为按时交 3为迟交
+	server := micro.NewService(
+		micro.Name(ServiceName),
+		micro.Registry(etcd.NewRegistry(
+			registry.Addrs(EtcdAddr),
+		)),
+	)
+	server.Init()
+	homeworkService := homework.NewHomeworkService("go.micro.service.homework", server.Client())
+
+	hw, err1 := homeworkService.SearchHomework(context.Background(), &homework.HomeworkID{HomeworkID: req.HomeworkID})
+
+	if nil != err1 {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchTakeByCourse error: ", err1)
+		return err1
+	}
+
+	ctime := req.CommitTime
+	etime := hw.Homework.EndTime
+
+	var state int32
+
+	if ctime <= etime {
+		state = 2
+	}else{
+		state = 3
+	}
+
+	ctime_time := time.Unix(req.CommitTime, 0)
+	answer := repo.Answer{
+		CommitTime: ctime_time,
+	}
+	var resp_answer repo.Answer
+	var err error
+	if resp_answer, err = h.AnswerRepository.PostAnswerByStudent(ctx,req.UserID,req.HomeworkID,state, answer); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("AnswerHandler PostAnswerByStudent error: ", err)
+		return err
+	}
+	resp.Status = 0
+	resp.Msg = "Success"
+	resp.AnswerID = resp_answer.AnswerID
+
+	mongo_answer := mongoDB.Answer{
+		AnswerID: resp_answer.AnswerID,
+		Content:  req.Content,
+		Note:     req.Note,
+	}
+	if err = h.AnswerMongo.AddAnswer(ctx, mongo_answer); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("AnswerHandler CreateAnswer error: ", err)
+		return err
+	}
+	return nil
+	// answer,err:=h.AnswerRepository.PostAnswer(ctx,req.UserID,req.HomeworkID,)
+}
+
+func (h *AnswerHandler) PostAnswerByTeacher(ctx context.Context,req*pb.PostAnswerParam,resp*pb.PostAnswerResponse) error{
+
+	ctime_time := time.Unix(req.CommitTime, 0)
+	answer := repo.Answer{
+		CommitTime: ctime_time,
+	}
+	var resp_answer repo.Answer
+	var err error
+	if resp_answer, err = h.AnswerRepository.PostAnswerByTeacher(ctx,req.UserID,req.HomeworkID, answer); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("AnswerHandler PostAnswerByTeacher error: ", err)
+		return err
+	}
+	resp.Status = 0
+	resp.Msg = "Success"
+	resp.AnswerID = resp_answer.AnswerID
+
+	mongo_answer := mongoDB.Answer{
+		AnswerID: resp_answer.AnswerID,
+		Content:  req.Content,
+		Note:     req.Note,
+	}
+	if err = h.AnswerMongo.AddAnswer(ctx, mongo_answer); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("AnswerHandler CreateAnswer error: ", err)
+		return err
+	}
+	return nil
+	// answer,err:=h.AnswerRepository.PostAnswer(ctx,req.UserID,req.HomeworkID,)
+}
+
+

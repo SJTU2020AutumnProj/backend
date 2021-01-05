@@ -46,6 +46,7 @@ func NewAuthServiceEndpoints() []*api.Endpoint {
 type AuthService interface {
 	Login(ctx context.Context, in *LoginParam, opts ...client.CallOption) (*LoginResponse, error)
 	CheckAuth(ctx context.Context, in *CheckAuthParam, opts ...client.CallOption) (*CheckAuthResponse, error)
+	Logout(ctx context.Context, in *LogoutParam, opts ...client.CallOption) (*LogoutResponse, error)
 }
 
 type authService struct {
@@ -80,17 +81,29 @@ func (c *authService) CheckAuth(ctx context.Context, in *CheckAuthParam, opts ..
 	return out, nil
 }
 
+func (c *authService) Logout(ctx context.Context, in *LogoutParam, opts ...client.CallOption) (*LogoutResponse, error) {
+	req := c.c.NewRequest(c.name, "AuthService.Logout", in)
+	out := new(LogoutResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for AuthService service
 
 type AuthServiceHandler interface {
 	Login(context.Context, *LoginParam, *LoginResponse) error
 	CheckAuth(context.Context, *CheckAuthParam, *CheckAuthResponse) error
+	Logout(context.Context, *LogoutParam, *LogoutResponse) error
 }
 
 func RegisterAuthServiceHandler(s server.Server, hdlr AuthServiceHandler, opts ...server.HandlerOption) error {
 	type authService interface {
 		Login(ctx context.Context, in *LoginParam, out *LoginResponse) error
 		CheckAuth(ctx context.Context, in *CheckAuthParam, out *CheckAuthResponse) error
+		Logout(ctx context.Context, in *LogoutParam, out *LogoutResponse) error
 	}
 	type AuthService struct {
 		authService
@@ -109,4 +122,8 @@ func (h *authServiceHandler) Login(ctx context.Context, in *LoginParam, out *Log
 
 func (h *authServiceHandler) CheckAuth(ctx context.Context, in *CheckAuthParam, out *CheckAuthResponse) error {
 	return h.AuthServiceHandler.CheckAuth(ctx, in, out)
+}
+
+func (h *authServiceHandler) Logout(ctx context.Context, in *LogoutParam, out *LogoutResponse) error {
+	return h.AuthServiceHandler.Logout(ctx, in, out)
 }

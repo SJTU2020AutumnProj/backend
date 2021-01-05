@@ -81,6 +81,48 @@ schema:
       - .git
       - .realize
       - vendor
+- name: courseclass
+  path: service/courseclass
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill courseclass
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: homework
+  path: service/homework
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill homework
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
 - name: answer
   path: service/answer
   args:
@@ -102,8 +144,8 @@ schema:
       - .git
       - .realize
       - vendor
-- name: course
-  path: service/course
+- name: check
+  path: service/check
   args:
   - main.go
   commands:
@@ -116,11 +158,73 @@ schema:
     - /
     scripts:
     - type: before
-      command: tskill course
+      command: tskill check
       output: true
     ignore:
       paths:
       - .git
       - .realize
       - vendor
-
+- name: verification
+  path: service/verification
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill verification
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: email
+  path: service/email
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill email
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: message
+  path: service/message
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill message
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor

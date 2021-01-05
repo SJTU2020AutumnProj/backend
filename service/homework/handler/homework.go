@@ -1,20 +1,21 @@
 package handler
 
 import (
+	"boxin/service/answer/proto/answer"
 	mongoDB "boxin/service/homework/mongoDB"
 	pb "boxin/service/homework/proto/homework"
 	repo "boxin/service/homework/repository"
 
-	"github.com/micro/go-micro/v2"
+	"boxin/service/courseclass/proto/courseclass"
 
 	// "boxin/service/homework/proto/homework"
 	"context"
 	"log"
 	"time"
-	// "golang.org/x/crypto/openpgp/errors"
-	// "github.com/micro/go-micro/v2"
-	// "github.com/micro/go-micro/v2/registry"
-	// "github.com/micro/go-micro/v2/registry/etcd"
+
+	"github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 )
 
 // HomeworkHandler struct
@@ -41,7 +42,7 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		EndTime:   etime,
 		Title:     req.Title,
 		State:     req.State,
-		AnswerID: req.AnswerID,
+		AnswerID:  req.AnswerID,
 	}
 	var resp_homework repo.Homework
 	var err error
@@ -59,7 +60,7 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		HomeworkID:  resp_homework.HomeworkID,
 		Description: req.Description,
 		Content:     req.Content,
-		Note: 		req.Note,
+		Note:        req.Note,
 	}
 	if err = h.HomeworkMongo.AddHomework(ctx, mongo_homework); nil != err {
 		resp.Status = -1
@@ -67,21 +68,35 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		log.Println("HomeworkHandler AssignHomework error: ", err)
 		return err
 	}
-	// assignedHomework := &pb.AssignedHomework{
-	// 	HomeworkID:  resp_homework.HomeworkID,
-	// 	CourseID:    resp_homework.CourseID,
-	// 	UserID:      resp_homework.UserID,
-	// 	StartTime:   resp_homework.StartTime.Unix(),
-	// 	EndTime:     resp_homework.EndTime.Unix(),
-	// 	Title:       resp_homework.Title,
-	// 	State:       resp_homework.State,
-	// 	Description: req.Description,
-	// 	Content: req.Content,  
-	// 	Note:req.Note,
-	// }
-	// if err = h.HomeworkAssignedPubEvent.Publish(ctx, assignedHomework); err != nil {
-	// 	log.Println("HomeworkHandler AssignHomework error when sending message: ", err)
-	// }
+
+	//初始化user_homework表
+	const (
+		ServiceName = "go.micro.client.courseclass"
+		EtcdAddr    = "localhost:2379"
+	)
+
+	server := micro.NewService(
+		micro.Name(ServiceName),
+		micro.Registry(etcd.NewRegistry(
+			registry.Addrs(EtcdAddr),
+		)),
+	)
+	server.Init()
+	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", server.Client())
+	searchResult, err1 := courseClassService.SearchTakeByCourse(context.Background(), &courseclass.CourseID{CourseID: req.CourseID})
+	users := searchResult.Users
+
+	if err1 = h.HomeworkMongo.AddHomework(ctx, mongo_homework); nil != err1 {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("HomeworkHandler AssignHomework error: ", err1)
+		return err1
+	}
+
+	for i := range users {
+		userID := users[i].UserID
+		h.HomeworkRepository.AddUserHomework(ctx, userID, resp.HomeworkID)
+	}
 	return nil
 }
 
@@ -117,7 +132,7 @@ func (h *HomeworkHandler) UpdateHomework(ctx context.Context, req *pb.HomeworkIn
 		EndTime:    etime,
 		Title:      req.Title,
 		State:      req.State,
-		AnswerID: req.AnswerID,
+		AnswerID:   req.AnswerID,
 	}
 
 	if err := h.HomeworkRepository.UpdateHomework(ctx, homework); nil != err {
@@ -133,7 +148,7 @@ func (h *HomeworkHandler) UpdateHomework(ctx context.Context, req *pb.HomeworkIn
 		HomeworkID:  req.HomeworkID,
 		Description: req.Description,
 		Content:     req.Content,
-		Note:	 req.Note,
+		Note:        req.Note,
 	}
 
 	if err := h.HomeworkMongo.UpdateHomework(ctx, mongo_homework); nil != err {
@@ -170,10 +185,10 @@ func (h *HomeworkHandler) SearchHomework(ctx context.Context, req *pb.HomeworkID
 			EndTime:     homework.EndTime.Unix(),
 			Title:       homework.Title,
 			State:       homework.State,
-			AnswerID: homework.AnswerID,
+			AnswerID:    homework.AnswerID,
 			Description: mongo_homework.Description,
 			Content:     mongo_homework.Content,
-			Note: 		mongo_homework.Note,
+			Note:        mongo_homework.Note,
 		},
 	}
 	return nil
@@ -206,10 +221,10 @@ func (h *HomeworkHandler) SearchHomeworkByUserID(ctx context.Context, req *pb.Us
 			EndTime:     homeworks[i].EndTime.Unix(),
 			Title:       homeworks[i].Title,
 			State:       homeworks[i].State,
-			AnswerID: homeworks[i].AnswerID,
+			AnswerID:    homeworks[i].AnswerID,
 			Description: homework_json.Description,
 			Content:     homework_json.Content,
-			Note: homework_json.Note,
+			Note:        homework_json.Note,
 		})
 	}
 
@@ -221,24 +236,147 @@ func (h *HomeworkHandler) SearchHomeworkByUserID(ctx context.Context, req *pb.Us
 	return nil
 }
 
-//发布作业答案
-func (h*HomeworkHandler) PostHomeworkAnswer(ctx context.Context, req *pb.HomeworkAnswer,resp *pb.PostHomeworkAnswerResponse) error{
-	homework,err:=h.HomeworkRepository.SearchHomework(ctx,req.HomeworkID)
+func (h *HomeworkHandler) SearchHomeworkByCourseID(ctx context.Context, req *pb.CourseID, resp *pb.SearchHomeworkByCourseIDResponse) error {
+	homeworks, err := h.HomeworkRepository.SearchHomeworkByCourseID(ctx, req.CourseID)
+
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchHomeByCourseID error: ", err)
+		return err
+	}
+
+	var ans []*pb.HomeworkInfo
+	for i := range homeworks {
+		homework_json, err := h.HomeworkMongo.SearchHomework(ctx, homeworks[i].HomeworkID)
+		if nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("Handler SearchHomework error:", err)
+			return err
+		}
+		ans = append(ans, &pb.HomeworkInfo{
+			HomeworkID:  homeworks[i].HomeworkID,
+			CourseID:    homeworks[i].CourseID,
+			UserID:      homeworks[i].UserID,
+			StartTime:   homeworks[i].StartTime.Unix(),
+			EndTime:     homeworks[i].EndTime.Unix(),
+			Title:       homeworks[i].Title,
+			State:       homeworks[i].State,
+			Description: homework_json.Description,
+			Content:     homework_json.Content,
+		})
+	}
+
+	*resp = pb.SearchHomeworkByCourseIDResponse{
+		Status:    0,
+		Msg:       "Success",
+		Homeworks: ans,
+	}
+	return nil
+}
+
+//老师上传作业答案
+func (h *HomeworkHandler) PostHomeworkAnswer(ctx context.Context, req *pb.PostParam, resp *pb.PostHomeworkAnswerResponse) error {
+
+	const (
+		ServiceName = "go.micro.client.answer"
+		EtcdAddr    = "localhost:2379"
+	)
+	server := micro.NewService(
+		micro.Name(ServiceName),
+		micro.Registry(etcd.NewRegistry(
+			registry.Addrs(EtcdAddr),
+		)),
+	)
+	server.Init()
+	answerService := answer.NewAnswerService("go.micro.service.answer", server.Client())
+
+	aw, err := answerService.PostAnswerByTeacher(context.Background(), &answer.PostAnswerParam{HomeworkID: req.HomeworkID, UserID: req.UserID, CommitTime: req.CommitTime, Content: req.Content, Note: req.Note})
+
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("Handler PostHomeworkAnswer error: ", err)
 		return err
 	}
-	homework.AnswerID = req.AnswerID
 
-	if err := h.HomeworkRepository.UpdateHomework(ctx, homework); nil != err {
+	resp.AnswerID = aw.AnswerID
+
+	err1 := h.HomeworkRepository.PostHomeworkAnswer(ctx, req.HomeworkID, aw.AnswerID)
+	if nil != err1 {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("HomeworkHandler UpdateHomework error:", err)
+		log.Println("Handler PostHomeworkAnswer error: ", err1)
+		return err1
+	}
+	return nil
+}
+
+//老师公布作业答案
+func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.RealeaseParam, resp *pb.ReleaseHomeworkAnswerResponse) error {
+	if err := h.HomeworkRepository.ReleaseHomeworkAnswer(ctx, req.HomeworkID); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("HomeworkHandler ReleaseHomeworkAnswer error:", err)
 		return err
 	}
-	resp.Status = 0
-	resp.Msg = "Success"
+	*resp = pb.ReleaseHomeworkAnswerResponse{
+		Status: 0,
+		Msg:    "Success",
+	}
+	return nil
+}
+
+func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.StudentSearchHomeworkParam, resp *pb.StudentSearchHomeworkResponse) error {
+	homework, err := h.HomeworkRepository.SearchHomework(ctx, req.HomeworkID)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchHomework error:", err)
+		return err
+	}
+
+	mongo_homework, err := h.HomeworkMongo.SearchHomework(ctx, req.HomeworkID)
+
+	*resp = pb.StudentSearchHomeworkResponse{
+		Status: 0,
+		Homework: &pb.HomeworkInfo{
+			HomeworkID:  homework.HomeworkID,
+			CourseID:    homework.CourseID,
+			UserID:      homework.UserID,
+			StartTime:   homework.StartTime.Unix(),
+			EndTime:     homework.EndTime.Unix(),
+			Title:       homework.Title,
+			State:       homework.State,
+			AnswerID:    homework.AnswerID,
+			Description: mongo_homework.Description,
+			Content:     mongo_homework.Content,
+			Note:        mongo_homework.Note,
+		},
+	}
+
+	err = h.HomeworkRepository.UpdateUserHomeworkState(ctx, req.UserID, req.HomeworkID, 1)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchHomework error:", err)
+		return err
+	}
+	return nil
+}
+
+//老师公布批改情况,即修改user_homework表中的state为4
+func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheckParam, resp *pb.ReleaseCheckResponse) error {
+	if err := h.HomeworkRepository.UpdateUserHomeworkState(ctx, req.UserID, req.HomeworkID, 4); nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("HomeworkHandler ReleaseCheck error:", err)
+		return err
+	}
+	*resp = pb.ReleaseCheckResponse{
+		Status: 0,
+		Msg:    "Success",
+	}
 	return nil
 }
