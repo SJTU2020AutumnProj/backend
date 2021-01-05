@@ -9,6 +9,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/broker/nats"
@@ -59,6 +61,9 @@ func main() {
 	service := micro.NewService(
 		micro.Name(ServiceName),
 		micro.Version("latest"),
+		micro.Registry(etcd.NewRegistry(
+			registry.Addrs(EtcdAddr),
+		)),
 		micro.Broker(nats.NewBroker(
 			broker.Addrs(NatsURI),
 		)),
@@ -78,6 +83,12 @@ func main() {
 	}
 	// 这里的topic注意与homework注册的要一致
 	if err := micro.RegisterSubscriber("go.micro.service.homework.assigned", service.Server(), handler.Assigned); err != nil {
+		log.Fatal(errors.WithMessage(err, "subscribe"))
+	}
+	if err := micro.RegisterSubscriber("go.micro.service.homework.published", service.Server(), handler.PostAnswer); err != nil {
+		log.Fatal(errors.WithMessage(err, "subscribe"))
+	}
+	if err := micro.RegisterSubscriber("go.micro.service.homework.checkReleased", service.Server(), handler.ReleaseCheck); err != nil {
 		log.Fatal(errors.WithMessage(err, "subscribe"))
 	}
 

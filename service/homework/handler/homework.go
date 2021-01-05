@@ -33,8 +33,8 @@ const (
 	HomeworkAssignedTopic = "assigned"
 	// HomeworkAnswerPubTopic topic of ReleaseHomeworkAnswer message
 	HomeworkAnswerPubTopic = "published"
-	//CheckPubEvent topic of ReleaseCheck message
-	CheckPubEvent = "checkReleased"
+	//CheckPubTopic topic of ReleaseCheck message
+	CheckPubTopic = "checkReleased"
 )
 
 // AssignHomework assign homework
@@ -337,7 +337,7 @@ func (h *HomeworkHandler) PostHomeworkAnswer(ctx context.Context, req *pb.PostPa
 }
 
 //老师公布作业答案
-func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.RealeaseParam, resp *pb.ReleaseHomeworkAnswerResponse) error {
+func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.ReleaseParam, resp *pb.ReleaseHomeworkAnswerResponse) error {
 	if err := h.HomeworkRepository.ReleaseHomeworkAnswer(ctx, req.HomeworkID); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
@@ -428,6 +428,22 @@ func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheck
 	*resp = pb.ReleaseCheckResponse{
 		Status: 0,
 		Msg:    "Success",
+	}
+	homework, searchErr := h.HomeworkRepository.SearchHomework(ctx, req.HomeworkID)
+	if nil != searchErr {
+		log.Println("HomeworkHandler ReleaseCheck error ", searchErr)
+		return nil
+	}
+	releasedCheck := &pb.ReleasedCheck {
+		HomeworkID: req.HomeworkID,
+    	TeacherID: req.TeacherID,
+    	StudentID: userIDs,
+    	CourseID: req.CourseID,
+    	ReleaseTime: req.ReleaseTime,
+    	Title: homework.Title,
+	}
+	if err := h.CheckPubEvent.Publish(ctx, releasedCheck); err != nil {
+		log.Println("HomeworkHandler ReleaseCheck send message error ", err)
 	}
 	return nil
 }

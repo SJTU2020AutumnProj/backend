@@ -73,7 +73,7 @@ func (a *AuthHandler) CheckAuth(ctx context.Context, in *pb.CheckAuthParam, out 
 			Msg: "Token already logout",
 			Data: nil,
 		}
-		return nil
+		return err
 	}
 	claims, err := utils.JWTVerify(in.Token)
 	if err != nil {
