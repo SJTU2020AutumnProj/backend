@@ -61,6 +61,10 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 		}
 		return setErr
 	}
+	*out = pb.SendCodeEmailResponse{
+		Status:  0,
+		Message: "SendCodeEmail success",
+	}
 	return nil
 }
 
