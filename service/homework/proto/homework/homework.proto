@@ -15,7 +15,9 @@ service HomeworkService {
     rpc SearchHomeworkByUserID(UserID)returns (SearchHomeworkByUserIDResponse){}
     rpc SearchHomeworkByCourseID(CourseID)returns(SearchHomeworkByCourseIDResponse){}
     rpc PostHomeworkAnswer(PostParam)returns (PostHomeworkAnswerResponse) {}
-    rpc ReleaseHomeworkAnswer(RealeaseParam)returns (ReleaseHomeworkAnswerResponse) {}
+    rpc ReleaseHomeworkAnswer(ReleaseParam)returns (ReleaseHomeworkAnswerResponse) {}
+    rpc StudentSearchHomework (StudentSearchHomeworkParam)returns (StudentSearchHomeworkResponse){} 
+    rpc ReleaseCheck (ReleaseCheckParam)returns (ReleaseCheckResponse) {}
 }
 
 //Parameter protocol
@@ -76,7 +78,7 @@ message PostParam{
     string note = 5;
 }
 
-message RealeaseParam{
+message ReleaseParam{
     int32 HomeworkID = 1;
     int32 AnswerID = 2;
 }
@@ -85,6 +87,15 @@ message CourseID{
     int32 courseID = 1;
 }
 
+message StudentSearchHomeworkParam {
+    int32 userID = 1;
+    int32 HomeworkID = 2;
+}
+
+message ReleaseCheckParam {
+    int32 UserID = 1;
+    int32 HomeworkID = 2;
+}
 
 //Response protocol
 
@@ -158,6 +169,25 @@ message PostHomeworkAnswerResponse{
 
 message ReleaseHomeworkAnswerResponse{
       enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message StudentSearchHomeworkResponse {
+      enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    HomeworkInfo homework = 3;
+}
+
+message ReleaseCheckResponse {
+          enum Status {
         SUCCESS = 0;
         ERROR = -1;
     }

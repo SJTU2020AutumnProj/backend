@@ -1,0 +1,15 @@
+mode: set
+boxin/service/homework/handler/homework.go:35.131,62.2 12 1
+boxin/service/homework/handler/homework.go:64.122,74.2 7 1
+boxin/service/homework/handler/homework.go:76.124,105.2 11 1
+boxin/service/homework/handler/homework.go:107.122,130.2 4 1
+boxin/service/homework/handler/homework.go:132.134,136.27 3 1
+boxin/service/homework/handler/homework.go:155.2,160.12 2 1
+boxin/service/homework/handler/homework.go:136.27,153.3 3 1
+boxin/service/homework/handler/homework.go:163.140,167.27 3 1
+boxin/service/homework/handler/homework.go:184.2,189.12 2 1
+boxin/service/homework/handler/homework.go:167.27,182.3 3 1
+boxin/service/homework/handler/homework.go:193.129,198.2 2 1
+boxin/service/homework/handler/homework.go:201.138,208.2 3 1
+boxin/service/homework/handler/homework.go:210.152,235.2 5 1
+boxin/service/homework/handler/homework.go:238.125,245.2 3 1

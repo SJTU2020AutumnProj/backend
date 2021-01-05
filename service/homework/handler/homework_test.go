@@ -4,6 +4,7 @@ import (
 	mongoDB "boxin/service/homework/mongoDB"
 	homework "boxin/service/homework/proto/homework"
 	repo "boxin/service/homework/repository"
+	//"boxin/service/courseclass/proto/courseclass"
 	"context"
 	"testing"
 	"time"
@@ -302,71 +303,6 @@ func TestSearchHomeworkByUserID(t *testing.T) {
 	})
 }
 
-func TestPostHomeworkAnswer(t *testing.T) {
-	db, err := gorm.Open("mysql", MysqlUri)
-	if nil != err {
-		panic(err)
-	}
-	defer db.Close()
-
-	// 设置客户端连接配置
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
-	// 连接到MongoDB
-	client, err := mongo.Connect(context.TODO(), clientOptions)
-	if err != nil {
-		fmt.Println("err")
-	}
-
-	// 检查连接
-	err = client.Ping(context.TODO(), nil)
-	if err != nil {
-		fmt.Println("err")
-	}
-	fmt.Println("Connected to MongoDB!")
-	collection := client.Database("jub").Collection("homework")
-
-	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db}, HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL: collection}}
-	var req homework.AssignHomeworkParam
-	var rsp homework.AssignHomeworkResponse
-
-	var dreq homework.HomeworkID
-	var drsp homework.DeleteHomeworkResponse
-
-	var preq homework.HomeworkAnswer
-	var prsp homework.PostHomeworkAnswerResponse
-
-	tf := func(status homework.PostHomeworkAnswerResponse_Status) int32 {
-		So(h.PostHomeworkAnswer(context.TODO(), &preq, &prsp), ShouldBeNil)
-		So(prsp.Status, ShouldEqual, status)
-		if prsp.Status == homework.PostHomeworkAnswerResponse_SUCCESS {
-			return 0
-		}
-		return -1
-	}
-
-	Convey("Test PostHomeworkAnswer", t, func() {
-		req.CourseID = 99632
-		req.UserID = 99632
-		req.StartTime = time.Now().Unix()
-		req.EndTime = time.Now().Unix()
-		req.Title = "Homework"
-		req.State = 1
-		req.AnswerID = 1
-		req.Description = "测试用例2"
-		req.Content = "哈哈哈哈"
-		req.Note = "aaaaa"
-
-		h.AssignHomework(context.TODO(), &req, &rsp)
-
-		preq.HomeworkID = rsp.HomeworkID
-		preq.AnswerID = 1
-		id := tf(homework.PostHomeworkAnswerResponse_SUCCESS)
-		So(id, ShouldBeGreaterThanOrEqualTo, 0)
-
-		dreq.HomeworkID = rsp.HomeworkID
-		h.DeleteHomework(context.TODO(), &dreq, &drsp)
-	})
-}
 
 func TestSearchHomeworkByCourseID(t *testing.T) {
 	db, err := gorm.Open("mysql", MysqlUri)
@@ -431,3 +367,215 @@ func TestSearchHomeworkByCourseID(t *testing.T) {
 	})
 }
 
+func TestPostHomeworkAnswer(t *testing.T) {
+	db, err := gorm.Open("mysql", MysqlUri)
+	if nil != err {
+		panic(err)
+	}
+	defer db.Close()
+
+	// 设置客户端连接配置
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// 连接到MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		fmt.Println("err")
+	}
+
+	// 检查连接
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		fmt.Println("err")
+	}
+	fmt.Println("Connected to MongoDB!")
+	collection := client.Database("jub").Collection("homework")
+
+	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db}, HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL: collection}}
+
+	var req homework.PostParam
+	var rsp homework.PostHomeworkAnswerResponse
+
+	tf := func(status homework.PostHomeworkAnswerResponse_Status) int32 {
+		So(h.PostHomeworkAnswer(context.TODO(), &req, &rsp), ShouldBeNil)
+		So(rsp.Status, ShouldEqual, status)
+		if rsp.Status == homework.PostHomeworkAnswerResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
+	Convey("Test PostHomeworkAnswer", t, func() {
+		//因为没写配套的删除所以怕重复插入出错，就用一个伪随机吧
+		req.HomeworkID = int32(time.Now().Unix() % 9497)
+		req.UserID = 99632
+		req.CommitTime = time.Now().Unix()
+		req.Content = "没有答案"
+		req.Note = "傻眼了吧哈哈哈哈"
+
+		id := tf(homework.PostHomeworkAnswerResponse_SUCCESS)
+		So(id, ShouldBeGreaterThanOrEqualTo, 0)
+	})
+}
+
+func TestReleaseHomeworkAnswer(t *testing.T){
+	db, err := gorm.Open("mysql", MysqlUri)
+	if nil != err {
+		panic(err)
+	}
+	defer db.Close()
+
+	// 设置客户端连接配置
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// 连接到MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		fmt.Println("err")
+	}
+
+	// 检查连接
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		fmt.Println("err")
+	}
+	fmt.Println("Connected to MongoDB!")
+	collection := client.Database("jub").Collection("homework")
+
+	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db}, HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL: collection}}
+
+	var req homework.ReleaseParam
+	var rsp homework.ReleaseHomeworkAnswerResponse
+
+	tf := func(status homework.ReleaseHomeworkAnswerResponse_Status) int32 {
+		So(h.ReleaseHomeworkAnswer(context.TODO(), &req, &rsp), ShouldBeNil)
+		So(rsp.Status, ShouldEqual, status)
+		if rsp.Status == homework.ReleaseHomeworkAnswerResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
+	Convey("Test ReleaseHomeworkAnswer", t, func() {
+		//因为没写配套的删除所以怕重复插入出错，就用一个伪随机吧
+		req.HomeworkID = int32(time.Now().Unix() % 9497+1)
+		req.AnswerID = int32(time.Now().Unix() % 9497+1)
+
+		id := tf(homework.ReleaseHomeworkAnswerResponse_SUCCESS)
+		So(id, ShouldBeGreaterThanOrEqualTo, 0)
+	})
+}
+
+func TestStudentSearchHomework(t *testing.T) {
+	db, err := gorm.Open("mysql", MysqlUri)
+	if nil != err {
+		panic(err)
+	}
+	defer db.Close()
+
+	// 设置客户端连接配置
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// 连接到MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		fmt.Println("err")
+	}
+
+	// 检查连接
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		fmt.Println("err")
+	}
+	fmt.Println("Connected to MongoDB!")
+	collection := client.Database("jub").Collection("homework")
+
+	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db}, HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL: collection}}
+
+	var req homework.StudentSearchHomeworkParam
+	var rsp homework.StudentSearchHomeworkResponse
+
+	var areq homework.AssignHomeworkParam
+	var arsp homework.AssignHomeworkResponse
+
+	var dreq homework.HomeworkID
+	var drsp homework.DeleteHomeworkResponse
+
+	tf := func(status homework.StudentSearchHomeworkResponse_Status) int32 {
+		So(h.StudentSearchHomework(context.TODO(), &req, &rsp), ShouldBeNil)
+		So(rsp.Status, ShouldEqual, status)
+		if rsp.Status == homework.StudentSearchHomeworkResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
+	Convey("Test StudentSearchHomework", t, func() {
+
+		areq.CourseID = 99632
+		areq.UserID = 99632
+		areq.StartTime = time.Now().Unix()
+		areq.EndTime = time.Now().Unix()
+		areq.Title = "cccc"
+		areq.State = 1
+		areq.AnswerID = 1
+		areq.Description = "测试用例2"
+		areq.Content = "哈哈哈哈"
+		areq.Note = "cahahah"
+
+		h.AssignHomework(context.TODO(), &areq, &arsp)
+
+		req.HomeworkID = arsp.HomeworkID
+		req.UserID = 99632
+
+		id := tf(homework.StudentSearchHomeworkResponse_SUCCESS)
+		So(id, ShouldBeGreaterThanOrEqualTo, 0)
+
+		dreq.HomeworkID = arsp.HomeworkID
+		h.DeleteHomework(context.TODO(), &dreq, &drsp)
+	})
+}
+
+func TestReleaseCheck(t *testing.T){
+	db, err := gorm.Open("mysql", MysqlUri)
+	if nil != err {
+		panic(err)
+	}
+	defer db.Close()
+
+	// 设置客户端连接配置
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	// 连接到MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		fmt.Println("err")
+	}
+
+	// 检查连接
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		fmt.Println("err")
+	}
+	fmt.Println("Connected to MongoDB!")
+	collection := client.Database("jub").Collection("homework")
+
+	h := &HomeworkHandler{HomeworkRepository: &repo.HomeworkRepositoryImpl{DB: db}, HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL: collection}}
+
+	var req homework.ReleaseCheckParam
+	var rsp homework.ReleaseCheckResponse
+ 
+	tf := func(status homework.ReleaseCheckResponse_Status) int32 {
+		So(h.ReleaseCheck(context.TODO(), &req, &rsp), ShouldBeNil)
+		So(rsp.Status, ShouldEqual, status)
+		if rsp.Status == homework.ReleaseCheckResponse_SUCCESS {
+			return 0
+		}
+		return -1
+	}
+
+	Convey("Test ReleaseCheck", t, func() {
+		//因为没写配套的删除所以怕重复插入出错，就用一个伪随机吧
+		req.HomeworkID = int32(time.Now().Unix() % 9497+1)
+		req.UserID = int32(time.Now().Unix() % 9497+1)
+
+		id := tf(homework.ReleaseCheckResponse_SUCCESS)
+		So(id, ShouldBeGreaterThanOrEqualTo, 0)
+	})
+}
