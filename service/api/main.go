@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-16 21:32:52
  * @LastEditors: Seven
- * @LastEditTime: 2020-11-19 08:56:31
+ * @LastEditTime: 2021-01-05 16:02:42
  */
 package main
 
@@ -15,6 +15,7 @@ import (
 	auth "boxin/service/auth/proto/auth"
 	courseclass "boxin/service/courseclass/proto/courseclass"
 	user "boxin/service/user/proto/user"
+	verify "boxin/service/verification/proto/verification"
 	"fmt"
 	"log"
 	"net/http"
@@ -60,6 +61,7 @@ func main() {
 	// 	micro.Name(AppName),
 	// 	micro.Registry(etcdRegister))
 	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
+	verifyService := verify.NewVerificationService("go.micro.service.verification", client.DefaultClient)
 	authService := auth.NewAuthService("go.micro.service.auth", client.DefaultClient)
 	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", client.DefaultClient)
 	webHandler := gin.Default()
@@ -73,6 +75,7 @@ func main() {
 	handler.UserRouter(webHandler, userService)
 	handler.AuthRouter(webHandler, authService)
 	handler.CourseRouter(webHandler, courseClassService)
+	handler.VerifyRouter(webHandler, verifyService)
 	// handler.CourseRouter(webHandler,courService)
 	service.Init()
 	if err := service.Run(); err != nil {
