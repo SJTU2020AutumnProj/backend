@@ -1,3 +1,13 @@
+/*
+ * @Description:
+ * @Version: 1.0
+ * @Author: Zhang AO
+ * @studentID: 518021910368
+ * @School: SJTU
+ * @Date: 2020-12-15 18:27:58
+ * @LastEditors: Seven
+ * @LastEditTime: 2021-01-05 16:50:56
+ */
 package utils
 
 import (
@@ -54,4 +64,28 @@ func JWTVerify(token string) (*Claims, error) {
 		}
 	}
 	return nil, err
+}
+
+func GetUsrId(token string) (int32, error) {
+	claims, err := JWTVerify(token)
+	if err != nil {
+		return -1, err
+	}
+	return claims.UserID, nil
+}
+
+func GetUsrName(token string) (string, error) {
+	claims, err := JWTVerify(token)
+	if err != nil {
+		return "", err
+	}
+	return claims.UserName, nil
+}
+
+func GetPassword(token string) (string, error) {
+	claims, err := JWTVerify(token)
+	if err != nil {
+		return "", err
+	}
+	return claims.Password, nil
 }

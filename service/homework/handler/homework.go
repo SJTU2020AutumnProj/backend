@@ -337,7 +337,7 @@ func (h *HomeworkHandler) PostHomeworkAnswer(ctx context.Context, req *pb.PostPa
 }
 
 //老师公布作业答案
-func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.RealeaseParam, resp *pb.ReleaseHomeworkAnswerResponse) error {
+func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.ReleaseParam, resp *pb.ReleaseHomeworkAnswerResponse) error {
 	if err := h.HomeworkRepository.ReleaseHomeworkAnswer(ctx, req.HomeworkID); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
