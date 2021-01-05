@@ -44,6 +44,7 @@ type HomeworkRepository interface {
 	SearchHomework(ctx context.Context, homeworkID int32) (Homework, error)
 	SearchHomeworkByUserID(ctx context.Context, userID int32) ([]*Homework, error)
 	SearchHomeworkByCourseID(ctx context.Context, courseID int32) ([]*Homework, error)
+	SearchUserIDByHomeworkID(ctx context.Context,homeworkID int32)([]int32,error)
 	PostHomeworkAnswer(ctx context.Context, homeworkID int32, answerID int32) error
 	ReleaseHomeworkAnswer(ctx context.Context, homeworkID int32) error
 	AddUserHomework(ctx context.Context, userID int32, homeworkID int32) error
@@ -116,6 +117,25 @@ func (repo *HomeworkRepositoryImpl) SearchHomeworkByCourseID(ctx context.Context
 		return []*Homework{}, err
 	}
 	return homeworks, nil
+}
+
+func (repo *HomeworkRepositoryImpl) SearchUserIDByHomeworkID(ctx context.Context,homeworkID int32) ([]int32,error) {
+	var uh []*UserHomework
+	var userIDs []int32
+	result := repo.DB.Table("user_homework").Where("homework_id = ?",homeworkID)
+
+	if err := result.Find(&uh).Error; nil != err {
+		return []int32{}, err
+	}
+
+	for i := range uh{
+		userIDs = append(userIDs , uh[i].UserID) 
+	}
+
+	if nil != result.Error {
+		return userIDs, result.Error
+	}
+	return userIDs, result.Error
 }
 
 //这个函数仅仅把homework表中的answer_id填上

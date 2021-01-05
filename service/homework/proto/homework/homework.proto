@@ -104,8 +104,7 @@ message StudentSearchHomeworkParam {
 }
 
 message ReleaseCheckParam {
-    int32 UserID = 1;
-    int32 HomeworkID = 2;
+    int32 HomeworkID = 1;
 }
 
 //Response protocol
