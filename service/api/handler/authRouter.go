@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-18 08:38:54
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-05 21:59:01
+ * @LastEditTime: 2021-01-05 22:37:59
  */
 package handler
 
@@ -61,7 +61,7 @@ func login(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "登录失败", "data": err})
 		return
 	}
-	c.SetCookie("token", result.Token, 3600, "/", "localhost", false, true)
+	c.SetCookie("token", result.Token, 3600, "/", "/", false, true)
 	user := resdata{
 		User: *result.Data}
 	// Token: result.Token}
@@ -71,9 +71,11 @@ func login(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	token := c.Request.Header.Get("token")
+	token, err := c.Cookie("token")
+	log.Println(err)
 	if token == "" {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
+		return
 	}
 	log.Println("====== logout token======")
 	log.Println(token)
@@ -86,6 +88,8 @@ func logout(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": err})
 		return
 	}
+	//退出登录，重置cookie
+	c.SetCookie("token", "", 1, "/", "/", false, true)
 	c.JSON(200, gin.H{"status": 200, "msg": "退出登录成功"})
 	return
 }
@@ -97,8 +101,9 @@ func checkAuth(c *gin.Context) {
 		UserName string `form:"userName" json:"userName" binding:"required"`
 	}
 
-	// 获取header参数
-	token := c.Request.Header.Get("token")
+	// 获取cookie参数
+	token, err := c.Cookie("token")
+	log.Println(err)
 	if token == "" {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
 	}

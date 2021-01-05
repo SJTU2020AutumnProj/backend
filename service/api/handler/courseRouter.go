@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-05 21:38:23
+ * @LastEditTime: 2021-01-05 22:42:42
  */
 package handler
 
@@ -38,8 +38,8 @@ func getmylist(c *gin.Context) {
 	type param struct {
 		UserID int32 `form:"userId" json:"userId"  binding:"required"`
 	}
-
-	token := c.Request.Header.Get("token")
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
 	if token == "" {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
 		return
@@ -120,7 +120,8 @@ func newcourse(c *gin.Context) {
 		CourseID int32 `form:"courseId" json:"courseId" binding:"required"`
 	}
 	//获取token
-	token := c.Request.Header.Get("token")
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
 	if token == "" {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
 		return
@@ -187,7 +188,8 @@ func editcourse(c *gin.Context) {
 		State        int32  `form:"state" json:"state" binding:"required"`
 	}
 	//获取token
-	token := c.Request.Header.Get("token")
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
 	if token == "" {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
 		return

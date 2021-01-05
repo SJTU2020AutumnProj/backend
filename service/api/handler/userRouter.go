@@ -95,7 +95,8 @@ func getinfo(c *gin.Context) {
 	type response struct {
 		User userinfo `form:"user" json:"user" binding:"required"`
 	}
-	token := c.Request.Header.Get("token")
+	token, err := c.Cookie("token")
+	log.Println(err)
 	if token == "" {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
 		return
@@ -145,7 +146,8 @@ func editinfo(c *gin.Context) {
 		Password string `form:"password" json:"password"  binding:"required"`
 	}
 
-	token := c.Request.Header.Get("token")
+	token, err := c.Cookie("token")
+	log.Println(err)
 	if token == "" {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
 		return
@@ -209,7 +211,8 @@ func setPw(c *gin.Context) {
 		NewPW string `form:"newPw" json:"newPw"  binding:"required"`
 		OldPW string `form:"oldPw" json:"oldPw"  binding:"required"`
 	}
-	token := c.Request.Header.Get("token")
+	token, err := c.Cookie("token")
+	log.Println(err)
 	if token == "" {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
 		return
