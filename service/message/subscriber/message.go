@@ -49,7 +49,7 @@ func (sub *MessageSub) Assigned(ctx context.Context, homework *homework.Assigned
 }
 
 
-func (sub *MessageSub) Post(ctx context.Context, message *homework.PostHomeworkAnswer) error {
+func (sub *MessageSub) PostAnswer(ctx context.Context, message *homework.PostHomeworkAnswer) error {
 	log.Println("Subscriber Post received message: ", message)
 	now := time.Unix(time.Now().Unix(), 0)
 	res, err := sub.MessageRepository.AddMessage(

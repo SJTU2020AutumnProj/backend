@@ -24,11 +24,17 @@ type HomeworkHandler struct {
 	HomeworkMongo      mongoDB.HomeworkMongo
 	// 由go-micro封装，用于发送消息的接口，老版本叫micro.Publisher
 	HomeworkAssignedPubEvent micro.Event
+	HomeworkAnswerPubEvent micro.Event
+	CheckPubEvent micro.Event
 }
 
 const (
 	// HomeworkAssignedTopic topic of AssignHomework message
 	HomeworkAssignedTopic = "assigned"
+	// HomeworkAnswerPubTopic topic of ReleaseHomeworkAnswer message
+	HomeworkAnswerPubTopic = "published"
+	//CheckPubEvent topic of ReleaseCheck message
+	CheckPubEvent = "checkReleased"
 )
 
 // AssignHomework assign homework
@@ -97,6 +103,23 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		userID := users[i].UserID
 		h.HomeworkRepository.AddUserHomework(ctx, userID, resp.HomeworkID)
 	}
+
+	assignedHomework := &pb.AssignedHomework {
+		HomeworkID: resp_homework.HomeworkID,
+    	CourseID: req.CourseID,
+    	UserID: req.UserID,
+    	StartTime: req.StartTime,
+    	EndTime: req.EndTime,
+    	Title: req.Title,
+    	State: req.State,
+    	AnswerID: req.AnswerID,
+    	Description: req.Description,
+    	Note: req.Note,
+	}
+	if err = h.HomeworkAssignedPubEvent.Publish(ctx, assignedHomework); err != nil {
+		log.Println("HomeworkHandler AssignHomework send message error ", err)
+	}
+
 	return nil
 }
 
@@ -325,6 +348,23 @@ func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.Rea
 		Status: 0,
 		Msg:    "Success",
 	}
+	homework, searchErr := h.HomeworkRepository.SearchHomework(ctx, req.HomeworkID)
+	if nil != searchErr {
+		log.Println("HomeworkHandler ReleaseHomeworkAnswer error ", searchErr)
+		return nil
+	}
+	homeworkAnswerPub := &pb.HomeworkAnswerPub {
+		HomeworkID: req.HomeworkID,
+    	AnswerID: req.AnswerID,
+    	TeacherID: req.TeacherID,
+    	CourseID: req.CourseID,
+    	Title: homework.Title,
+    	PubTime: req.PubTime,
+	}
+	if err := h.HomeworkAssignedPubEvent.Publish(ctx, homeworkAnswerPub); err != nil {
+		log.Println("HomeworkHandler ReleaseHomeworkAnswer send message error ", err)
+	}
+
 	return nil
 }
 
@@ -368,11 +408,22 @@ func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.Stu
 
 //老师公布批改情况,即修改user_homework表中的state为4
 func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheckParam, resp *pb.ReleaseCheckResponse) error {
-	if err := h.HomeworkRepository.UpdateUserHomeworkState(ctx, req.UserID, req.HomeworkID, 4); nil != err {
+	userIDs, err := h.HomeworkRepository.SearchUserIDByHomeworkID(ctx, req.HomeworkID)
+
+	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("HomeworkHandler ReleaseCheck error:", err)
+		log.Println("Handler ReleaseCheck error:", err)
 		return err
+	}
+
+	for i := range userIDs {
+		if err := h.HomeworkRepository.UpdateUserHomeworkState(ctx, userIDs[i], req.HomeworkID, 4); nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("HomeworkHandler ReleaseCheck error:", err)
+			return err
+		}
 	}
 	*resp = pb.ReleaseCheckResponse{
 		Status: 0,
