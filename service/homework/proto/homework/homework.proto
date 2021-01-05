@@ -44,8 +44,7 @@ message AssignedHomework {
     int32 state = 7;
     int32 answerID = 8;
     string description = 9;
-    string content = 10;
-    string note = 11;
+    string note = 10;
 }
 
 message HomeworkID{
@@ -81,6 +80,18 @@ message PostParam{
 message RealeaseParam{
     int32 HomeworkID = 1;
     int32 AnswerID = 2;
+    int32 teacherID = 3;
+    int32 courseID = 4;
+    int64 pubTime = 5;
+}
+
+message HomeworkAnswerPub{
+    int32 homeworkID = 1;
+    int32 answerID = 2;
+    int32 teacherID = 3;
+    int32 courseID = 4;
+    string title = 5;
+    int64 pubTime = 6;
 }
 
 message CourseID{
