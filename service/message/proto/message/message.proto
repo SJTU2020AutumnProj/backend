@@ -10,7 +10,6 @@ option go_package = "proto/message";
 service MessageService {
     rpc GetMessageByUserID(GetMessageByUserIDParam)returns (GetMessageByUserIDResponse){}
     rpc GetMessageByCourseID(GetMessageByCourseIDParam)returns (GetMessageByCourseIDResponse){}
-    rpc GetMessageByID(GetMessageByIDParam)returns (GetMessageByIDResponse){}
 }
 
 message GetMessageByUserIDParam {
@@ -21,10 +20,6 @@ message GetMessageByCourseIDParam {
     int32 courseID = 1;
 }
 
-message GetMessageByIDParam {
-    int32 messageID = 1;
-}
-
 message GetMessageByUserIDResponse {
     enum Status {
         SUCCESS = 0;
@@ -32,7 +27,7 @@ message GetMessageByUserIDResponse {
     }
     Status status = 1;
     string msg = 2;
-    Message data = 3;
+    repeated Message data = 3;
 }
 
 message GetMessageByCourseIDResponse {
@@ -42,11 +37,7 @@ message GetMessageByCourseIDResponse {
     }
     Status status = 1;
     string msg = 2;
-    Message data = 3;
-}
-
-message GetMessageByIDResponse {
-    
+    repeated Message data = 3;
 }
 
 message Message {
