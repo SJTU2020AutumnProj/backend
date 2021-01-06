@@ -19,6 +19,7 @@ type Homework struct {
 	Title      string    `gorm:"not null;column:title"`
 	State      int32     `gorm:"not null;column:state"`
 	AnswerID   int32     `gorm:"column:answer_id"`
+	Score int32 `gorm:"not null;column:score"`
 }
 
 type UserHomework struct {
@@ -88,6 +89,7 @@ func (repo *HomeworkRepositoryImpl) UpdateHomework(ctx context.Context, homework
 	tmp.Title = homework.Title
 	tmp.State = homework.State
 	tmp.AnswerID = homework.AnswerID
+	tmp.Score = homework.Score
 	// if err = repo.DB.Save(tmp).Error; nil != err {
 	// 	return err
 	// }

@@ -48,6 +48,7 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		Title:     req.Title,
 		State:     req.State,
 		AnswerID:  req.AnswerID,
+		Score:     req.Score,
 	}
 	var resp_homework repo.Homework
 	var err error
@@ -99,6 +100,7 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		Title:       req.Title,
 		State:       req.State,
 		AnswerID:    req.AnswerID,
+		Score:       req.Score,
 		Description: req.Description,
 		Note:        req.Note,
 	}
@@ -142,6 +144,7 @@ func (h *HomeworkHandler) UpdateHomework(ctx context.Context, req *pb.HomeworkIn
 		Title:      req.Title,
 		State:      req.State,
 		AnswerID:   req.AnswerID,
+		Score:      req.Score,
 	}
 
 	if err := h.HomeworkRepository.UpdateHomework(ctx, homework); nil != err {
@@ -195,6 +198,7 @@ func (h *HomeworkHandler) SearchHomework(ctx context.Context, req *pb.HomeworkID
 			Title:       homework.Title,
 			State:       homework.State,
 			AnswerID:    homework.AnswerID,
+			Score:       homework.Score,
 			Description: mongo_homework.Description,
 			Content:     mongo_homework.Content,
 			Note:        mongo_homework.Note,
@@ -231,6 +235,7 @@ func (h *HomeworkHandler) GetHomeworkByTeacherID(ctx context.Context, req *pb.Te
 			Title:       homeworks[i].Title,
 			State:       homeworks[i].State,
 			AnswerID:    homeworks[i].AnswerID,
+			Score:       homeworks[i].Score,
 			Description: homework_json.Description,
 			Content:     homework_json.Content,
 			Note:        homework_json.Note,
@@ -265,13 +270,16 @@ func (h *HomeworkHandler) GetHomeworkByTeacherIDAndCourseID(ctx context.Context,
 			return err
 		}
 		ans = append(ans, &pb.HomeworkInfo{
-			HomeworkID:  homeworks[i].HomeworkID,
-			CourseID:    homeworks[i].CourseID,
-			UserID:      homeworks[i].UserID,
-			StartTime:   homeworks[i].StartTime.Unix(),
-			EndTime:     homeworks[i].EndTime.Unix(),
-			Title:       homeworks[i].Title,
-			State:       homeworks[i].State,
+			HomeworkID: homeworks[i].HomeworkID,
+			CourseID:   homeworks[i].CourseID,
+			UserID:     homeworks[i].UserID,
+			StartTime:  homeworks[i].StartTime.Unix(),
+			EndTime:    homeworks[i].EndTime.Unix(),
+			Title:      homeworks[i].Title,
+			State:      homeworks[i].State,
+			AnswerID:   homeworks[i].AnswerID,
+			Score:      homeworks[i].Score,
+
 			Description: homework_json.Description,
 			Content:     homework_json.Content,
 		})
@@ -314,6 +322,7 @@ func (h *HomeworkHandler) GetHomeworkByStudentID(ctx context.Context, req *pb.St
 			Title:       hw.Title,
 			State:       hw.State,
 			AnswerID:    hw.AnswerID,
+			Score:       hw.Score,
 			Description: homework_json.Description,
 			Content:     homework_json.Content,
 			Note:        homework_json.Note,
@@ -361,6 +370,8 @@ func (h *HomeworkHandler) GetHomeworkByStudentIDAndCourseID(ctx context.Context,
 					EndTime:     homeworks[i].EndTime.Unix(),
 					Title:       homeworks[i].Title,
 					State:       homeworks[i].State,
+					AnswerID:    homeworks[i].AnswerID,
+					Score:       homeworks[i].Score,
 					Description: homework_json.Description,
 					Content:     homework_json.Content,
 				})
@@ -403,6 +414,8 @@ func (h *HomeworkHandler) GetHomeworkByCourseID(ctx context.Context, req *pb.Cou
 			EndTime:     homeworks[i].EndTime.Unix(),
 			Title:       homeworks[i].Title,
 			State:       homeworks[i].State,
+			AnswerID:    homeworks[i].AnswerID,
+			Score:       homeworks[i].Score,
 			Description: homework_json.Description,
 			Content:     homework_json.Content,
 		})
@@ -519,6 +532,7 @@ func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.Stu
 			Title:       homework.Title,
 			State:       homework.State,
 			AnswerID:    homework.AnswerID,
+			Score:       homework.Score,
 			Description: mongo_homework.Description,
 			Content:     mongo_homework.Content,
 			Note:        mongo_homework.Note,
