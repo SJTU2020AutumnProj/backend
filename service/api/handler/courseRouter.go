@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-06 14:06:41
+ * @LastEditTime: 2021-01-06 22:15:12
  */
 package handler
 
@@ -435,17 +435,17 @@ func getNotinStudent(c *gin.Context) {
 	}
 	log.Println("====== getNotinStudent CoursId======")
 	log.Println(p.CourseID)
-	// ID := homework.CourseID{
-	// 	CourseID: p.CourseID,
-	// }
-	// result, err := homeworkService.SearchHomeworkByCourseID(context.Background(), &ID)
-	// log.Println(result)
-	// log.Println(err)
-	// if err != nil {
-	// 	c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败或未找到相应数据"})
-	// 	return
-	// }
-	c.JSON(200, gin.H{"status": 200, "msg": "获取学生列表成功"})
+	ID := courseclass.CourseID{
+		CourseID: p.CourseID,
+	}
+	result, err := courseClassService.SearchUserNotInCourse(context.Background(), &ID)
+	log.Println(result)
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败或未找到相应数据"})
+		return
+	}
+	c.JSON(200, gin.H{"status": 200, "msg": "获取学生列表成功", "data": result.Users})
 	return
 }
 
@@ -499,7 +499,7 @@ func addStudents(c *gin.Context) {
 	}
 
 	stus := courseclass.Take{
-		UserID:   students[0],
+		UserID:   students,
 		CourseID: p.CourseID,
 		Role:     0}
 	result, err := courseClassService.AddTake(context.Background(), &stus)
@@ -563,7 +563,7 @@ func deleteStudents(c *gin.Context) {
 	}
 
 	stus := courseclass.UserCourse{
-		UserID:   students[0],
+		UserID:   students,
 		CourseID: p.CourseID}
 	result, err := courseClassService.DeleteTake(context.Background(), &stus)
 	log.Println(result)
