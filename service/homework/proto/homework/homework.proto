@@ -29,7 +29,7 @@ service HomeworkService {
 }
 
 //Parameter protocol
-message AssignHomeworkParam{
+message {
     int32 courseID = 1;
     int32 userID = 2;
     int64 startTime = 3;
