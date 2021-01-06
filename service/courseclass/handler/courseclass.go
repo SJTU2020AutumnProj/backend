@@ -258,10 +258,62 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 			Id:       users.Users[i].ID,
 			Phone:    users.Users[i].Phone,
 			Email:    users.Users[i].Email,
+			Name: 	  users.Users[i].Name,
 		})
 	}
 
 	*resp = pb.SearchTakeByCourseResponse{
+		Status: 0,
+		Msg:    "Success",
+		Users:  ans,
+	}
+	return nil
+}
+
+func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context,req *pb.CourseID,resp *pb.SearchUserNotInCourseResponse)error{
+	userService := user.NewUserService("go.micro.service",client.DefaultClient)
+	getAllUserResponse,err := userService.GetAllUsers(context.Background(),&user.GetAllUsersParam{})
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchUserNotInCourse error: ", err)
+		return err
+	}
+	allUsers := getAllUserResponse.Users
+
+	userIDs, err := c.CourseClassRepository.SearchTakeByCourseClass(ctx, req.CourseID)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchUserNotInCourse error: ", err)
+		return err
+	}
+
+	//去除已经选了这门课的学生
+	for i := range allUsers{
+		for j:= range userIDs{
+			if allUsers[i].UserID == userIDs[j]{
+				allUsers = allUsers[:i+copy(allUsers[i:], allUsers[i+1:])]
+			}
+		}
+	}
+	var ans []*pb.User
+
+	for i:= range allUsers{
+		ans = append(ans, &pb.User{
+			UserID:	 allUsers[i].UserID,
+			UserType:   allUsers[i].UserType,
+			UserName:	allUsers[i].UserName,
+			Password:	allUsers[i].Password,
+			School:		allUsers[i].School,
+			Id:			allUsers[i].ID,
+			Phone:		allUsers[i].Phone,
+			Email:		allUsers[i].Email,
+			Name:		allUsers[i].Name,
+		})
+	}
+
+	*resp = pb.SearchUserNotInCourseResponse{
 		Status: 0,
 		Msg:    "Success",
 		Users:  ans,

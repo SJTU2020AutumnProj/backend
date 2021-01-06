@@ -42,9 +42,13 @@ type HomeworkRepository interface {
 	DeleteHomework(ctx context.Context, homeworkID int32) error
 	UpdateHomework(ctx context.Context, homework Homework) error
 	SearchHomework(ctx context.Context, homeworkID int32) (Homework, error)
-	SearchHomeworkByUserID(ctx context.Context, userID int32) ([]*Homework, error)
+
+	SearchHomeworkByTeacherID(ctx context.Context, teacherID int32) ([]*Homework, error)
 	SearchHomeworkByCourseID(ctx context.Context, courseID int32) ([]*Homework, error)
 	SearchUserIDByHomeworkID(ctx context.Context, homeworkID int32) ([]int32, error)
+	SearchHomeworkIDByUserID(ctx context.Context, userID int32) ([]int32, error)
+	SearchUserHomework(ctx context.Context, userID int32, homeworkID int32) (UserHomework, error)
+
 	PostHomeworkAnswer(ctx context.Context, homeworkID int32, answerID int32) error
 	ReleaseHomeworkAnswer(ctx context.Context, homeworkID int32) error
 	AddUserHomework(ctx context.Context, userID int32, homeworkID int32) error
@@ -103,10 +107,10 @@ func (repo *HomeworkRepositoryImpl) SearchHomework(ctx context.Context, homework
 	return homework, result.Error
 }
 
-func (repo *HomeworkRepositoryImpl) SearchHomeworkByUserID(ctx context.Context, userID int32) ([]*Homework, error) {
+func (repo *HomeworkRepositoryImpl) SearchHomeworkByTeacherID(ctx context.Context, teacherID int32) ([]*Homework, error) {
 	var homeworks []*Homework
 
-	result := repo.DB.Table("homework").Where("user_id = ?", userID)
+	result := repo.DB.Table("homework").Where("user_id = ?", teacherID)
 
 	if err := result.Find(&homeworks).Error; nil != err {
 		return []*Homework{}, err
@@ -142,6 +146,43 @@ func (repo *HomeworkRepositoryImpl) SearchUserIDByHomeworkID(ctx context.Context
 		return userIDs, result.Error
 	}
 	return userIDs, result.Error
+}
+
+func (repo *HomeworkRepositoryImpl) SearchHomeworkIDByUserID(ctx context.Context, userID int32) ([]int32, error) {
+	var uh []*UserHomework
+	var homeworkIDs []int32
+	result := repo.DB.Table("user_homework").Where("user_id = ?", userID)
+
+	if err := result.Find(&uh).Error; nil != err {
+		return []int32{}, err
+	}
+
+	for i := range uh {
+		homeworkIDs = append(homeworkIDs, uh[i].UserID)
+	}
+
+	if nil != result.Error {
+		return homeworkIDs, result.Error
+	}
+	return homeworkIDs, result.Error
+}
+
+func (repo *HomeworkRepositoryImpl) SearchUserHomework(ctx context.Context, userID int32, homeworkID int32) (UserHomework, error) {
+	var uh []*UserHomework
+	var ans []*UserHomework
+	result := repo.DB.Table("user_homework").Where("user_id = ?", userID)
+
+	if err := result.Find(&uh).Error; nil != err {
+		return UserHomework{}, err
+	}
+
+	for i := range uh {
+		if uh[i].HomeworkID == homeworkID {
+			ans = append(ans, uh[i])
+		}
+	}
+
+	return *ans[0], nil
 }
 
 //这个函数仅仅把homework表中的answer_id填上
