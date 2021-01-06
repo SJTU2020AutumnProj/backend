@@ -29,7 +29,7 @@ service HomeworkService {
 }
 
 //Parameter protocol
-message {
+message AssignHomeworkParam {
     int32 courseID = 1;
     int32 userID = 2;
     int64 startTime = 3;
@@ -37,9 +37,10 @@ message {
     string title = 5;
     int32 state = 6;
     int32 answerID = 7;
-    string description = 8;
-    string content = 9;
-    string note = 10;
+    int32 score = 8;
+    string description = 9;
+    string content = 10;
+    string note = 11;
 }
 
 message AssignedHomework {
@@ -49,10 +50,11 @@ message AssignedHomework {
     int64 startTime = 4;
     int64 endTime = 5;
     string title = 6;
-    int32 state = 7;
-    int32 answerID = 8;
-    string description = 9;
-    string note = 10;
+    int32 score = 7;
+    int32 state = 8;
+    int32 answerID = 9;
+    string description = 10;
+    string note = 11;
 }
 
 message HomeworkID{
@@ -68,9 +70,10 @@ message HomeworkInfo{
     string title = 6;
     int32 state = 7;
     int32 answerID = 8;
-    string description = 9;
-    string content = 10;
-    string note = 11;
+    int32 score = 9;
+    string description = 10;
+    string content = 11;
+    string note = 12;
 }
 
 message UserHomework{
