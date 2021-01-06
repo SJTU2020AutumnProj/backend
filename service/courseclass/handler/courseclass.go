@@ -144,16 +144,19 @@ func (c *CourseClassHandler) SearchCourseClasses(ctx context.Context, req *pb.Co
 }
 
 func (c *CourseClassHandler) AddTake(ctx context.Context, req *pb.Take, resp *pb.EditResponse) error {
-	take := repo.Take{
-		UserID:   req.UserID,
-		CourseID: req.CourseID,
-		Role:     req.Role,
-	}
-	if err := c.CourseClassRepository.AddTake(ctx, take); nil != err {
-		resp.Status = -1
-		resp.Msg = "Error"
-		log.Println("CourseHandler AddTake error: ", err)
-		return err
+	for i := range req.UserID {
+		userID := req.UserID[i]
+		take := repo.Take{
+			UserID:   userID,
+			CourseID: req.CourseID,
+			Role:     req.Role,
+		}
+		if err := c.CourseClassRepository.AddTake(ctx, take); nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("CourseHandler AddTake error: ", err)
+			return err
+		}
 	}
 	resp.Status = 0
 	resp.Msg = "Success"
@@ -161,11 +164,14 @@ func (c *CourseClassHandler) AddTake(ctx context.Context, req *pb.Take, resp *pb
 }
 
 func (c *CourseClassHandler) DeleteTake(ctx context.Context, req *pb.UserCourse, resp *pb.EditResponse) error {
-	if err := c.CourseClassRepository.DeleteTake(ctx, req.UserID, req.CourseID); nil != err {
-		resp.Status = -1
-		resp.Msg = "Error"
-		log.Println("CourseHandler DeleteTake error: ", err)
-		return err
+	for i := range req.UserID {
+		userID := req.UserID[i]
+		if err := c.CourseClassRepository.DeleteTake(ctx, userID, req.CourseID); nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("CourseHandler DeleteTake error: ", err)
+			return err
+		}
 	}
 	resp.Status = 0
 	resp.Msg = "Success"
@@ -227,7 +233,6 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 	return nil
 }
 
-
 func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchTakeByCourseResponse) error {
 	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
 
@@ -258,7 +263,7 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 			Id:       users.Users[i].ID,
 			Phone:    users.Users[i].Phone,
 			Email:    users.Users[i].Email,
-			Name: 	  users.Users[i].Name,
+			Name:     users.Users[i].Name,
 		})
 	}
 
@@ -270,9 +275,9 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 	return nil
 }
 
-func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context,req *pb.CourseID,resp *pb.SearchUserNotInCourseResponse)error{
-	userService := user.NewUserService("go.micro.service",client.DefaultClient)
-	getAllUserResponse,err := userService.GetAllUsers(context.Background(),&user.GetAllUsersParam{})
+func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchUserNotInCourseResponse) error {
+	userService := user.NewUserService("go.micro.service", client.DefaultClient)
+	getAllUserResponse, err := userService.GetAllUsers(context.Background(), &user.GetAllUsersParam{})
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
@@ -290,26 +295,26 @@ func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context,req *pb.C
 	}
 
 	//去除已经选了这门课的学生
-	for i := range allUsers{
-		for j:= range userIDs{
-			if allUsers[i].UserID == userIDs[j]{
+	for i := range allUsers {
+		for j := range userIDs {
+			if allUsers[i].UserID == userIDs[j] {
 				allUsers = allUsers[:i+copy(allUsers[i:], allUsers[i+1:])]
 			}
 		}
 	}
 	var ans []*pb.User
 
-	for i:= range allUsers{
+	for i := range allUsers {
 		ans = append(ans, &pb.User{
-			UserID:	 allUsers[i].UserID,
-			UserType:   allUsers[i].UserType,
-			UserName:	allUsers[i].UserName,
-			Password:	allUsers[i].Password,
-			School:		allUsers[i].School,
-			Id:			allUsers[i].ID,
-			Phone:		allUsers[i].Phone,
-			Email:		allUsers[i].Email,
-			Name:		allUsers[i].Name,
+			UserID:   allUsers[i].UserID,
+			UserType: allUsers[i].UserType,
+			UserName: allUsers[i].UserName,
+			Password: allUsers[i].Password,
+			School:   allUsers[i].School,
+			Id:       allUsers[i].ID,
+			Phone:    allUsers[i].Phone,
+			Email:    allUsers[i].Email,
+			Name:     allUsers[i].Name,
 		})
 	}
 

@@ -77,12 +77,12 @@ message UserID {
 }
 
 message UserCourse {
-	int32 userID = 1;
+	repeated int32 userID = 1;
 	int32 courseID = 2;
 }
 
 message Take {
-	int32 userID = 1;
+	repeated int32 userID = 1;
 	int32 courseID = 2;
 	int32 role = 3;
 }
