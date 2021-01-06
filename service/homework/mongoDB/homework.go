@@ -67,7 +67,7 @@ func (repo *HomeworkMongoImpl) DeleteHomework(ctx context.Context,homeworkID int
 
 func (repo *HomeworkMongoImpl) UpdateHomework(ctx context.Context,homework Homework) error {
 	filter := bson.M{"homework_id": homework.HomeworkID}
-	update := bson.M{"$set": bson.M{ "description": homework.Description, "content":homework.Content }}
+	update := bson.M{"$set": bson.M{ "description": homework.Description, "content":homework.Content ,"note":homework.Note}}
 	updateResult, err := repo.CL.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return err

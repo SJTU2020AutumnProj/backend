@@ -282,6 +282,7 @@ func (h *HomeworkHandler) GetHomeworkByTeacherIDAndCourseID(ctx context.Context,
 
 			Description: homework_json.Description,
 			Content:     homework_json.Content,
+			Note:        homework_json.Note,
 		})
 	}
 
@@ -374,6 +375,7 @@ func (h *HomeworkHandler) GetHomeworkByStudentIDAndCourseID(ctx context.Context,
 					Score:       homeworks[i].Score,
 					Description: homework_json.Description,
 					Content:     homework_json.Content,
+					Note:        homework_json.Note,
 				})
 			}
 		}
@@ -418,6 +420,7 @@ func (h *HomeworkHandler) GetHomeworkByCourseID(ctx context.Context, req *pb.Cou
 			Score:       homeworks[i].Score,
 			Description: homework_json.Description,
 			Content:     homework_json.Content,
+			Note:        homework_json.Note,
 		})
 	}
 
