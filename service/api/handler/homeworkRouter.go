@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-06 23:56:21
+ * @LastEditTime: 2021-01-07 00:12:16
  */
 package handler
 
@@ -200,6 +200,7 @@ func stuGetdetail(c *gin.Context) {
 		CheckID          int32  `form:"checkId" json:"checkId" binding:"required"`
 		StandardAnswerID int32  `form:"standardAnswerId" json:"standardAnswerId" binding:"required"`
 		TeacherID        int32  `form:"teacherId" json:"teacherId" binding:"required"`
+		UserID           int32  `form:"userId" json:"userId" binding:"required"`
 	}
 	//获取token
 	token, err1 := c.Cookie("token")
@@ -255,23 +256,23 @@ func stuGetdetail(c *gin.Context) {
 	hwinfo := res2.Homework
 	log.Println(hwinfo)
 
-	// res:=resdata{
-	// 	HwID :hwinfo.HomeworkID,
-	// 	Title :hwinfo.Title,
-	// 	Description :hwinfo.HomeworkID,
-	// 	Note    :hwinfo.HomeworkID,
-	// 	Content    :hwinfo.HomeworkID,
-	// 	CourseID    int32  `form:"courseId" json:"courseId" binding:"required"`
-	// 	State       int32  `form:"state" json:"state" binding:"required"`
-	// 	//0表示暂存，未发布，1表示发布
-	// 	Score     int32  `form:"score" json:"score" binding:"required"`
-	// 	StartTime string `form:"startTime" json:"startTime" binding:"required"`
-	// 	EndTime   string `form:"endTime" json:"endTime" binding:"required"`
-	// 	AnswerID    int32  `form:"answerId " json:"answerId" binding:"required"`
-	// 	CheckID    int32  `form:"checkId" json:"checkId" binding:"required"`
-	// 	StandardAnswerID    int32  `form:"standardAnswerId" json:"standardAnswerId" binding:"required"`
-	// 	TeacherID
-	// }
-	// c.JSON(200, gin.H{"status": 200, "msg": "课程开设成功", "data": result.})
+	responsedata := resdata{
+		HwID:             hwinfo.HomeworkID,
+		Title:            hwinfo.Title,
+		Description:      hwinfo.Description,
+		Note:             hwinfo.Note,
+		Content:          hwinfo.Content,
+		CourseID:         hwinfo.CourseID,
+		State:            usrhw.State,
+		UserID:           usrhw.UserID,
+		Score:            hwinfo.Score,
+		StartTime:        utils.TimeStamp2string(hwinfo.StartTime),
+		EndTime:          utils.TimeStamp2string(hwinfo.EndTime),
+		AnswerID:         hwinfo.AnswerID,
+		CheckID:          usrhw.CheckID,
+		StandardAnswerID: usrhw.AnswerID,
+		TeacherID:        hwinfo.UserID,
+	}
+	c.JSON(200, gin.H{"status": 200, "msg": "获取作业详情成功（学生）", "data": responsedata})
 
 }
