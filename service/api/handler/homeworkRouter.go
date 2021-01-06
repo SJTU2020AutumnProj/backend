@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-06 13:56:32
+ * @LastEditTime: 2021-01-06 21:29:41
  */
 package handler
 
@@ -27,9 +27,9 @@ func HomeworkRouter(g *gin.Engine, s homework.HomeworkService) {
 	homeworkService = s
 	v1 := g.Group("/homework")
 	{
-		v1.PUT("/create", createHW)  //创建作业
-		v1.POST("/update", modifyHw) //修改作业
-		// v1.GET("/logout", logout)       //退出登录
+		v1.PUT("/create", createHW)     //创建作业
+		v1.POST("/update", modifyHw)    //修改作业
+		v1.GET("/detail", stuGetdetail) //退出登录
 		// v1.GET("/checkAuth", checkAuth) //检测权限
 	}
 }
@@ -176,4 +176,29 @@ func modifyHw(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"status": 200, "msg": "修改作业成功"})
 	return
+}
+
+func stuGetdetail(c *gin.Context) {
+	type param struct {
+		HwID int32 `form:"hwId" json:"hwId" binding:"required"`
+	}
+	//获取token
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
+	if token == "" {
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
+		return
+	}
+	//解析检验token
+	log.Println("====== courseRouter——>editCourse token======")
+	log.Println(token)
+	ck := auth.CheckAuthParam{
+		Token: token}
+	usrinfo, jwterr := authService.CheckAuth(context.Background(), &ck)
+	log.Println(usrinfo)
+	log.Println(jwterr)
+	if jwterr != nil {
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		return
+	}
 }
