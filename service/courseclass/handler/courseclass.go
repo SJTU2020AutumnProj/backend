@@ -294,14 +294,27 @@ func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.
 		return err
 	}
 
+	for j:= range userIDs {
+		if allUsers[0].UserID == userIDs[j]{
+			allUsers = append(allUsers[:0], allUsers[1:]...)
+		}
+	}
+
 	//去除已经选了这门课的学生
 	for i := range allUsers {
 		for j := range userIDs {
-			if allUsers[i].UserID == userIDs[j] {
-				allUsers = allUsers[:i+copy(allUsers[i:], allUsers[i+1:])]
+			if allUsers[i].UserID == userIDs[j] && i!=len(allUsers)-1 && i!=0{
+				allUsers = append(allUsers[:i], allUsers[i+1:]...)
 			}
 		}
 	}
+
+	for j:= range userIDs{
+		if allUsers[len(allUsers)-1].UserID == userIDs[j]{
+			allUsers = allUsers[:len(allUsers)-1]
+		}
+	}
+
 	var ans []*pb.User
 
 	for i := range allUsers {

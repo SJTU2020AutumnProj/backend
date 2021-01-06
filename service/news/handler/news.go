@@ -91,10 +91,11 @@ func (h *NewsHandler) GetMessageByCourseID(ctx context.Context, in *pb.GetMessag
 		}
 		result = append(result, currentResult)
 	}
-	out = &pb.GetMessageByCourseIDResponse{
+	*out = pb.GetMessageByCourseIDResponse{
 		Status: 0,
 		Msg:    "Get message by courseID success",
 		Data:   result,
 	}
+	log.Println("NewsHandler GetMessageByCourseID success ", result)
 	return nil
 }

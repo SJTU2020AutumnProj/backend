@@ -20,7 +20,7 @@ func (h *MessageHandler) GetMessageByUserID(ctx context.Context, in *pb.GetMessa
 	resp, err := h.MessageRepository.SearchMessageByUserID(ctx, in.UserID)
 	if nil != err {
 		log.Println("MessageHandler GetMessageByUserID error ", err)
-		out = &pb.GetMessageByUserIDResponse{
+		*out = pb.GetMessageByUserIDResponse{
 			Status: -1,
 			Msg:    "Get message by userID error",
 		}
@@ -49,7 +49,7 @@ func (h *MessageHandler) GetMessageByUserID(ctx context.Context, in *pb.GetMessa
 		}
 		result = append(result, currentResult)
 	}
-	out = &pb.GetMessageByUserIDResponse{
+	*out = pb.GetMessageByUserIDResponse{
 		Status: 0,
 		Msg:    "Get message by userID success",
 		Data:   result,
@@ -62,7 +62,7 @@ func (h *MessageHandler) GetMessageByCourseID(ctx context.Context, in *pb.GetMes
 	resp, err := h.MessageRepository.SearchMessageByCourseID(ctx, in.CourseID)
 	if nil != err {
 		log.Println("MessageHandler GetMessageByCourseID error ", err)
-		out = &pb.GetMessageByCourseIDResponse{
+		*out = pb.GetMessageByCourseIDResponse{
 			Status: -1,
 			Msg:    "Get message by courseID error",
 		}
@@ -73,7 +73,7 @@ func (h *MessageHandler) GetMessageByCourseID(ctx context.Context, in *pb.GetMes
 		messageContent, err := h.MessageMongo.SearchMessage(ctx, resp[i].MessageID)
 		if nil != err {
 			log.Println("MessageHandler GetMessageByCourseID error ", err)
-			out = &pb.GetMessageByCourseIDResponse{
+			*out = pb.GetMessageByCourseIDResponse{
 				Status: -1,
 				Msg:    "Get message by courseID error",
 			}
@@ -91,10 +91,11 @@ func (h *MessageHandler) GetMessageByCourseID(ctx context.Context, in *pb.GetMes
 		}
 		result = append(result, currentResult)
 	}
-	out = &pb.GetMessageByCourseIDResponse{
+	*out = pb.GetMessageByCourseIDResponse{
 		Status: 0,
 		Msg:    "Get message by courseID success",
 		Data:   result,
 	}
+	log.Println("MessageHandler GetMessageByCourseID success ", result)
 	return nil
 }
