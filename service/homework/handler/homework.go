@@ -14,8 +14,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/micro/go-micro/v2/client"
 )
 
 // HomeworkHandler struct
@@ -24,8 +23,8 @@ type HomeworkHandler struct {
 	HomeworkMongo      mongoDB.HomeworkMongo
 	// 由go-micro封装，用于发送消息的接口，老版本叫micro.Publisher
 	HomeworkAssignedPubEvent micro.Event
-	HomeworkAnswerPubEvent micro.Event
-	CheckPubEvent micro.Event
+	HomeworkAnswerPubEvent   micro.Event
+	CheckPubEvent            micro.Event
 }
 
 const (
@@ -76,45 +75,32 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 	}
 
 	//初始化user_homework表
-	const (
-		ServiceName = "go.micro.client.courseclass"
-		EtcdAddr    = "localhost:2379"
-	)
-
-	server := micro.NewService(
-		micro.Name(ServiceName),
-		micro.Registry(etcd.NewRegistry(
-			registry.Addrs(EtcdAddr),
-		)),
-	)
-	server.Init()
-	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", server.Client())
-	searchResult, err1 := courseClassService.SearchTakeByCourse(context.Background(), &courseclass.CourseID{CourseID: req.CourseID})
-	users := searchResult.Users
-
-	if err1 = h.HomeworkMongo.AddHomework(ctx, mongo_homework); nil != err1 {
+	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", client.DefaultClient)
+	searchResult, err1 := courseClassService.SearchTakeByCourse(ctx, &courseclass.CourseID{CourseID: req.CourseID})
+	if nil != err1 {
+		log.Println("HomeworkHandler AssignHomework error: ", err1)
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("HomeworkHandler AssignHomework error: ", err1)
 		return err1
 	}
+	users := searchResult.Users
 
 	for i := range users {
 		userID := users[i].UserID
 		h.HomeworkRepository.AddUserHomework(ctx, userID, resp.HomeworkID)
 	}
 
-	assignedHomework := &pb.AssignedHomework {
-		HomeworkID: resp_homework.HomeworkID,
-    	CourseID: req.CourseID,
-    	UserID: req.UserID,
-    	StartTime: req.StartTime,
-    	EndTime: req.EndTime,
-    	Title: req.Title,
-    	State: req.State,
-    	AnswerID: req.AnswerID,
-    	Description: req.Description,
-    	Note: req.Note,
+	assignedHomework := &pb.AssignedHomework{
+		HomeworkID:  resp_homework.HomeworkID,
+		CourseID:    req.CourseID,
+		UserID:      req.UserID,
+		StartTime:   req.StartTime,
+		EndTime:     req.EndTime,
+		Title:       req.Title,
+		State:       req.State,
+		AnswerID:    req.AnswerID,
+		Description: req.Description,
+		Note:        req.Note,
 	}
 	if err = h.HomeworkAssignedPubEvent.Publish(ctx, assignedHomework); err != nil {
 		log.Println("HomeworkHandler AssignHomework send message error ", err)
@@ -302,20 +288,9 @@ func (h *HomeworkHandler) SearchHomeworkByCourseID(ctx context.Context, req *pb.
 //老师上传作业答案
 func (h *HomeworkHandler) PostHomeworkAnswer(ctx context.Context, req *pb.PostParam, resp *pb.PostHomeworkAnswerResponse) error {
 
-	const (
-		ServiceName = "go.micro.client.answer"
-		EtcdAddr    = "localhost:2379"
-	)
-	server := micro.NewService(
-		micro.Name(ServiceName),
-		micro.Registry(etcd.NewRegistry(
-			registry.Addrs(EtcdAddr),
-		)),
-	)
-	server.Init()
-	answerService := answer.NewAnswerService("go.micro.service.answer", server.Client())
+	answerService := answer.NewAnswerService("go.micro.service.answer", client.DefaultClient)
 
-	aw, err := answerService.PostAnswerByTeacher(context.Background(), &answer.PostAnswerParam{HomeworkID: req.HomeworkID, UserID: req.UserID, CommitTime: req.CommitTime, Content: req.Content, Note: req.Note})
+	aw, err := answerService.PostAnswerByTeacher(ctx, &answer.PostAnswerParam{HomeworkID: req.HomeworkID, UserID: req.UserID, CommitTime: req.CommitTime, Content: req.Content, Note: req.Note})
 
 	if nil != err {
 		resp.Status = -1
@@ -353,13 +328,13 @@ func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.Rel
 		log.Println("HomeworkHandler ReleaseHomeworkAnswer error ", searchErr)
 		return nil
 	}
-	homeworkAnswerPub := &pb.HomeworkAnswerPub {
+	homeworkAnswerPub := &pb.HomeworkAnswerPub{
 		HomeworkID: req.HomeworkID,
-    	AnswerID: req.AnswerID,
-    	TeacherID: req.TeacherID,
-    	CourseID: req.CourseID,
-    	Title: homework.Title,
-    	PubTime: req.PubTime,
+		AnswerID:   req.AnswerID,
+		TeacherID:  req.TeacherID,
+		CourseID:   req.CourseID,
+		Title:      homework.Title,
+		PubTime:    req.PubTime,
 	}
 	if err := h.HomeworkAssignedPubEvent.Publish(ctx, homeworkAnswerPub); err != nil {
 		log.Println("HomeworkHandler ReleaseHomeworkAnswer send message error ", err)
@@ -434,13 +409,13 @@ func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheck
 		log.Println("HomeworkHandler ReleaseCheck error ", searchErr)
 		return nil
 	}
-	releasedCheck := &pb.ReleasedCheck {
-		HomeworkID: req.HomeworkID,
-    	TeacherID: req.TeacherID,
-    	StudentID: userIDs,
-    	CourseID: req.CourseID,
-    	ReleaseTime: req.ReleaseTime,
-    	Title: homework.Title,
+	releasedCheck := &pb.ReleasedCheck{
+		HomeworkID:  req.HomeworkID,
+		TeacherID:   req.TeacherID,
+		StudentID:   userIDs,
+		CourseID:    req.CourseID,
+		ReleaseTime: req.ReleaseTime,
+		Title:       homework.Title,
 	}
 	if err := h.CheckPubEvent.Publish(ctx, releasedCheck); err != nil {
 		log.Println("HomeworkHandler ReleaseCheck send message error ", err)

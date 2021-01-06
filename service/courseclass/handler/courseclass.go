@@ -10,9 +10,7 @@ import (
 
 	"golang.org/x/crypto/openpgp/errors"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/micro/go-micro/v2/client"
 )
 
 type CourseClassHandler struct {
@@ -69,7 +67,7 @@ func (c *CourseClassHandler) UpdateCourseClass(ctx context.Context, req *pb.Cour
 		TextBooks:    req.TextBooks,
 		StartTime:    stime,
 		EndTime:      etime,
-		State: req.State,
+		State:        req.State,
 	}
 	if err := c.CourseClassRepository.UpdateCourseClass(ctx, course); nil != err {
 		resp.Status = -1
@@ -105,7 +103,7 @@ func (c *CourseClassHandler) SearchCourseClass(ctx context.Context, req *pb.Cour
 			TextBooks:    course.TextBooks,
 			StartTime:    stime,
 			EndTime:      etime,
-			State: course.State,
+			State:        course.State,
 		},
 	}
 	return nil
@@ -134,7 +132,7 @@ func (c *CourseClassHandler) SearchCourseClasses(ctx context.Context, req *pb.Co
 			TextBooks:    course.TextBooks,
 			StartTime:    stime,
 			EndTime:      etime,
-			State: course.State,
+			State:        course.State,
 		})
 	}
 	*resp = pb.SearchCourseClassesResponse{
@@ -217,7 +215,7 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 			TextBooks:    courses[i].TextBooks,
 			StartTime:    courses[i].StartTime.Unix(),
 			EndTime:      courses[i].EndTime.Unix(),
-			State: courses[i].State,
+			State:        courses[i].State,
 		})
 	}
 
@@ -229,20 +227,9 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 	return nil
 }
 
-const (
-	ServiceName = "go.micro.client.user"
-	EtcdAddr    = "localhost:2379"
-)
 
 func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchTakeByCourseResponse) error {
-	server := micro.NewService(
-		micro.Name(ServiceName),
-		micro.Registry(etcd.NewRegistry(
-			registry.Addrs(EtcdAddr),
-		)),
-	)
-	server.Init()
-	userService := user.NewUserService("go.micro.service.user", server.Client())
+	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
 
 	userIDs, err := c.CourseClassRepository.SearchTakeByCourseClass(ctx, req.CourseID)
 	if nil != err {
@@ -252,7 +239,7 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 		return err
 	}
 
-	users, err1 := userService.SearchUsers(context.Background(), &user.UserIDArray{UserIDArray: userIDs})
+	users, err1 := userService.SearchUsers(ctx, &user.UserIDArray{UserIDArray: userIDs})
 
 	if nil != err1 {
 		resp.Status = -1
@@ -292,7 +279,7 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 		TextBooks:    req.TextBooks,
 		StartTime:    stime,
 		EndTime:      etime,
-		State: 		req.State,
+		State:        req.State,
 	}
 
 	var newCourse repo.CourseClass
@@ -316,7 +303,7 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 			TextBooks:    newCourse.TextBooks,
 			StartTime:    newCourse.StartTime.Unix(),
 			EndTime:      newCourse.EndTime.Unix(),
-			State: newCourse.State,
+			State:        newCourse.State,
 		},
 	}
 
