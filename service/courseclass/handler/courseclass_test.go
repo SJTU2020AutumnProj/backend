@@ -535,7 +535,7 @@ func TestSearchTakeByCourse(t *testing.T) {
 
 	Convey("TestSearchTakeByCourse", t, func() {
 		ureq.UserName = "测试用户111"
-		ureq.Type = 0
+		// ureq.Type = 0
 		ureq.Password = "123"
 		ureq.School = "SJTU"
 		ureq.ID = "1111"

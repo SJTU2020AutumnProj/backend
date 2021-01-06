@@ -14,6 +14,7 @@ service UserService {
   rpc UpdateUser(UpdateUserParam)returns (UpdateUserResponse){}
   rpc SearchUser(UserID)returns (SearchUserResponse){}
   rpc SearchUsers(UserIDArray)returns (SearchUsersResponse){}
+  rpc GetAllUsers(GetAllUsersParam)returns(GetAllUsersResponse){}
 }
 
 
@@ -48,6 +49,9 @@ message UserIDArray {
     repeated int32 userIDArray = 1;
 }
 
+message GetAllUsersParam {
+    
+}
 
 // Response protocol
 message RegisterUserResponse {
@@ -92,6 +96,16 @@ message SearchUserResponse {
 }
 
 message SearchUsersResponse {
+    enum Status {
+        SUCCESS = 0;       
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated UserInfo users = 3;
+}
+
+message GetAllUsersResponse{
     enum Status {
         SUCCESS = 0;       
         ERROR = -1;

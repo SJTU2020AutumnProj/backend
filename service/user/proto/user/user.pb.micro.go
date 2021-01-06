@@ -50,6 +50,7 @@ type UserService interface {
 	UpdateUser(ctx context.Context, in *UpdateUserParam, opts ...client.CallOption) (*UpdateUserResponse, error)
 	SearchUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchUserResponse, error)
 	SearchUsers(ctx context.Context, in *UserIDArray, opts ...client.CallOption) (*SearchUsersResponse, error)
+	GetAllUsers(ctx context.Context, in *GetAllUsersParam, opts ...client.CallOption) (*GetAllUsersResponse, error)
 }
 
 type userService struct {
@@ -124,6 +125,16 @@ func (c *userService) SearchUsers(ctx context.Context, in *UserIDArray, opts ...
 	return out, nil
 }
 
+func (c *userService) GetAllUsers(ctx context.Context, in *GetAllUsersParam, opts ...client.CallOption) (*GetAllUsersResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.GetAllUsers", in)
+	out := new(GetAllUsersResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for UserService service
 
 type UserServiceHandler interface {
@@ -133,6 +144,7 @@ type UserServiceHandler interface {
 	UpdateUser(context.Context, *UpdateUserParam, *UpdateUserResponse) error
 	SearchUser(context.Context, *UserID, *SearchUserResponse) error
 	SearchUsers(context.Context, *UserIDArray, *SearchUsersResponse) error
+	GetAllUsers(context.Context, *GetAllUsersParam, *GetAllUsersResponse) error
 }
 
 func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) error {
@@ -143,6 +155,7 @@ func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts .
 		UpdateUser(ctx context.Context, in *UpdateUserParam, out *UpdateUserResponse) error
 		SearchUser(ctx context.Context, in *UserID, out *SearchUserResponse) error
 		SearchUsers(ctx context.Context, in *UserIDArray, out *SearchUsersResponse) error
+		GetAllUsers(ctx context.Context, in *GetAllUsersParam, out *GetAllUsersResponse) error
 	}
 	type UserService struct {
 		userService
@@ -177,4 +190,8 @@ func (h *userServiceHandler) SearchUser(ctx context.Context, in *UserID, out *Se
 
 func (h *userServiceHandler) SearchUsers(ctx context.Context, in *UserIDArray, out *SearchUsersResponse) error {
 	return h.UserServiceHandler.SearchUsers(ctx, in, out)
+}
+
+func (h *userServiceHandler) GetAllUsers(ctx context.Context, in *GetAllUsersParam, out *GetAllUsersResponse) error {
+	return h.UserServiceHandler.GetAllUsers(ctx, in, out)
 }

@@ -213,6 +213,8 @@ func (repo *CourseClassRepositoryImpl) NewCourse(ctx context.Context, courseclas
 	return courseclass, nil
 }
 
+
+
 // func (repo *CourseClassRepositoryImpl) GenerateTakeClass(
 // 	userID int32,
 // 	courseID int32,
