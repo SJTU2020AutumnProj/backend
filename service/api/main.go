@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-16 21:32:52
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-05 16:02:42
+ * @LastEditTime: 2021-01-06 11:06:52
  */
 package main
 
@@ -14,6 +14,7 @@ import (
 	"boxin/service/api/handler"
 	auth "boxin/service/auth/proto/auth"
 	courseclass "boxin/service/courseclass/proto/courseclass"
+	homework "boxin/service/homework/proto/homework"
 	user "boxin/service/user/proto/user"
 	verify "boxin/service/verification/proto/verification"
 	"fmt"
@@ -64,6 +65,7 @@ func main() {
 	verifyService := verify.NewVerificationService("go.micro.service.verification", client.DefaultClient)
 	authService := auth.NewAuthService("go.micro.service.auth", client.DefaultClient)
 	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", client.DefaultClient)
+	homeworkService := homework.NewHomeworkService("go.micro.service.homework", client.DefaultClient)
 	webHandler := gin.Default()
 	webHandler.Use(Cors())
 	service := web.NewService(
@@ -76,6 +78,8 @@ func main() {
 	handler.AuthRouter(webHandler, authService)
 	handler.CourseRouter(webHandler, courseClassService)
 	handler.VerifyRouter(webHandler, verifyService)
+	handler.HomeworkRouter(webHandler, homeworkService)
+
 	// handler.CourseRouter(webHandler,courService)
 	service.Init()
 	if err := service.Run(); err != nil {
