@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-06 13:32:13
+ * @LastEditTime: 2021-01-06 14:06:41
  */
 package handler
 
@@ -388,7 +388,7 @@ func getHWlist(c *gin.Context) {
 	ID := homework.CourseID{
 		CourseID: p.CourseID,
 	}
-	result, err := homeworkService.SearchHomeworkByCourseID(context.Background(), &ID)
+	result, err := homeworkService.GetHomeworkByCourseID(context.Background(), &ID)
 	log.Println(result)
 	log.Println(err)
 	if err != nil {
