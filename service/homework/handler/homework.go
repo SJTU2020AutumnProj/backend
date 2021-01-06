@@ -14,8 +14,7 @@ import (
 	"time"
 
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/micro/go-micro/v2/client"
 )
 
 // HomeworkHandler struct
@@ -76,28 +75,15 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 	}
 
 	//初始化user_homework表
-	const (
-		ServiceName = "go.micro.client.courseclass"
-		EtcdAddr    = "localhost:2379"
-	)
-
-	server := micro.NewService(
-		micro.Name(ServiceName),
-		micro.Registry(etcd.NewRegistry(
-			registry.Addrs(EtcdAddr),
-		)),
-	)
-	server.Init()
-	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", server.Client())
-	searchResult, err1 := courseClassService.SearchTakeByCourse(context.Background(), &courseclass.CourseID{CourseID: req.CourseID})
-	users := searchResult.Users
-
-	if err1 = h.HomeworkMongo.AddHomework(ctx, mongo_homework); nil != err1 {
+	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", client.DefaultClient)
+	searchResult, err1 := courseClassService.SearchTakeByCourse(ctx, &courseclass.CourseID{CourseID: req.CourseID})
+	if nil != err1 {
+		log.Println("HomeworkHandler AssignHomework error: ", err1)
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("HomeworkHandler AssignHomework error: ", err1)
 		return err1
 	}
+	users := searchResult.Users
 
 	for i := range users {
 		userID := users[i].UserID
@@ -456,20 +442,9 @@ func (h *HomeworkHandler) GetUserHomework(ctx context.Context, req *pb.GetUserHo
 //老师上传作业答案
 func (h *HomeworkHandler) PostHomeworkAnswer(ctx context.Context, req *pb.PostParam, resp *pb.PostHomeworkAnswerResponse) error {
 
-	const (
-		ServiceName = "go.micro.client.answer"
-		EtcdAddr    = "localhost:2379"
-	)
-	server := micro.NewService(
-		micro.Name(ServiceName),
-		micro.Registry(etcd.NewRegistry(
-			registry.Addrs(EtcdAddr),
-		)),
-	)
-	server.Init()
-	answerService := answer.NewAnswerService("go.micro.service.answer", server.Client())
+	answerService := answer.NewAnswerService("go.micro.service.answer", client.DefaultClient)
 
-	aw, err := answerService.PostAnswerByTeacher(context.Background(), &answer.PostAnswerParam{HomeworkID: req.HomeworkID, UserID: req.UserID, CommitTime: req.CommitTime, Content: req.Content, Note: req.Note})
+	aw, err := answerService.PostAnswerByTeacher(ctx, &answer.PostAnswerParam{HomeworkID: req.HomeworkID, UserID: req.UserID, CommitTime: req.CommitTime, Content: req.Content, Note: req.Note})
 
 	if nil != err {
 		resp.Status = -1
