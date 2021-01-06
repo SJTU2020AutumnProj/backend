@@ -48,8 +48,12 @@ type HomeworkService interface {
 	DeleteHomework(ctx context.Context, in *HomeworkID, opts ...client.CallOption) (*DeleteHomeworkResponse, error)
 	UpdateHomework(ctx context.Context, in *HomeworkInfo, opts ...client.CallOption) (*UpdateHomeworkResponse, error)
 	SearchHomework(ctx context.Context, in *HomeworkID, opts ...client.CallOption) (*SearchHomeworkResponse, error)
-	SearchHomeworkByUserID(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchHomeworkByUserIDResponse, error)
-	SearchHomeworkByCourseID(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchHomeworkByCourseIDResponse, error)
+	GetHomeworkByTeacherID(ctx context.Context, in *TeacherID, opts ...client.CallOption) (*GetHomeworkByTeacherIDResponse, error)
+	GetHomeworkByTeacherIDAndCourseID(ctx context.Context, in *GetHomeworkByTeacherIDAndCourseIDParam, opts ...client.CallOption) (*GetHomeworkByTeacherIDAndCourseIDResponse, error)
+	GetHomeworkByStudentID(ctx context.Context, in *StudentID, opts ...client.CallOption) (*GetHomeworkByStudentIDResponse, error)
+	GetHomeworkByStudentIDAndCourseID(ctx context.Context, in *GetHomeworkByStudentIDAndCourseIDParam, opts ...client.CallOption) (*GetHomeworkByStudentIDAndCourseIDResponse, error)
+	GetUserHomework(ctx context.Context, in *GetUserHomeworkParam, opts ...client.CallOption) (*GetUserHomeworkResponse, error)
+	GetHomeworkByCourseID(ctx context.Context, in *CourseID, opts ...client.CallOption) (*GetHomeworkByCourseIDResponse, error)
 	PostHomeworkAnswer(ctx context.Context, in *PostParam, opts ...client.CallOption) (*PostHomeworkAnswerResponse, error)
 	ReleaseHomeworkAnswer(ctx context.Context, in *ReleaseParam, opts ...client.CallOption) (*ReleaseHomeworkAnswerResponse, error)
 	StudentSearchHomework(ctx context.Context, in *StudentSearchHomeworkParam, opts ...client.CallOption) (*StudentSearchHomeworkResponse, error)
@@ -108,9 +112,9 @@ func (c *homeworkService) SearchHomework(ctx context.Context, in *HomeworkID, op
 	return out, nil
 }
 
-func (c *homeworkService) SearchHomeworkByUserID(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchHomeworkByUserIDResponse, error) {
-	req := c.c.NewRequest(c.name, "HomeworkService.SearchHomeworkByUserID", in)
-	out := new(SearchHomeworkByUserIDResponse)
+func (c *homeworkService) GetHomeworkByTeacherID(ctx context.Context, in *TeacherID, opts ...client.CallOption) (*GetHomeworkByTeacherIDResponse, error) {
+	req := c.c.NewRequest(c.name, "HomeworkService.GetHomeworkByTeacherID", in)
+	out := new(GetHomeworkByTeacherIDResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -118,9 +122,49 @@ func (c *homeworkService) SearchHomeworkByUserID(ctx context.Context, in *UserID
 	return out, nil
 }
 
-func (c *homeworkService) SearchHomeworkByCourseID(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchHomeworkByCourseIDResponse, error) {
-	req := c.c.NewRequest(c.name, "HomeworkService.SearchHomeworkByCourseID", in)
-	out := new(SearchHomeworkByCourseIDResponse)
+func (c *homeworkService) GetHomeworkByTeacherIDAndCourseID(ctx context.Context, in *GetHomeworkByTeacherIDAndCourseIDParam, opts ...client.CallOption) (*GetHomeworkByTeacherIDAndCourseIDResponse, error) {
+	req := c.c.NewRequest(c.name, "HomeworkService.GetHomeworkByTeacherIDAndCourseID", in)
+	out := new(GetHomeworkByTeacherIDAndCourseIDResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *homeworkService) GetHomeworkByStudentID(ctx context.Context, in *StudentID, opts ...client.CallOption) (*GetHomeworkByStudentIDResponse, error) {
+	req := c.c.NewRequest(c.name, "HomeworkService.GetHomeworkByStudentID", in)
+	out := new(GetHomeworkByStudentIDResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *homeworkService) GetHomeworkByStudentIDAndCourseID(ctx context.Context, in *GetHomeworkByStudentIDAndCourseIDParam, opts ...client.CallOption) (*GetHomeworkByStudentIDAndCourseIDResponse, error) {
+	req := c.c.NewRequest(c.name, "HomeworkService.GetHomeworkByStudentIDAndCourseID", in)
+	out := new(GetHomeworkByStudentIDAndCourseIDResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *homeworkService) GetUserHomework(ctx context.Context, in *GetUserHomeworkParam, opts ...client.CallOption) (*GetUserHomeworkResponse, error) {
+	req := c.c.NewRequest(c.name, "HomeworkService.GetUserHomework", in)
+	out := new(GetUserHomeworkResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *homeworkService) GetHomeworkByCourseID(ctx context.Context, in *CourseID, opts ...client.CallOption) (*GetHomeworkByCourseIDResponse, error) {
+	req := c.c.NewRequest(c.name, "HomeworkService.GetHomeworkByCourseID", in)
+	out := new(GetHomeworkByCourseIDResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -175,8 +219,12 @@ type HomeworkServiceHandler interface {
 	DeleteHomework(context.Context, *HomeworkID, *DeleteHomeworkResponse) error
 	UpdateHomework(context.Context, *HomeworkInfo, *UpdateHomeworkResponse) error
 	SearchHomework(context.Context, *HomeworkID, *SearchHomeworkResponse) error
-	SearchHomeworkByUserID(context.Context, *UserID, *SearchHomeworkByUserIDResponse) error
-	SearchHomeworkByCourseID(context.Context, *CourseID, *SearchHomeworkByCourseIDResponse) error
+	GetHomeworkByTeacherID(context.Context, *TeacherID, *GetHomeworkByTeacherIDResponse) error
+	GetHomeworkByTeacherIDAndCourseID(context.Context, *GetHomeworkByTeacherIDAndCourseIDParam, *GetHomeworkByTeacherIDAndCourseIDResponse) error
+	GetHomeworkByStudentID(context.Context, *StudentID, *GetHomeworkByStudentIDResponse) error
+	GetHomeworkByStudentIDAndCourseID(context.Context, *GetHomeworkByStudentIDAndCourseIDParam, *GetHomeworkByStudentIDAndCourseIDResponse) error
+	GetUserHomework(context.Context, *GetUserHomeworkParam, *GetUserHomeworkResponse) error
+	GetHomeworkByCourseID(context.Context, *CourseID, *GetHomeworkByCourseIDResponse) error
 	PostHomeworkAnswer(context.Context, *PostParam, *PostHomeworkAnswerResponse) error
 	ReleaseHomeworkAnswer(context.Context, *ReleaseParam, *ReleaseHomeworkAnswerResponse) error
 	StudentSearchHomework(context.Context, *StudentSearchHomeworkParam, *StudentSearchHomeworkResponse) error
@@ -189,8 +237,12 @@ func RegisterHomeworkServiceHandler(s server.Server, hdlr HomeworkServiceHandler
 		DeleteHomework(ctx context.Context, in *HomeworkID, out *DeleteHomeworkResponse) error
 		UpdateHomework(ctx context.Context, in *HomeworkInfo, out *UpdateHomeworkResponse) error
 		SearchHomework(ctx context.Context, in *HomeworkID, out *SearchHomeworkResponse) error
-		SearchHomeworkByUserID(ctx context.Context, in *UserID, out *SearchHomeworkByUserIDResponse) error
-		SearchHomeworkByCourseID(ctx context.Context, in *CourseID, out *SearchHomeworkByCourseIDResponse) error
+		GetHomeworkByTeacherID(ctx context.Context, in *TeacherID, out *GetHomeworkByTeacherIDResponse) error
+		GetHomeworkByTeacherIDAndCourseID(ctx context.Context, in *GetHomeworkByTeacherIDAndCourseIDParam, out *GetHomeworkByTeacherIDAndCourseIDResponse) error
+		GetHomeworkByStudentID(ctx context.Context, in *StudentID, out *GetHomeworkByStudentIDResponse) error
+		GetHomeworkByStudentIDAndCourseID(ctx context.Context, in *GetHomeworkByStudentIDAndCourseIDParam, out *GetHomeworkByStudentIDAndCourseIDResponse) error
+		GetUserHomework(ctx context.Context, in *GetUserHomeworkParam, out *GetUserHomeworkResponse) error
+		GetHomeworkByCourseID(ctx context.Context, in *CourseID, out *GetHomeworkByCourseIDResponse) error
 		PostHomeworkAnswer(ctx context.Context, in *PostParam, out *PostHomeworkAnswerResponse) error
 		ReleaseHomeworkAnswer(ctx context.Context, in *ReleaseParam, out *ReleaseHomeworkAnswerResponse) error
 		StudentSearchHomework(ctx context.Context, in *StudentSearchHomeworkParam, out *StudentSearchHomeworkResponse) error
@@ -223,12 +275,28 @@ func (h *homeworkServiceHandler) SearchHomework(ctx context.Context, in *Homewor
 	return h.HomeworkServiceHandler.SearchHomework(ctx, in, out)
 }
 
-func (h *homeworkServiceHandler) SearchHomeworkByUserID(ctx context.Context, in *UserID, out *SearchHomeworkByUserIDResponse) error {
-	return h.HomeworkServiceHandler.SearchHomeworkByUserID(ctx, in, out)
+func (h *homeworkServiceHandler) GetHomeworkByTeacherID(ctx context.Context, in *TeacherID, out *GetHomeworkByTeacherIDResponse) error {
+	return h.HomeworkServiceHandler.GetHomeworkByTeacherID(ctx, in, out)
 }
 
-func (h *homeworkServiceHandler) SearchHomeworkByCourseID(ctx context.Context, in *CourseID, out *SearchHomeworkByCourseIDResponse) error {
-	return h.HomeworkServiceHandler.SearchHomeworkByCourseID(ctx, in, out)
+func (h *homeworkServiceHandler) GetHomeworkByTeacherIDAndCourseID(ctx context.Context, in *GetHomeworkByTeacherIDAndCourseIDParam, out *GetHomeworkByTeacherIDAndCourseIDResponse) error {
+	return h.HomeworkServiceHandler.GetHomeworkByTeacherIDAndCourseID(ctx, in, out)
+}
+
+func (h *homeworkServiceHandler) GetHomeworkByStudentID(ctx context.Context, in *StudentID, out *GetHomeworkByStudentIDResponse) error {
+	return h.HomeworkServiceHandler.GetHomeworkByStudentID(ctx, in, out)
+}
+
+func (h *homeworkServiceHandler) GetHomeworkByStudentIDAndCourseID(ctx context.Context, in *GetHomeworkByStudentIDAndCourseIDParam, out *GetHomeworkByStudentIDAndCourseIDResponse) error {
+	return h.HomeworkServiceHandler.GetHomeworkByStudentIDAndCourseID(ctx, in, out)
+}
+
+func (h *homeworkServiceHandler) GetUserHomework(ctx context.Context, in *GetUserHomeworkParam, out *GetUserHomeworkResponse) error {
+	return h.HomeworkServiceHandler.GetUserHomework(ctx, in, out)
+}
+
+func (h *homeworkServiceHandler) GetHomeworkByCourseID(ctx context.Context, in *CourseID, out *GetHomeworkByCourseIDResponse) error {
+	return h.HomeworkServiceHandler.GetHomeworkByCourseID(ctx, in, out)
 }
 
 func (h *homeworkServiceHandler) PostHomeworkAnswer(ctx context.Context, in *PostParam, out *PostHomeworkAnswerResponse) error {

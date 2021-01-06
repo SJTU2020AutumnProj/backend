@@ -287,3 +287,36 @@ func (u *UserHandler) SearchUsers(ctx context.Context, in *pb.UserIDArray, out *
 	}
 	return nil
 }
+
+func(u *UserHandler) GetAllUsers(ctx context.Context, in *pb.GetAllUsersParam, out *pb.GetAllUsersResponse)error{
+	users,err := u.UserRepository.GetAllUsers(ctx)
+	if nil != err {
+		log.Println("GetAllUsers error: ", err)
+		*out = pb.GetAllUsersResponse{
+			Status: -1,
+			Msg:    "Error",
+		}
+		return err
+	}
+
+	var ret []*pb.UserInfo
+	for i := range users{
+		user:=pb.UserInfo{
+			UserID: 	users[i].UserID,
+			UserType:	users[i].UserType,
+			UserName: 	users[i].UserName,
+			Password:	users[i].Password,
+			School:	 	users[i].School,
+			ID:	 		users[i].ID,
+			Phone:	 	users[i].Phone,
+			Email:		users[i].Email,
+		}
+		ret = append(ret, &user)
+	}
+	*out = pb.GetAllUsersResponse{
+		Status: 0,
+		Msg:    "Success",
+		Users:  ret,
+	}
+	return nil
+}

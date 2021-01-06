@@ -22,6 +22,7 @@ service CourseClassService {
 	rpc DeleteTakeByCourseClass(CourseID) returns (EditResponse){}
 	rpc SearchTakeByUser (UserID) returns (SearchTakeByUserResponse){}
 	rpc SearchTakeByCourse (CourseID) returns (SearchTakeByCourseResponse){}
+	rpc SearchUserNotInCourse(CourseID)returns(SearchUserNotInCourseResponse){}
 }
 
 message CourseClass {
@@ -71,7 +72,6 @@ message SearchCourseClassesResponse {
     repeated CourseClass courseclasses = 3;
 }
 
-
 message UserID {
     int32 userID = 1;
 }
@@ -111,6 +111,16 @@ message User {
 }
 
 message SearchTakeByCourseResponse {
+	enum Status {
+		SUCCESS = 0;
+		ERROR = -1;
+	}
+	Status status = 1;
+	string msg = 2;
+	repeated User users = 3;
+}
+
+message SearchUserNotInCourseResponse{
 	enum Status {
 		SUCCESS = 0;
 		ERROR = -1;

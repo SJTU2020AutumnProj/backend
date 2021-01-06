@@ -41,6 +41,7 @@ type UserRepository interface {
 	SearchUserByUserName(ctx context.Context, userName string) (User, error)
 	SearchUserByPhone(ctx context.Context, phone string) (User, error)
 	SearchUserByEmail(ctx context.Context, email string) (User, error)
+	GetAllUsers(ctx context.Context) ([]*User, error)
 }
 
 /*
@@ -129,4 +130,14 @@ func (repo *UserRepositoryImpl) SearchUserByEmail(ctx context.Context, email str
 	var user User
 	result := repo.DB.First(&user, "email = ?", email)
 	return user, result.Error
+}
+
+func (repo *UserRepositoryImpl) GetAllUsers(ctx context.Context) ([]*User, error) {
+	var users []*User
+	result := repo.DB.Find(&users)
+
+	if nil != result.Error {
+		return []*User{}, result.Error
+	}
+	return users,nil
 }

@@ -16,7 +16,7 @@ type CourseClass struct {
 	TextBooks    string    `gorm:"size:1000;not null"`
 	StartTime    time.Time `gorm:"not null"`
 	EndTime      time.Time `gorm:"not null"`
-	State		 int32     `gorm:"not null"`
+	State        int32     `gorm:"not null"`
 }
 
 type Take struct {
@@ -72,7 +72,14 @@ func (repo *CourseClassRepositoryImpl) AddCourseClass(ctx context.Context, cours
 }
 
 func (repo *CourseClassRepositoryImpl) DeleteCourseClass(ctx context.Context, courseID int32) error {
-	if err := repo.DB.Delete(&CourseClass{}, courseID).Error; nil != err {
+	// if err := repo.DB.Delete(&CourseClass{}, courseID).Error; nil != err {
+	// 	return err
+	// }
+	// return nil
+
+	tmp, err := repo.SearchCourseClass(ctx, courseID)
+	tmp.State = -1
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
 		return err
 	}
 	return nil
@@ -87,7 +94,7 @@ func (repo *CourseClassRepositoryImpl) UpdateCourseClass(ctx context.Context, c 
 	tmp.EndTime = c.EndTime
 	tmp.State = c.State
 
-	if err = repo.DB.Save(tmp).Error; nil != err {
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
 		return err
 	}
 	return nil
@@ -205,6 +212,8 @@ func (repo *CourseClassRepositoryImpl) NewCourse(ctx context.Context, courseclas
 	}
 	return courseclass, nil
 }
+
+
 
 // func (repo *CourseClassRepositoryImpl) GenerateTakeClass(
 // 	userID int32,
