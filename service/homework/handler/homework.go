@@ -24,8 +24,8 @@ type HomeworkHandler struct {
 	HomeworkMongo      mongoDB.HomeworkMongo
 	// 由go-micro封装，用于发送消息的接口，老版本叫micro.Publisher
 	HomeworkAssignedPubEvent micro.Event
-	HomeworkAnswerPubEvent micro.Event
-	CheckPubEvent micro.Event
+	HomeworkAnswerPubEvent   micro.Event
+	CheckPubEvent            micro.Event
 }
 
 const (
@@ -104,17 +104,17 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		h.HomeworkRepository.AddUserHomework(ctx, userID, resp.HomeworkID)
 	}
 
-	assignedHomework := &pb.AssignedHomework {
-		HomeworkID: resp_homework.HomeworkID,
-    	CourseID: req.CourseID,
-    	UserID: req.UserID,
-    	StartTime: req.StartTime,
-    	EndTime: req.EndTime,
-    	Title: req.Title,
-    	State: req.State,
-    	AnswerID: req.AnswerID,
-    	Description: req.Description,
-    	Note: req.Note,
+	assignedHomework := &pb.AssignedHomework{
+		HomeworkID:  resp_homework.HomeworkID,
+		CourseID:    req.CourseID,
+		UserID:      req.UserID,
+		StartTime:   req.StartTime,
+		EndTime:     req.EndTime,
+		Title:       req.Title,
+		State:       req.State,
+		AnswerID:    req.AnswerID,
+		Description: req.Description,
+		Note:        req.Note,
 	}
 	if err = h.HomeworkAssignedPubEvent.Publish(ctx, assignedHomework); err != nil {
 		log.Println("HomeworkHandler AssignHomework send message error ", err)
@@ -217,13 +217,13 @@ func (h *HomeworkHandler) SearchHomework(ctx context.Context, req *pb.HomeworkID
 	return nil
 }
 
-func (h *HomeworkHandler) SearchHomeworkByUserID(ctx context.Context, req *pb.UserID, resp *pb.SearchHomeworkByUserIDResponse) error {
-	homeworks, err := h.HomeworkRepository.SearchHomeworkByUserID(ctx, req.UserID)
+func (h *HomeworkHandler) GetHomeworkByTeacherID(ctx context.Context, req *pb.TeacherID, resp *pb.GetHomeworkByTeacherIDResponse) error {
+	homeworks, err := h.HomeworkRepository.SearchHomeworkByTeacherID(ctx, req.TeacherID)
 
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
-		log.Println("Handler SearchHomeByUserID error: ", err)
+		log.Println("Handler SearchHomeByTeacherID error: ", err)
 		return err
 	}
 
@@ -251,7 +251,7 @@ func (h *HomeworkHandler) SearchHomeworkByUserID(ctx context.Context, req *pb.Us
 		})
 	}
 
-	*resp = pb.SearchHomeworkByUserIDResponse{
+	*resp = pb.GetHomeworkByTeacherIDResponse{
 		Status:    0,
 		Msg:       "Success",
 		Homeworks: ans,
@@ -259,7 +259,7 @@ func (h *HomeworkHandler) SearchHomeworkByUserID(ctx context.Context, req *pb.Us
 	return nil
 }
 
-func (h *HomeworkHandler) SearchHomeworkByCourseID(ctx context.Context, req *pb.CourseID, resp *pb.SearchHomeworkByCourseIDResponse) error {
+func (h *HomeworkHandler) GetHomeworkByTeacherIDAndCourseID(ctx context.Context, req *pb.GetHomeworkByTeacherIDAndCourseIDParam, resp *pb.GetHomeworkByTeacherIDAndCourseIDResponse) error {
 	homeworks, err := h.HomeworkRepository.SearchHomeworkByCourseID(ctx, req.CourseID)
 
 	if nil != err {
@@ -291,10 +291,164 @@ func (h *HomeworkHandler) SearchHomeworkByCourseID(ctx context.Context, req *pb.
 		})
 	}
 
-	*resp = pb.SearchHomeworkByCourseIDResponse{
+	*resp = pb.GetHomeworkByTeacherIDAndCourseIDResponse{
 		Status:    0,
 		Msg:       "Success",
 		Homeworks: ans,
+	}
+	return nil
+}
+
+func (h *HomeworkHandler) GetHomeworkByStudentID(ctx context.Context, req *pb.StudentID, resp *pb.GetHomeworkByStudentIDResponse) error {
+	homeworkIDs, err := h.HomeworkRepository.SearchHomeworkIDByUserID(ctx, req.StudentID)
+
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler GetHomeworkByStudentID error: ", err)
+		return err
+	}
+
+	var ans []*pb.HomeworkInfo
+	for i := range homeworkIDs {
+		hw, err := h.HomeworkRepository.SearchHomework(ctx, homeworkIDs[i])
+		homework_json, err := h.HomeworkMongo.SearchHomework(ctx, homeworkIDs[i])
+		if nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("Handler GetHomeworkByStudentID error:", err)
+			return err
+		}
+		ans = append(ans, &pb.HomeworkInfo{
+			HomeworkID:  hw.HomeworkID,
+			CourseID:    hw.CourseID,
+			UserID:      hw.UserID,
+			StartTime:   hw.StartTime.Unix(),
+			EndTime:     hw.EndTime.Unix(),
+			Title:       hw.Title,
+			State:       hw.State,
+			AnswerID:    hw.AnswerID,
+			Description: homework_json.Description,
+			Content:     homework_json.Content,
+			Note:        homework_json.Note,
+		})
+	}
+
+	*resp = pb.GetHomeworkByStudentIDResponse{
+		Status:    0,
+		Msg:       "Success",
+		Homeworks: ans,
+	}
+	return nil
+}
+
+func (h *HomeworkHandler) GetHomeworkByStudentIDAndCourseID(ctx context.Context, req *pb.GetHomeworkByStudentIDAndCourseIDParam, resp *pb.GetHomeworkByStudentIDAndCourseIDResponse) error {
+	//hwIDs是根据userID在user_homework中筛选的homeworkID
+	hwIDs, err := h.HomeworkRepository.SearchHomeworkIDByUserID(ctx, req.StudentID)
+	//homeworks是根据courseID在homework表中筛选的Homework
+	homeworks, err := h.HomeworkRepository.SearchHomeworkByCourseID(ctx, req.CourseID)
+
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler GetHomeworkByStudentIDAndCourseID error: ", err)
+		return err
+	}
+
+	var ans []*pb.HomeworkInfo
+	for i := range homeworks {
+		for j := range hwIDs {
+			if homeworks[i].HomeworkID == hwIDs[j] {
+				homework_json, err := h.HomeworkMongo.SearchHomework(ctx, homeworks[i].HomeworkID)
+				if nil != err {
+					resp.Status = -1
+					resp.Msg = "Error"
+					log.Println("Handler SearchHomework error:", err)
+					return err
+				}
+
+				ans = append(ans, &pb.HomeworkInfo{
+					HomeworkID:  homeworks[i].HomeworkID,
+					CourseID:    homeworks[i].CourseID,
+					UserID:      homeworks[i].UserID,
+					StartTime:   homeworks[i].StartTime.Unix(),
+					EndTime:     homeworks[i].EndTime.Unix(),
+					Title:       homeworks[i].Title,
+					State:       homeworks[i].State,
+					Description: homework_json.Description,
+					Content:     homework_json.Content,
+				})
+			}
+		}
+	}
+
+	*resp = pb.GetHomeworkByStudentIDAndCourseIDResponse{
+		Status:    0,
+		Msg:       "Success",
+		Homeworks: ans,
+	}
+	return nil
+}
+
+func (h *HomeworkHandler) GetHomeworkByCourseID(ctx context.Context, req *pb.CourseID, resp *pb.GetHomeworkByCourseIDResponse) error {
+	homeworks, err := h.HomeworkRepository.SearchHomeworkByCourseID(ctx, req.CourseID)
+
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler GetHomeByCourseID error: ", err)
+		return err
+	}
+
+	var ans []*pb.HomeworkInfo
+	for i := range homeworks {
+		homework_json, err := h.HomeworkMongo.SearchHomework(ctx, homeworks[i].HomeworkID)
+		if nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("Handler SearchHomework error:", err)
+			return err
+		}
+		ans = append(ans, &pb.HomeworkInfo{
+			HomeworkID:  homeworks[i].HomeworkID,
+			CourseID:    homeworks[i].CourseID,
+			UserID:      homeworks[i].UserID,
+			StartTime:   homeworks[i].StartTime.Unix(),
+			EndTime:     homeworks[i].EndTime.Unix(),
+			Title:       homeworks[i].Title,
+			State:       homeworks[i].State,
+			Description: homework_json.Description,
+			Content:     homework_json.Content,
+		})
+	}
+
+	*resp = pb.GetHomeworkByCourseIDResponse{
+		Status:    0,
+		Msg:       "Success",
+		Homeworks: ans,
+	}
+	return nil
+}
+
+func (h *HomeworkHandler) GetUserHomework(ctx context.Context, req *pb.GetUserHomeworkParam, resp *pb.GetUserHomeworkResponse) error {
+	uh, err := h.HomeworkRepository.SearchUserHomework(ctx, req.UserID, req.HomeworkID)
+
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler GetUserHomework error: ", err)
+		return err
+	}
+
+	*resp = pb.GetUserHomeworkResponse{
+		Status: 0,
+		UserHomework: &pb.UserHomework{
+			UserID:     req.UserID,
+			HomeworkID: req.HomeworkID,
+			AnswerID:   uh.AnswerID,
+			CheckID:    uh.CheckID,
+			State:      uh.State,
+		},
 	}
 	return nil
 }
@@ -353,13 +507,13 @@ func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.Rel
 		log.Println("HomeworkHandler ReleaseHomeworkAnswer error ", searchErr)
 		return nil
 	}
-	homeworkAnswerPub := &pb.HomeworkAnswerPub {
+	homeworkAnswerPub := &pb.HomeworkAnswerPub{
 		HomeworkID: req.HomeworkID,
-    	AnswerID: req.AnswerID,
-    	TeacherID: req.TeacherID,
-    	CourseID: req.CourseID,
-    	Title: homework.Title,
-    	PubTime: req.PubTime,
+		AnswerID:   req.AnswerID,
+		TeacherID:  req.TeacherID,
+		CourseID:   req.CourseID,
+		Title:      homework.Title,
+		PubTime:    req.PubTime,
 	}
 	if err := h.HomeworkAssignedPubEvent.Publish(ctx, homeworkAnswerPub); err != nil {
 		log.Println("HomeworkHandler ReleaseHomeworkAnswer send message error ", err)
@@ -434,13 +588,13 @@ func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheck
 		log.Println("HomeworkHandler ReleaseCheck error ", searchErr)
 		return nil
 	}
-	releasedCheck := &pb.ReleasedCheck {
-		HomeworkID: req.HomeworkID,
-    	TeacherID: req.TeacherID,
-    	StudentID: userIDs,
-    	CourseID: req.CourseID,
-    	ReleaseTime: req.ReleaseTime,
-    	Title: homework.Title,
+	releasedCheck := &pb.ReleasedCheck{
+		HomeworkID:  req.HomeworkID,
+		TeacherID:   req.TeacherID,
+		StudentID:   userIDs,
+		CourseID:    req.CourseID,
+		ReleaseTime: req.ReleaseTime,
+		Title:       homework.Title,
 	}
 	if err := h.CheckPubEvent.Publish(ctx, releasedCheck); err != nil {
 		log.Println("HomeworkHandler ReleaseCheck send message error ", err)
