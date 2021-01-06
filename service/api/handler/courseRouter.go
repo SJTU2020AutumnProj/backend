@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-06 22:15:12
+ * @LastEditTime: 2021-01-06 23:04:45
  */
 package handler
 
@@ -358,6 +358,20 @@ func getHWlist(c *gin.Context) {
 	type param struct {
 		CourseID int32 `form:"courseId" json:"courseId"  binding:"required"`
 	}
+	type response struct {
+		HwId        int32  `form:"hwId" json:"hwId"  binding:"required"`
+		Title       string `form:"title" json:"title" binding:"required"`
+		Description string `form:"description" json:"description" binding:"required"`
+		Note        string `form:"note" json:"note" binding:"required"`
+		Content     string `form:"content" json:"content" binding:"required"`
+		CourseID    int32  `form:"courseId" json:"courseId" binding:"required"`
+		State       int32  `form:"state" json:"state" binding:"required"`
+		//0表示暂存，未发布，1表示发布
+		Score     int32  `form:"score" json:"score" binding:"required"`
+		StartTime string `form:"startTime" json:"startTime" binding:"required"`
+		EndTime   string `form:"endTime" json:"endTime" binding:"required"`
+		AnswerID  int32  `form:"answerId" json:"answerId"  binding:"required"`
+	}
 
 	token, err1 := c.Cookie("token")
 	log.Println(err1)
@@ -395,7 +409,24 @@ func getHWlist(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败或未找到相应数据"})
 		return
 	}
-	c.JSON(200, gin.H{"status": 200, "msg": "获取作业列表成功", "data": result.Homeworks})
+	reslist := make([]response, len(result.Homeworks))
+	for i, v := range result.Homeworks {
+		reslist[i] = response{
+			HwId:        v.HomeworkID,
+			Title:       v.Title,
+			Description: v.Description,
+			Note:        v.Note,
+			Content:     v.Content,
+			CourseID:    v.CourseID,
+			State:       v.State,
+			//0表示暂存，未发布，1表示发布
+			Score:     v.Score,
+			StartTime: utils.TimeStamp2string(v.StartTime),
+			EndTime:   utils.TimeStamp2string(v.EndTime),
+			AnswerID:  v.AnswerID,
+		}
+	}
+	c.JSON(200, gin.H{"status": 200, "msg": "获取作业列表成功", "data": reslist})
 	return
 }
 

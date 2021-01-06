@@ -276,7 +276,7 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 }
 
 func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchUserNotInCourseResponse) error {
-	userService := user.NewUserService("go.micro.service", client.DefaultClient)
+	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
 	getAllUserResponse, err := userService.GetAllUsers(context.Background(), &user.GetAllUsersParam{})
 	if nil != err {
 		resp.Status = -1
