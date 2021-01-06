@@ -13,7 +13,7 @@ import (
 
 type Homework struct {
 	HomeworkID   int32 `json:"homework_id,omitempty" bson:"homework_id,omitempty"`
-	Description string `json:"description,omitempty" bson:"homework_json,omitempty"`
+	Description string `json:"description,omitempty" bson:"description,omitempty"`
 	Content string `json:"content,omitempty" bson:"content,omitempty"`
 	Note string `json:"note,omitempty" bson:"note,omitempty"`
 }
