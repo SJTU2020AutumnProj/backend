@@ -12,9 +12,8 @@ import (
 	"time"
 
 	// "golang.org/x/crypto/openpgp/errors"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/etcd"
+
+	"github.com/micro/go-micro/v2/client"
 )
 
 type AnswerHandler struct {
@@ -189,8 +188,8 @@ func (h *AnswerHandler) SearchAnswerByHomeworkID(ctx context.Context, req *pb.Ho
 		ans = append(ans, &pb.AnswerInfo{
 			AnswerID:   answers[i].AnswerID,
 			CommitTime: answers[i].CommitTime.Unix(),
-			Content: mongo_answer.Content,
-			Note: mongo_answer.Note,
+			Content:    mongo_answer.Content,
+			Note:       mongo_answer.Note,
 		})
 	}
 
@@ -211,7 +210,7 @@ func (h *AnswerHandler) SearchAnswerByUserIDAndHomeworkID(ctx context.Context, r
 		return err
 	}
 
-	answers2,err := h.AnswerRepository.SearchAnswerByUserID(ctx,req.UserID) 
+	answers2, err := h.AnswerRepository.SearchAnswerByUserID(ctx, req.UserID)
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
@@ -222,9 +221,9 @@ func (h *AnswerHandler) SearchAnswerByUserIDAndHomeworkID(ctx context.Context, r
 	var ans *pb.AnswerInfo
 	var flag bool = false
 	for i := range answers {
-		for j := range answers2{
+		for j := range answers2 {
 			if answers[i].AnswerID == answers2[j].AnswerID {
-				mongo_answer,err := h.AnswerMongo.SearchAnswer(ctx, answers[i].AnswerID)
+				mongo_answer, err := h.AnswerMongo.SearchAnswer(ctx, answers[i].AnswerID)
 				if nil != err {
 					resp.Status = -1
 					resp.Msg = "Error"
@@ -232,10 +231,10 @@ func (h *AnswerHandler) SearchAnswerByUserIDAndHomeworkID(ctx context.Context, r
 					return err
 				}
 				ans = &pb.AnswerInfo{
-				AnswerID:   answers[i].AnswerID,
-				CommitTime: answers[i].CommitTime.Unix(),
-				Content:	mongo_answer.Content,
-				Note:	   mongo_answer.Note,
+					AnswerID:   answers[i].AnswerID,
+					CommitTime: answers[i].CommitTime.Unix(),
+					Content:    mongo_answer.Content,
+					Note:       mongo_answer.Note,
 				}
 				flag = true
 				break
@@ -258,23 +257,10 @@ func (h *AnswerHandler) SearchAnswerByUserIDAndHomeworkID(ctx context.Context, r
 	return nil
 }
 
-const (
-	ServiceName = "go.micro.client.homework"
-	EtcdAddr    = "localhost:2379"
-)
-
-func (h *AnswerHandler) PostAnswerByStudent(ctx context.Context,req*pb.PostAnswerParam,resp*pb.PostAnswerResponse) error{
+func (h *AnswerHandler) PostAnswerByStudent(ctx context.Context, req *pb.PostAnswerParam, resp *pb.PostAnswerResponse) error {
 	//要比较commit_time和homework表中的end_time来填 user_homework表中的state 2为按时交 3为迟交
-	server := micro.NewService(
-		micro.Name(ServiceName),
-		micro.Registry(etcd.NewRegistry(
-			registry.Addrs(EtcdAddr),
-		)),
-	)
-	server.Init()
-	homeworkService := homework.NewHomeworkService("go.micro.service.homework", server.Client())
-
-	hw, err1 := homeworkService.SearchHomework(context.Background(), &homework.HomeworkID{HomeworkID: req.HomeworkID})
+	homeworkService := homework.NewHomeworkService("go.micro.service.homework", client.DefaultClient)
+	hw, err1 := homeworkService.SearchHomework(ctx, &homework.HomeworkID{HomeworkID: req.HomeworkID})
 
 	if nil != err1 {
 		resp.Status = -1
@@ -290,7 +276,7 @@ func (h *AnswerHandler) PostAnswerByStudent(ctx context.Context,req*pb.PostAnswe
 
 	if ctime <= etime {
 		state = 2
-	}else{
+	} else {
 		state = 3
 	}
 
@@ -300,7 +286,7 @@ func (h *AnswerHandler) PostAnswerByStudent(ctx context.Context,req*pb.PostAnswe
 	}
 	var resp_answer repo.Answer
 	var err error
-	if resp_answer, err = h.AnswerRepository.PostAnswerByStudent(ctx,req.UserID,req.HomeworkID,state, answer); nil != err {
+	if resp_answer, err = h.AnswerRepository.PostAnswerByStudent(ctx, req.UserID, req.HomeworkID, state, answer); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("AnswerHandler PostAnswerByStudent error: ", err)
@@ -325,7 +311,7 @@ func (h *AnswerHandler) PostAnswerByStudent(ctx context.Context,req*pb.PostAnswe
 	// answer,err:=h.AnswerRepository.PostAnswer(ctx,req.UserID,req.HomeworkID,)
 }
 
-func (h *AnswerHandler) PostAnswerByTeacher(ctx context.Context,req*pb.PostAnswerParam,resp*pb.PostAnswerResponse) error{
+func (h *AnswerHandler) PostAnswerByTeacher(ctx context.Context, req *pb.PostAnswerParam, resp *pb.PostAnswerResponse) error {
 
 	ctime_time := time.Unix(req.CommitTime, 0)
 	answer := repo.Answer{
@@ -333,7 +319,7 @@ func (h *AnswerHandler) PostAnswerByTeacher(ctx context.Context,req*pb.PostAnswe
 	}
 	var resp_answer repo.Answer
 	var err error
-	if resp_answer, err = h.AnswerRepository.PostAnswerByTeacher(ctx,req.UserID,req.HomeworkID, answer); nil != err {
+	if resp_answer, err = h.AnswerRepository.PostAnswerByTeacher(ctx, req.UserID, req.HomeworkID, answer); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("AnswerHandler PostAnswerByTeacher error: ", err)
@@ -357,5 +343,3 @@ func (h *AnswerHandler) PostAnswerByTeacher(ctx context.Context,req*pb.PostAnswe
 	return nil
 	// answer,err:=h.AnswerRepository.PostAnswer(ctx,req.UserID,req.HomeworkID,)
 }
-
-

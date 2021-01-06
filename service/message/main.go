@@ -3,7 +3,9 @@ package main
 import (
 	mongoDB "boxin/service/message/mongoDB"
 	repo "boxin/service/message/repository"
+	message "boxin/service/message/proto/message"
 	"boxin/service/message/subscriber"
+	"boxin/service/message/handler"
 	"context"
 	"log"
 
@@ -22,7 +24,7 @@ import (
 
 // Configuration
 const (
-	ServiceName = "go.micro.service.messge"
+	ServiceName = "go.micro.service.message"
 	MysqlURI    = "root:root@(127.0.0.1:3306)/jub?charset=utf8mb4&parseTime=True&loc=Local"
 	EtcdAddr    = "localhost:2379"
 	MongoURI    = "mongodb://localhost:27017"
@@ -72,8 +74,8 @@ func main() {
 	// Initialize service
 	service.Init()
 
-	// Register Handler
-	handler := &subscriber.MessageSub{
+	// Register Subscriber
+	subscriberHandler := &subscriber.MessageSub{
 		MessageRepository: &repo.MessageRepositoryImpl{
 			DB: db,
 		},
@@ -82,15 +84,25 @@ func main() {
 		},
 	}
 	// 这里的topic注意与homework注册的要一致
-	if err := micro.RegisterSubscriber("go.micro.service.homework.assigned", service.Server(), handler.Assigned); err != nil {
+	if err := micro.RegisterSubscriber("go.micro.service.homework.assigned", service.Server(), subscriberHandler.Assigned); err != nil {
 		log.Fatal(errors.WithMessage(err, "subscribe"))
 	}
-	if err := micro.RegisterSubscriber("go.micro.service.homework.published", service.Server(), handler.PostAnswer); err != nil {
+	if err := micro.RegisterSubscriber("go.micro.service.homework.published", service.Server(), subscriberHandler.PostAnswer); err != nil {
 		log.Fatal(errors.WithMessage(err, "subscribe"))
 	}
-	if err := micro.RegisterSubscriber("go.micro.service.homework.checkReleased", service.Server(), handler.ReleaseCheck); err != nil {
+	if err := micro.RegisterSubscriber("go.micro.service.homework.checkReleased", service.Server(), subscriberHandler.ReleaseCheck); err != nil {
 		log.Fatal(errors.WithMessage(err, "subscribe"))
 	}
+
+	// Register Handler
+	messageHandler := &handler.MessageHandler{
+		MessageMongo: &mongoDB.MessageMongoImpl{CL:collection},
+		MessageRepository:&repo.MessageRepositoryImpl{DB: db},
+	}
+	if err := message.RegisterMessageServiceHandler(service.Server(), messageHandler); nil != err {
+		log.Fatal(errors.WithMessage(err, "register server"))
+	}
+
 
 	// Run service
 	if err := service.Run(); err != nil {
