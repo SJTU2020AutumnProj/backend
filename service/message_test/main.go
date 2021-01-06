@@ -2,10 +2,10 @@ package main
 
 import (
 	homework "boxin/service/homework/proto/homework"
-	// message "boxin/service/message/proto/message"
+	message "boxin/service/message/proto/message"
 	check "boxin/service/check/proto/check"
 	answer "boxin/service/answer/proto/answer"
-	news "boxin/service/news/proto/news"
+	// news "boxin/service/news/proto/news"
 	"bytes"
 	"log"
 	"context"
@@ -33,33 +33,32 @@ func main() {
 	)
 	server.Init()
 	homeworkService := homework.NewHomeworkService("go.micro.service.homework", server.Client())
-	// messageService := message.NewMessageService("go.micro.service.message", server.Client())
-	newsService := news.NewNewsService("go.micro.service.news", server.Client())
-	// checkService := check.NewCheckService("go.micro.service.check", server.Client())
-	// answerService := answer.NewAnswerService("go.micro.service.answer", server.Client())
+	messageService := message.NewMessageService("go.micro.service.message", server.Client())
+	// newsService := news.NewNewsService("go.micro.service.news", server.Client())
+	checkService := check.NewCheckService("go.micro.service.check", server.Client())
+	answerService := answer.NewAnswerService("go.micro.service.answer", server.Client())
 	courseID := int32(1)
 	teacherID := int32(2)
-	// studentID := int32(1)
+	studentID := int32(1)
 	startTime := time.Now().Unix()
 	endTime, _ := time.Parse("2006-01-02 15:04:05", "2021-07-27 08:46:15")
 	endTimeUnix := endTime.Unix()
 	title := createRandomString(5)
 	state := int32(1)
-	// score := int32(100)
+	score := int32(100)
 	description := createRandomString(20)
 	content := createRandomString(200)
-	// comment := createRandomString(50)
+	comment := createRandomString(50)
 	note := createRandomString(50)
-	assignHomeworkTest(homeworkService, courseID, teacherID, startTime, endTimeUnix, title, state, description, content, note)
-	// homeworkID := assignHomeworkTest(homeworkService, courseID, teacherID, startTime, endTimeUnix, title, state, description, content, note)
-	// teacherAnswerID := postHomeworkAnswerTest(homeworkService, homeworkID, teacherID, time.Now().Unix(), content, note)
-	// studentAnswerID := postAnswerByStudentTest(answerService, homeworkID, studentID, time.Now().Unix(), content, note)
-	// createCheckTest(checkService, studentAnswerID, homeworkID, teacherID, studentID, time.Now().Unix(), description, comment, score)
-	// homeworkAnswerPubTest(homeworkService, homeworkID, teacherAnswerID, teacherID, courseID, title, time.Now().Unix())
-	// releaseCheckTest(homeworkService, homeworkID, teacherID, courseID, time.Now().Unix())
-	// getMessageByCourseIDTest(messageService, courseID)
-	// getMessageByUserIDTest(messageService, studentID)
-	getMessageByCourseIDTest(newsService, courseID)
+	// assignHomeworkTest(homeworkService, courseID, teacherID, startTime, endTimeUnix, title, state, description, content, note)
+	homeworkID := assignHomeworkTest(homeworkService, courseID, teacherID, startTime, endTimeUnix, title, state, score, description, content, note)
+	teacherAnswerID := postHomeworkAnswerTest(homeworkService, homeworkID, teacherID, time.Now().Unix(), content, note)
+	studentAnswerID := postAnswerByStudentTest(answerService, homeworkID, studentID, time.Now().Unix(), content, note)
+	createCheckTest(checkService, studentAnswerID, homeworkID, teacherID, studentID, time.Now().Unix(), description, comment, score)
+	homeworkAnswerPubTest(homeworkService, homeworkID, teacherAnswerID, teacherID, courseID, title, time.Now().Unix())
+	releaseCheckTest(homeworkService, homeworkID, teacherID, courseID, time.Now().Unix())
+	getMessageByCourseIDTest(messageService, courseID)
+	getMessageByUserIDTest(messageService, studentID)
 }
 
 func createRandomString(len int) string {
@@ -83,6 +82,7 @@ func assignHomeworkTest(
 	endTime int64,
 	title string,
 	state int32,
+	score int32,
 	description string,
 	content string,
 	note string,
@@ -96,6 +96,7 @@ func assignHomeworkTest(
 			EndTime: endTime,
 			Title: title,
 			State: state,
+			Score: score,
 			Description: description,
 			Content: content,
 			Note: note,
@@ -243,12 +244,12 @@ func releaseCheckTest(
 }
 
 func getMessageByUserIDTest(
-	newsService news.NewsService,
+	messageService message.MessageService,
 	userID int32,
 ) {
-	resp, err := newsService.GetMessageByUserID (
+	resp, err := messageService.GetMessageByUserID (
 		context.Background(),
-		&news.GetMessageByUserIDParam {
+		&message.GetMessageByUserIDParam {
 			UserID: userID,
 		},
 	)
@@ -260,12 +261,12 @@ func getMessageByUserIDTest(
 }
 
 func getMessageByCourseIDTest(
-	newsService news.NewsService,
+	messageService message.MessageService,
 	courseID int32,
 ) {
-	resp, err := newsService.GetMessageByCourseID (
+	resp, err := messageService.GetMessageByCourseID (
 		context.Background(),
-		&news.GetMessageByCourseIDParam {
+		&message.GetMessageByCourseIDParam {
 			CourseID: courseID,
 		},
 	)
