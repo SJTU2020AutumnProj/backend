@@ -37,6 +37,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	log.Println("Verification service connected to redis")
 	defer c.Close()
 
 	// 配置jaeger连接
