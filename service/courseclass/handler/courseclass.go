@@ -304,8 +304,8 @@ func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.
 	res1 := make([]user.UserInfo, len(allUsers))
 	j := 0
 	t := 0
-	for i := 0; i < len(allUsers) && j < len(userIDs); i++ {
-		if allUsers[i].UserID < userIDs[j] || j == len(userIDs) {
+	for i := 0; i < len(allUsers); i++ {
+		if j == len(userIDs) || allUsers[i].UserID < userIDs[j] {
 			res1[t] = *allUsers[i]
 			t++
 		} else if allUsers[i].UserID == userIDs[j] {
