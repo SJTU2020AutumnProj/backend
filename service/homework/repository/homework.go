@@ -172,7 +172,10 @@ func (repo *HomeworkRepositoryImpl) SearchHomeworkIDByUserID(ctx context.Context
 
 func (repo *HomeworkRepositoryImpl) SearchUserHomework(ctx context.Context, userID int32, homeworkID int32) (*UserHomework, error) {
 	var ans *UserHomework
-	result := repo.DB.Table("user_homework").Where("user_id = ? and homework_id = ?", userID, homeworkID)
+	// result := repo.DB.Table("user_homework").Where("user_id = ? and homework_id = ?", userID, homeworkID)
+
+	result := repo.DB.Table("user_homework").Where("user_id = ?", userID)
+	result = result.Where("homework_id = ?", homeworkID)
 
 	if err := result.First(&ans).Error; nil != err {
 		return &UserHomework{}, err

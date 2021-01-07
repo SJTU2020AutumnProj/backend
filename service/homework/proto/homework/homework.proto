@@ -123,8 +123,9 @@ message HomeworkAndUserInfo{
     string content = 11;
     string note = 12;
     int32 studentID = 13;
-    int32 checkID = 14;
-    int32 userHomeworkState = 15;
+    int32 studentAnswerID = 14;
+    int32 checkID = 15;
+    int32 userHomeworkState = 16;
 }
 
 message UserID{
