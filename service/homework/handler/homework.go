@@ -506,7 +506,7 @@ func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.Rel
 		Title:      homework.Title,
 		PubTime:    req.PubTime,
 	}
-	if err := h.HomeworkAssignedPubEvent.Publish(ctx, homeworkAnswerPub); err != nil {
+	if err := h.HomeworkAnswerPubEvent.Publish(ctx, homeworkAnswerPub); err != nil {
 		log.Println("HomeworkHandler ReleaseHomeworkAnswer send message error ", err)
 	}
 
