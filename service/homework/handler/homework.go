@@ -565,6 +565,19 @@ func (h *HomeworkHandler) GetUserHomework(ctx context.Context, req *pb.GetUserHo
 		return err
 	}
 
+	if nil == uh {
+		*resp = pb.GetUserHomeworkResponse{
+			Status: 0,
+			UserHomework: &pb.UserHomework{
+				UserID:     req.UserID,
+				HomeworkID: req.HomeworkID,
+				AnswerID:   -1,
+				CheckID:    -1,
+				State:      0,
+			},
+		}
+	}
+
 	*resp = pb.GetUserHomeworkResponse{
 		Status: 0,
 		UserHomework: &pb.UserHomework{
