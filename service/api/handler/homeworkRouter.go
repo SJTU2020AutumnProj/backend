@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 22:27:34
+ * @LastEditTime: 2021-01-07 23:20:59
  */
 package handler
 
@@ -31,7 +31,7 @@ func HomeworkRouter(g *gin.Engine, s homework.HomeworkService) {
 	{
 		v1.PUT("/create", createHW)                        //创建作业
 		v1.POST("/update", modifyHw)                       //修改作业
-		v1.POST("/detail", stuGetdetail)                   //退出登录
+		v1.POST("/detail", stuGetdetail)                   //学生获取作业详情
 		v1.POST("/cmtlist", GetcmtList)                    //检测权限
 		v1.PUT("/postAnswer", teacherPostAnswer)           //教师上传标准答案
 		v1.POST("/publishAnswer", teacherPublishAnswer)    //教师发布标准答案
@@ -230,7 +230,7 @@ func stuGetdetail(c *gin.Context) {
 		return
 	}
 	//不是学生？
-	if usrinfo.Data.UserType != 0 {
+	if usrinfo.Data.UserType == 1 {
 		c.JSON(200, gin.H{"status": 500, "msg": "请调用教师专用接口！"})
 		return
 	}

@@ -63,7 +63,7 @@ func stuCreateAnswer(c *gin.Context) {
 		return
 	}
 	//不是学生？
-	if usrinfo.Data.UserType != 0 {
+	if usrinfo.Data.UserType == 1 {
 		c.JSON(200, gin.H{"status": 500, "msg": "您应该调用教师上传答案接口！"})
 		return
 	}
