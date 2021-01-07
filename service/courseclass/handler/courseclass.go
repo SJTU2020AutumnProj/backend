@@ -275,7 +275,7 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 	return nil
 }
 
-func (c*CourseClassHandler) SearchStudentByCourse(ctx context.Context,req *pb.CourseID, resp *pb.SearchStudentByCourseResponse)error{
+func (c *CourseClassHandler) SearchStudentByCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchStudentByCourseResponse) error {
 	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
 
 	userIDs, err := c.CourseClassRepository.SearchStudentByCourseClass(ctx, req.CourseID)
@@ -328,7 +328,7 @@ func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.
 	}
 	allUsers := getAllUserResponse.Users
 
-	userIDs, err := c.CourseClassRepository.SearchTakeByCourseClass(ctx, req.CourseID)
+	userIDs, err := c.CourseClassRepository.SearchStudentByCourseClass(ctx, req.CourseID)
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
