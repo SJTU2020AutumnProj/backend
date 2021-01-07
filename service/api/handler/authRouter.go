@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-18 08:38:54
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 16:51:20
+ * @LastEditTime: 2021-01-07 18:52:22
  */
 package handler
 
@@ -106,6 +106,7 @@ func checkAuth(c *gin.Context) {
 	log.Println(err)
 	if token == "" {
 		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
+		return
 	}
 	log.Println("====== checkAuth token======")
 	log.Println(token)
