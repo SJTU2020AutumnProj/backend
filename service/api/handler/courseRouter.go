@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 21:02:37
+ * @LastEditTime: 2021-01-08 01:21:18
  */
 package handler
 
@@ -409,10 +409,13 @@ func getHWlist(c *gin.Context) {
 		CourseID    int32  `form:"courseId" json:"courseId" binding:"required"`
 		State       int32  `form:"state" json:"state" binding:"required"`
 		//0表示暂存，未发布，1表示发布
-		Score     int32  `form:"score" json:"score" binding:"required"`
-		StartTime string `form:"startTime" json:"startTime" binding:"required"`
-		EndTime   string `form:"endTime" json:"endTime" binding:"required"`
-		AnswerID  int32  `form:"answerId" json:"answerId"  binding:"required"`
+		Score             int32  `form:"score" json:"score" binding:"required"`
+		StartTime         string `form:"startTime" json:"startTime" binding:"required"`
+		EndTime           string `form:"endTime" json:"endTime" binding:"required"`
+		AnswerID          int32  `form:"answerId" json:"answerId"  binding:"required"`
+		CheckID           int32  `form:"checkId" json:"checkId"  binding:"required"`
+		TeacherID         int32  `form:"teacherId" json:"teacherId"  binding:"required"`
+		UserHomeworkState int32  `form:"userHomeworkState" json:"userHomeworkState"  binding:"required"`
 	}
 
 	token, err1 := c.Cookie("token")
@@ -441,31 +444,39 @@ func getHWlist(c *gin.Context) {
 	}
 	log.Println("====== getHwlist CoursId======")
 	log.Println(p.CourseID)
-	ID := homework.CourseID{
+	ID := homework.CourseIDAndUserID{
 		CourseID: p.CourseID,
+		UserID:   usrinfo.Data.UserID,
 	}
-	result, err := homeworkService.GetHomeworkByCourseID(context.Background(), &ID)
+	result, err := homeworkService.GetHomeworkByCourseIDAndUserID(context.Background(), &ID)
 	log.Println(result)
 	log.Println(err)
 	if err != nil {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败或未找到相应数据"})
 		return
 	}
-	reslist := make([]response, len(result.Homeworks))
-	for i, v := range result.Homeworks {
-		reslist[i] = response{
-			HwId:        v.HomeworkID,
-			Title:       v.Title,
-			Description: v.Description,
-			Note:        v.Note,
-			Content:     v.Content,
-			CourseID:    v.CourseID,
-			State:       v.State,
-			//0表示暂存，未发布，1表示发布
-			Score:     v.Score,
-			StartTime: utils.TimeStamp2string(v.StartTime),
-			EndTime:   utils.TimeStamp2string(v.EndTime),
-			AnswerID:  v.AnswerID,
+	reslist := make([]response, len(result.HomeworkAndUserInfo))
+	t := 0
+	for _, v := range result.HomeworkAndUserInfo {
+		if v.State == 1 {
+			reslist[t] = response{
+				HwId:        v.HomeworkID,
+				Title:       v.Title,
+				Description: v.Description,
+				Note:        v.Note,
+				Content:     v.Content,
+				CourseID:    v.CourseID,
+				State:       v.State,
+				//0表示暂存，未发布，1表示发布
+				Score:             v.Score,
+				StartTime:         utils.TimeStamp2string(v.StartTime),
+				EndTime:           utils.TimeStamp2string(v.EndTime),
+				AnswerID:          v.AnswerID,
+				TeacherID:         v.TeacherID,
+				CheckID:           v.CheckID,
+				UserHomeworkState: v.UserHomeworkState,
+			}
+			t++
 		}
 	}
 	c.JSON(200, gin.H{"status": 200, "msg": "获取作业列表成功", "data": reslist})
