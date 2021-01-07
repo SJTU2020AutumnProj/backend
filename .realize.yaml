@@ -102,27 +102,27 @@ schema:
       - .git
       - .realize
       - vendor
-# - name: homework
-#   path: service/homework
-#   args:
-#   - main.go
-#   commands:
-#     run:
-#       status: true
-#   watcher:
-#     extensions:
-#     - go
-#     paths:
-#     - /
-#     scripts:
-#     - type: before
-#       command: tskill homework
-#       output: true
-#     ignore:
-#       paths:
-#       - .git
-#       - .realize
-#       - vendor
+- name: homework
+  path: service/homework
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill homework
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
 - name: answer
   path: service/answer
   args:

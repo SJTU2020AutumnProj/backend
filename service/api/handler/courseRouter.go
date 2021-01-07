@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-08 01:41:43
+ * @LastEditTime: 2021-01-08 02:28:16
  */
 package handler
 
@@ -456,29 +456,27 @@ func getHWlist(c *gin.Context) {
 		return
 	}
 	reslist := make([]response, len(result.HomeworkAndUserInfo))
-	t := 0
 	log.Println(len(result.HomeworkAndUserInfo))
-	for _, v := range result.HomeworkAndUserInfo {
-		if v.State == 1 {
-			reslist[t] = response{
-				HwId:        v.HomeworkID,
-				Title:       v.Title,
-				Description: v.Description,
-				Note:        v.Note,
-				Content:     v.Content,
-				CourseID:    v.CourseID,
-				State:       v.State,
-				//0表示暂存，未发布，1表示发布
-				Score:             v.Score,
-				StartTime:         utils.TimeStamp2string(v.StartTime),
-				EndTime:           utils.TimeStamp2string(v.EndTime),
-				AnswerID:          v.AnswerID,
-				TeacherID:         v.TeacherID,
-				CheckID:           v.CheckID,
-				UserHomeworkState: v.UserHomeworkState,
-			}
-			t++
+	for i, v := range result.HomeworkAndUserInfo {
+
+		reslist[i] = response{
+			HwId:        v.HomeworkID,
+			Title:       v.Title,
+			Description: v.Description,
+			Note:        v.Note,
+			Content:     v.Content,
+			CourseID:    v.CourseID,
+			State:       v.State,
+			//0表示暂存，未发布，1表示发布
+			Score:             v.Score,
+			StartTime:         utils.TimeStamp2string(v.StartTime),
+			EndTime:           utils.TimeStamp2string(v.EndTime),
+			AnswerID:          v.AnswerID,
+			TeacherID:         v.TeacherID,
+			CheckID:           v.CheckID,
+			UserHomeworkState: v.UserHomeworkState,
 		}
+
 	}
 	c.JSON(200, gin.H{"status": 200, "msg": "获取作业列表成功", "data": reslist})
 	return
