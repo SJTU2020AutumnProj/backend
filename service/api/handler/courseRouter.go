@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-06 23:04:45
+ * @LastEditTime: 2021-01-07 15:38:54
  */
 package handler
 
@@ -42,6 +42,14 @@ func CourseRouter(g *gin.Engine, s courseclass.CourseClassService) {
 }
 
 func getmylist(c *gin.Context) {
+
+	type resdata struct {
+		CourseName string `form:"courseName" json:"courseName" binding:"required"`
+		CourseID   int32  `form:"courseId" json:"courseId"  binding:"required"`
+		StartTime  string `form:"startTime" json:"startTime" binding:"required"`
+		EndTime    string `form:"endTime" json:"endTime" binding:"required"`
+		State      int32  `form:"state" json:"state"  binding:"required"`
+	}
 	token, err1 := c.Cookie("token")
 	log.Println(err1)
 	if token == "" {
@@ -73,7 +81,18 @@ func getmylist(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
 		return
 	}
-	c.JSON(200, gin.H{"status": 200, "msg": "查询成功", "data": result.Courses})
+	responsedata := make([]resdata, len(result.Courses))
+	for i, v := range result.Courses {
+		responsedata[i] = resdata{
+			CourseName: v.CourseName,
+			CourseID:   v.CourseID,
+			StartTime:  utils.TimeStamp2string2(v.StartTime),
+			EndTime:    utils.TimeStamp2string2(v.EndTime),
+			State:      v.State,
+		}
+	}
+
+	c.JSON(200, gin.H{"status": 200, "msg": "查询成功", "data": responsedata})
 }
 
 func getstudent(c *gin.Context) {
