@@ -446,29 +446,47 @@ func (h*HomeworkHandler) GetUserByHomeworkID(ctx context.Context,req *pb.Homewor
 	}
 
 	for i := range uh{
-		var userID *user.UserID
-		userID.UserID = uh[i].UserID
-		users,err:=userService.SearchUser(ctx,userID)
+		// var userID *user.UserID
+		// userID.UserID = uh[i].UserID
+		u,err:=userService.SearchUser(ctx,&user.UserID{UserID:uh[i].UserID})
 		if nil != err {
 			resp.Status = -1
 			resp.Msg = "Error"
 			log.Println("Handler GetUserByHomeworkID error:", err)
 			return err
 		}
-		var userInfo *pb.UserInfo
-		userInfo.UserID = users.User.UserID
-		userInfo.UserType = users.User.UserType
-		userInfo.UserName = users.User.UserName
-		userInfo.Password = users.User.Password
-		userInfo.School = users.User.School
-		userInfo.ID = users.User.ID
-		userInfo.Phone = users.User.Phone
-		userInfo.Email = users.User.Email
-		userInfo.Name = users.User.Name
-		userInfo.HomeworkID = uh[i].HomeworkID
-		userInfo.AnswerID = uh[i].AnswerID
-		userInfo.CheckID = uh[i].CheckID
-		userInfo.State = uh[i].CheckID
+		// var userInfo *pb.UserInfo
+		// userInfo.UserID = users.User.UserID
+		// userInfo.UserType = users.User.UserType
+		// userInfo.UserName = users.User.UserName
+		// userInfo.Password = users.User.Password
+		// userInfo.School = users.User.School
+		// userInfo.ID = users.User.ID
+		// userInfo.Phone = users.User.Phone
+		// userInfo.Email = users.User.Email
+		// userInfo.Name = users.User.Name
+		// userInfo.HomeworkID = uh[i].HomeworkID
+		// userInfo.AnswerID = uh[i].AnswerID
+		// userInfo.CheckID = uh[i].CheckID
+		// userInfo.State = uh[i].CheckID
+
+		// userInfos = append(userInfos,userInfo)
+
+		userInfo := &pb.UserInfo{
+			UserID: u.User.UserID,
+			UserType: u.User.UserType,
+			UserName: u.User.UserName,
+			Password: u.User.Password,
+			School: u.User.School,
+			ID: u.User.ID,
+			Phone:	u.User.Phone,
+			Email: u.User.Email,
+			Name: u.User.Name,
+			HomeworkID: uh[i].HomeworkID,
+			AnswerID: uh[i].AnswerID,
+			CheckID:	   uh[i].CheckID,
+			State:	   uh[i].State,
+		}
 
 		userInfos = append(userInfos,userInfo)
 	}
