@@ -54,6 +54,7 @@ func (h *MessageHandler) GetMessageByUserID(ctx context.Context, in *pb.GetMessa
 		Msg:    "Get message by userID success",
 		Data:   result,
 	}
+	log.Println("MessageHandler GetMessageByUserID success ", result)
 	return nil
 }
 

@@ -50,7 +50,7 @@ func (sub *MessageSub) Assigned(ctx context.Context, homework *homework.Assigned
 
 // PostAnswer add a post answer message
 func (sub *MessageSub) PostAnswer(ctx context.Context, message *homework.HomeworkAnswerPub) error {
-	log.Println("Subscriber Post received message: ", message)
+	log.Println("Subscriber PostAnswer received message: ", message)
 	pubTime := time.Unix(time.Now().Unix(), 0)
 	res, err := sub.MessageRepository.AddMessage(
 		ctx,
@@ -63,7 +63,7 @@ func (sub *MessageSub) PostAnswer(ctx context.Context, message *homework.Homewor
 		},
 	)
 	if nil != err {
-		log.Println("Subscriber Post add new message in Mysql error ", err)
+		log.Println("Subscriber PostAnswer add new message in Mysql error ", err)
 		return err
 	}
 	content := "作业 " + message.Title + " 答案已经发布，请前往相应页面查看"
@@ -75,7 +75,7 @@ func (sub *MessageSub) PostAnswer(ctx context.Context, message *homework.Homewor
 		},
 	)
 	if nil != err {
-		log.Println("Subscriber Post add new message in MongoDB error ", err)
+		log.Println("Subscriber PostAnswer add new message in MongoDB error ", err)
 		return err
 	}
 	return nil
@@ -83,7 +83,7 @@ func (sub *MessageSub) PostAnswer(ctx context.Context, message *homework.Homewor
 
 // ReleaseCheck add a release check message
 func (sub *MessageSub) ReleaseCheck(ctx context.Context, message *homework.ReleasedCheck) error {
-	log.Println("Subscriber Post received message: ", message)
+	log.Println("Subscriber ReleaseCheck received message: ", message)
 	pubTime := time.Unix(time.Now().Unix(), 0)
 	for i := range message.StudentID {
 		res, err := sub.MessageRepository.AddMessage(
@@ -98,7 +98,7 @@ func (sub *MessageSub) ReleaseCheck(ctx context.Context, message *homework.Relea
 			},
 		)
 		if nil != err {
-			log.Println("Subscriber Post add new message in Mysql error ", err)
+			log.Println("Subscriber ReleaseCheck add new message in Mysql error ", err)
 			return err
 		}
 		content := "作业 " + message.Title + " 已经批改完成，请前往相应页面查看"
@@ -110,7 +110,7 @@ func (sub *MessageSub) ReleaseCheck(ctx context.Context, message *homework.Relea
 			},
 		)
 		if nil != err {
-			log.Println("Subscriber Post add new message in MongoDB error ", err)
+			log.Println("Subscriber ReleaseCheck add new message in MongoDB error ", err)
 			return err
 		}
 	}
