@@ -56,6 +56,7 @@ type CourseClassService interface {
 	DeleteTakeByCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error)
 	SearchTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchTakeByUserResponse, error)
 	SearchTakeByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchTakeByCourseResponse, error)
+	SearchStudentByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchStudentByCourseResponse, error)
 	SearchUserNotInCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchUserNotInCourseResponse, error)
 }
 
@@ -181,6 +182,16 @@ func (c *courseClassService) SearchTakeByCourse(ctx context.Context, in *CourseI
 	return out, nil
 }
 
+func (c *courseClassService) SearchStudentByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchStudentByCourseResponse, error) {
+	req := c.c.NewRequest(c.name, "CourseClassService.SearchStudentByCourse", in)
+	out := new(SearchStudentByCourseResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *courseClassService) SearchUserNotInCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchUserNotInCourseResponse, error) {
 	req := c.c.NewRequest(c.name, "CourseClassService.SearchUserNotInCourse", in)
 	out := new(SearchUserNotInCourseResponse)
@@ -206,6 +217,7 @@ type CourseClassServiceHandler interface {
 	DeleteTakeByCourseClass(context.Context, *CourseID, *EditResponse) error
 	SearchTakeByUser(context.Context, *UserID, *SearchTakeByUserResponse) error
 	SearchTakeByCourse(context.Context, *CourseID, *SearchTakeByCourseResponse) error
+	SearchStudentByCourse(context.Context, *CourseID, *SearchStudentByCourseResponse) error
 	SearchUserNotInCourse(context.Context, *CourseID, *SearchUserNotInCourseResponse) error
 }
 
@@ -222,6 +234,7 @@ func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceH
 		DeleteTakeByCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error
 		SearchTakeByUser(ctx context.Context, in *UserID, out *SearchTakeByUserResponse) error
 		SearchTakeByCourse(ctx context.Context, in *CourseID, out *SearchTakeByCourseResponse) error
+		SearchStudentByCourse(ctx context.Context, in *CourseID, out *SearchStudentByCourseResponse) error
 		SearchUserNotInCourse(ctx context.Context, in *CourseID, out *SearchUserNotInCourseResponse) error
 	}
 	type CourseClassService struct {
@@ -277,6 +290,10 @@ func (h *courseClassServiceHandler) SearchTakeByUser(ctx context.Context, in *Us
 
 func (h *courseClassServiceHandler) SearchTakeByCourse(ctx context.Context, in *CourseID, out *SearchTakeByCourseResponse) error {
 	return h.CourseClassServiceHandler.SearchTakeByCourse(ctx, in, out)
+}
+
+func (h *courseClassServiceHandler) SearchStudentByCourse(ctx context.Context, in *CourseID, out *SearchStudentByCourseResponse) error {
+	return h.CourseClassServiceHandler.SearchStudentByCourse(ctx, in, out)
 }
 
 func (h *courseClassServiceHandler) SearchUserNotInCourse(ctx context.Context, in *CourseID, out *SearchUserNotInCourseResponse) error {

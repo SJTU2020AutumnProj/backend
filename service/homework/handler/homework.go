@@ -78,7 +78,7 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 
 	//初始化user_homework表
 	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", client.DefaultClient)
-	searchResult, err1 := courseClassService.SearchTakeByCourse(ctx, &courseclass.CourseID{CourseID: req.CourseID})
+	searchResult, err1 := courseClassService.SearchStudentByCourse(ctx, &courseclass.CourseID{CourseID: req.CourseID})
 	if nil != err1 {
 		log.Println("HomeworkHandler AssignHomework error: ", err1)
 		resp.Status = -1

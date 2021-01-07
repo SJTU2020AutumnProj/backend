@@ -50,6 +50,7 @@ type CourseClassRepository interface {
 	DeleteTakeByCourseClass(ctx context.Context, courseID int32) error
 	SearchTakeByUser(ctx context.Context, userID int32) ([]*CourseClass, error)
 	SearchTakeByCourseClass(ctx context.Context, courseID int32) ([]int32, error)
+	SearchStudentByCourseClass(ctx context.Context, courseID int32) ([]int32, error)
 	// GenerateTake(
 	// 	userID int32,
 	// 	courseID int32,
@@ -206,14 +207,29 @@ func (repo *CourseClassRepositoryImpl) SearchTakeByCourseClass(ctx context.Conte
 	return ans, result.Error
 }
 
+func (repo *CourseClassRepositoryImpl) SearchStudentByCourseClass(ctx context.Context, courseID int32) ([]int32, error) {
+	var tmp []*Take
+	var ans []int32
+	result := repo.DB.Find(&tmp, "course_id = ?", courseID)
+
+	for i := range tmp {
+		if tmp[i].Role == 2 {
+			ans = append(ans, tmp[i].UserID)
+		}
+	}
+
+	if nil != result.Error {
+		return ans, result.Error
+	}
+	return ans, result.Error
+}
+
 func (repo *CourseClassRepositoryImpl) NewCourse(ctx context.Context, courseclass CourseClass) (CourseClass, error) {
 	if err := repo.DB.Create(&courseclass).Error; nil != err {
 		return courseclass, err
 	}
 	return courseclass, nil
 }
-
-
 
 // func (repo *CourseClassRepositoryImpl) GenerateTakeClass(
 // 	userID int32,

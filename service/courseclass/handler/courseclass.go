@@ -275,6 +275,48 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 	return nil
 }
 
+func (c*CourseClassHandler) SearchStudentByCourse(ctx context.Context,req *pb.CourseID, resp *pb.SearchStudentByCourseResponse)error{
+	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
+
+	userIDs, err := c.CourseClassRepository.SearchStudentByCourseClass(ctx, req.CourseID)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchStudentByCourse error: ", err)
+		return err
+	}
+
+	users, err1 := userService.SearchUsers(ctx, &user.UserIDArray{UserIDArray: userIDs})
+
+	if nil != err1 {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchStudentByCourse error: ", err)
+		return err
+	}
+
+	var ans []*pb.User
+	for i := range users.Users {
+		ans = append(ans, &pb.User{
+			UserID:   users.Users[i].UserID,
+			UserType: users.Users[i].UserType,
+			UserName: users.Users[i].UserName,
+			School:   users.Users[i].School,
+			Id:       users.Users[i].ID,
+			Phone:    users.Users[i].Phone,
+			Email:    users.Users[i].Email,
+			Name:     users.Users[i].Name,
+		})
+	}
+
+	*resp = pb.SearchStudentByCourseResponse{
+		Status: 0,
+		Msg:    "Success",
+		Users:  ans,
+	}
+	return nil
+}
+
 func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchUserNotInCourseResponse) error {
 	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
 	getAllUserResponse, err := userService.GetAllUsers(context.Background(), &user.GetAllUsersParam{})
