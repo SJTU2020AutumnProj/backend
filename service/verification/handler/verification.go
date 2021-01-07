@@ -48,7 +48,7 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 		log.Println("VerificationHandler SendCodeEmail error ", resp.Message)
 		*out = pb.SendCodeEmailResponse{
 			Status:  -1,
-			Message: resp.Message,
+			Message: "SendCodeEmail error",
 		}
 		return err
 	}
