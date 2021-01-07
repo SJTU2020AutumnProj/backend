@@ -175,9 +175,7 @@ func homeworkAnswerPubTest(
 		context.Background(),
 		&homework.ReleaseParam{
 			HomeworkID: homeworkID,
-			AnswerID: answerID,
 			TeacherID: teacherID,
-			CourseID: courseID,
 			PubTime: pubTime,
 		},
 	)
@@ -232,7 +230,6 @@ func releaseCheckTest(
 		&homework.ReleaseCheckParam{
 			HomeworkID: homeworkID,
 			TeacherID: teacherID,
-			CourseID: courseID,
 			ReleaseTime: releaseTime,
 		},
 	)

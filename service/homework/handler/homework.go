@@ -548,7 +548,7 @@ func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.Rel
 	}
 	homeworkAnswerPub := &pb.HomeworkAnswerPub{
 		HomeworkID: homework.HomeworkID,
-		AnswerID:   req.AnswerID,
+		AnswerID:   homework.AnswerID,
 		TeacherID:  req.TeacherID,
 		CourseID:   homework.CourseID,
 		Title:      homework.Title,
