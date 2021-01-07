@@ -4,6 +4,7 @@ import (
 	pb "boxin/service/email/proto/email"
 	"context"
 	"log"
+	// "time"
 
 	"github.com/go-gomail/gomail"
 )
@@ -50,6 +51,7 @@ func (e *EmailHandler) SendEmail(ctx context.Context, in *pb.SendEmailParam, out
 	// 	Message: "Send email success",
 	// }
 	// return nil
+	// time.Sleep(30 * time.Second)
 	m := gomail.NewMessage()
 
 	m.SetAddressHeader("From", SMTPMailUser, SMTPMailName)
