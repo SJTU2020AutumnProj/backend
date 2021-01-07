@@ -1,21 +1,26 @@
 package main
 
 import (
-	mongoDB "boxin/service/message/mongoDB"
-	repo "boxin/service/message/repository"
-	message "boxin/service/message/proto/message"
-	"boxin/service/message/subscriber"
 	"boxin/service/message/handler"
+	mongoDB "boxin/service/message/mongoDB"
+	message "boxin/service/message/proto/message"
+	repo "boxin/service/message/repository"
+	"boxin/service/message/subscriber"
 	"context"
 	"log"
 
+	// 引入插件
+	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
+	// 引入公共的自定义配置函数
+	"boxin/utils/tracer"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/broker/nats"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -29,6 +34,7 @@ const (
 	EtcdAddr    = "localhost:2379"
 	MongoURI    = "mongodb://localhost:27017"
 	NatsURI     = "nats://localhost:4222"
+	JaegerAddr  = "localhost:6831"
 )
 
 func main() {
@@ -59,6 +65,13 @@ func main() {
 	defer client.Disconnect(context.Background())
 	collection := client.Database("jub").Collection("message")
 
+	// 配置jaeger连接
+	jaegerTracer, closer, err := tracer.NewJaegerTracer(ServiceName, JaegerAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer closer.Close()
+
 	// New Service
 	service := micro.NewService(
 		micro.Name(ServiceName),
@@ -69,6 +82,16 @@ func main() {
 		micro.Broker(nats.NewBroker(
 			broker.Addrs(NatsURI),
 		)),
+		micro.WrapClient(
+			// // 引入hystrix包装器
+			// hystrix.NewClientWrapper(),
+			// 配置链路追踪为jaeger
+			opentracing.NewClientWrapper(jaegerTracer),
+		),
+		// 配置链路追踪为jaeger
+		micro.WrapHandler(opentracing.NewHandlerWrapper(jaegerTracer)),
+		// 配置链路追踪为jaeger
+        micro.WrapSubscriber(opentracing.NewSubscriberWrapper(jaegerTracer)),
 	)
 
 	// Initialize service
@@ -96,13 +119,12 @@ func main() {
 
 	// Register Handler
 	messageHandler := &handler.MessageHandler{
-		MessageMongo: &mongoDB.MessageMongoImpl{CL:collection},
-		MessageRepository:&repo.MessageRepositoryImpl{DB: db},
+		MessageMongo:      &mongoDB.MessageMongoImpl{CL: collection},
+		MessageRepository: &repo.MessageRepositoryImpl{DB: db},
 	}
 	if err := message.RegisterMessageServiceHandler(service.Server(), messageHandler); nil != err {
 		log.Fatal(errors.WithMessage(err, "register server"))
 	}
-
 
 	// Run service
 	if err := service.Run(); err != nil {
