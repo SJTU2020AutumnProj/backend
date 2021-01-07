@@ -584,7 +584,7 @@ func (h *HomeworkHandler) ReleaseCheck(ctx context.Context, req *pb.ReleaseCheck
 		HomeworkID:  req.HomeworkID,
 		TeacherID:   req.TeacherID,
 		StudentID:   userIDs,
-		CourseID:    req.CourseID,
+		CourseID:    homework.CourseID,
 		ReleaseTime: req.ReleaseTime,
 		Title:       homework.Title,
 	}
