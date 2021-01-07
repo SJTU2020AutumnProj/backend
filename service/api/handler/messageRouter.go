@@ -58,7 +58,7 @@ func getPersonalMessage(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 
@@ -120,7 +120,7 @@ func getCourseMessage(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 

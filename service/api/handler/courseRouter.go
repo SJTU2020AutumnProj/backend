@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 20:31:46
+ * @LastEditTime: 2021-01-07 21:02:37
  */
 package handler
 
@@ -29,13 +29,13 @@ func CourseRouter(g *gin.Engine, s courseclass.CourseClassService) {
 	v1 := g.Group("/course")
 	{
 		v1.POST("/mylist", getmylist)      //获取个人课程列表
-		v1.POST("/student", getstudent)    //获取个人信息
+		v1.POST("/student", getstudent)    //获取课程学生列表
 		v1.PUT("/newcourse", newcourse)    //新增课程
 		v1.POST("/edit", editcourse)       //编辑课程
 		v1.POST("/detail", courseDetail)   //编辑课程
 		v1.POST("/delete", courseDelete)   //编辑课程
 		v1.POST("/hwlist", getHWlist)      //获取作业列表
-		v1.POST("/nostu", getNotinStudent) //获取作业列表
+		v1.POST("/nostu", getNotinStudent) //获取不在课程的学生列表
 		v1.POST("/students", addStudents)  //课程添加学生
 		v1.POST("/delstu", deleteStudents) //课程添加学生
 	}
@@ -66,7 +66,7 @@ func getmylist(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	log.Println("====== getmylist userId======")
@@ -115,10 +115,9 @@ func getstudent(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
-
 	var p param
 	if err := c.ShouldBindJSON(&p); err != nil {
 		log.Println(err)
@@ -135,6 +134,11 @@ func getstudent(c *gin.Context) {
 	log.Println(err)
 	if err != nil {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败或未找到相应数据"})
+		return
+	}
+	if len(result.Users) == 0 {
+		resdata := make([]courseclass.User, 0)
+		c.JSON(200, gin.H{"status": 200, "msg": "获取学生列表成功", "data": resdata})
 		return
 	}
 	c.JSON(200, gin.H{"status": 200, "msg": "获取学生列表成功", "data": result.Users})
@@ -167,7 +171,7 @@ func newcourse(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -235,7 +239,7 @@ func editcourse(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -307,7 +311,7 @@ func courseDetail(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	var p param
@@ -363,7 +367,7 @@ func courseDelete(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -426,7 +430,7 @@ func getHWlist(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	var p param
@@ -488,7 +492,7 @@ func getNotinStudent(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -512,6 +516,11 @@ func getNotinStudent(c *gin.Context) {
 	log.Println(err)
 	if err != nil {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败或未找到相应数据"})
+		return
+	}
+	if len(result.Users) == 0 {
+		resdata := make([]courseclass.User, 0)
+		c.JSON(200, gin.H{"status": 200, "msg": "获取学生列表成功", "data": resdata})
 		return
 	}
 	c.JSON(200, gin.H{"status": 200, "msg": "获取学生列表成功", "data": result.Users})
@@ -544,7 +553,7 @@ func addStudents(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -608,7 +617,7 @@ func deleteStudents(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？

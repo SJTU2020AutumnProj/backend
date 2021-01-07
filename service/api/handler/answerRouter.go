@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-12-15 21:26:29
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 16:51:33
+ * @LastEditTime: 2021-01-07 20:45:44
  */
 package handler
 
@@ -59,7 +59,7 @@ func stuCreateAnswer(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是学生？
@@ -105,6 +105,13 @@ func getAnswer(c *gin.Context) {
 	type param struct {
 		AnswerID int32 `form:"answerId" json:"answerId"  binding:"required"`
 	}
+
+	type resdata struct {
+		AnswerID   int32  `form:"answerId" json:"answerId" binding:"required"`
+		Content    string `form:"content" json:"content"  binding:"required"`
+		Note       string `form:"note" json:"note" `
+		CommitTime string `form:"commitTime" json:"commitTime"  binding:"required"`
+	}
 	//获取token
 	token, err1 := c.Cookie("token")
 	log.Println(err1)
@@ -121,7 +128,7 @@ func getAnswer(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -153,8 +160,13 @@ func getAnswer(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
 		return
 	}
-
-	c.JSON(200, gin.H{"status": 200, "msg": "获取答案内容成功", "answerId": result.Answer})
+	responsedata := resdata{
+		AnswerID:   result.Answer.AnswerID,
+		Content:    result.Answer.Content,
+		Note:       result.Answer.Note,
+		CommitTime: utils.TimeStamp2string2(result.Answer.CommitTime),
+	}
+	c.JSON(200, gin.H{"status": 200, "msg": "获取答案内容成功", "answerId": responsedata})
 
 }
 
@@ -185,7 +197,7 @@ func getCheckDetail(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	var p param
@@ -219,6 +231,7 @@ func getCheckDetail(c *gin.Context) {
 		Comment:     result.Check.Comment,
 		Score:       result.Check.Score,
 	}
+
 	c.JSON(200, gin.H{"status": 200, "msg": "获取批改内容成功", "data": resdata})
 
 }

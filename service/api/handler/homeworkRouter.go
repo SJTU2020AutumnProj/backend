@@ -69,7 +69,7 @@ func createHW(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -142,7 +142,7 @@ func modifyHw(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -226,7 +226,7 @@ func stuGetdetail(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是学生？
@@ -319,7 +319,7 @@ func GetcmtList(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -395,7 +395,7 @@ func teacherGetHomework(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -464,7 +464,7 @@ func teacherPostAnswer(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -522,7 +522,7 @@ func teacherPublishAnswer(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -583,7 +583,7 @@ func teacherCheck(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
@@ -643,7 +643,7 @@ func teacherPublishCheck(c *gin.Context) {
 	log.Println(usrinfo)
 	log.Println(jwterr)
 	if jwterr != nil {
-		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
 		return
 	}
 	//不是教师？
