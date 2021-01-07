@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-18 08:38:54
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 18:52:22
+ * @LastEditTime: 2021-01-07 21:33:25
  */
 package handler
 
@@ -115,8 +115,8 @@ func checkAuth(c *gin.Context) {
 	result, err := authService.CheckAuth(context.Background(), &ck)
 	log.Println(result)
 	log.Println(err)
-	if nil != err {
-		c.JSON(200, gin.H{"status": 401, "msg": err})
+	if nil != err || result.Data == nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "登录失效或token出错"})
 		return
 	}
 	res := Resdata{
