@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<!-- saved from url=(0079)file:///C:/Users/shenhliu/AppData/Local/Temp/cover984537031/coverage.html#file0 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">boxin/service/courseclass/handler/courseclass.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: block;">package handler
+
+import (
+        pb "boxin/service/courseclass/proto/courseclass"
+        repo "boxin/service/courseclass/repository"
+        // "boxin/service/user/proto/user"
+        "context"
+        "log"
+        "time"
+
+        // "golang.org/x/crypto/openpgp/errors"
+
+        // "github.com/micro/go-micro/v2"
+        // "github.com/micro/go-micro/v2/registry"
+        // "github.com/micro/go-micro/v2/registry/etcd"
+)
+
+type CourseClassHandler struct {
+        CourseClassRepository repo.CourseClassRepository
+}
+
+func (c *CourseClassHandler) DeleteCourseClass(ctx context.Context, req *pb.CourseID, resp *pb.EditResponse) error <span class="cov8" title="1">{
+        err := c.CourseClassRepository.DeleteCourseClass(ctx, req.CourseID)
+        resp.Status = 0
+        resp.Msg = "Success"
+        return err
+}</span>
+
+func (c *CourseClassHandler) UpdateCourseClass(ctx context.Context, req *pb.CourseClass, resp *pb.EditResponse) error <span class="cov8" title="1">{
+        //timeNow := time.Unix(timestamp, 0)
+        stime := time.Unix(req.StartTime, 0)
+        etime := time.Unix(req.EndTime, 0)
+        course := repo.CourseClass{
+                CourseID:     req.CourseID,
+                CourseName:   req.CourseName,
+                Introduction: req.Introduction,
+                TextBooks:    req.TextBooks,
+                StartTime:    stime,
+                EndTime:      etime,
+                State: req.State,
+        }
+        if err := c.CourseClassRepository.UpdateCourseClass(ctx, course); nil != err </span><span class="cov8" title="1">{
+                resp.Status = -1
+                resp.Msg = "Error"
+                log.Println("CourseClassHandler UpdateCourseClass error:", err)
+                return err
+        }</span>
+        <span class="cov8" title="1">resp.Status = 0
+        resp.Msg = "Success"
+        return nil</span>
+}
+
+func (c *CourseClassHandler) SearchCourseClass(ctx context.Context, req *pb.CourseID, resp *pb.SearchCourseClassResponse) error <span class="cov8" title="1">{
+
+        course, err := c.CourseClassRepository.SearchCourseClass(ctx, req.CourseID)
+        // t := time.Now()
+        // stime := t.Format(course.StartTime.String())
+        // etime := t.Format(course.EndTime.String())
+        stime := course.StartTime.Unix()
+        etime := course.EndTime.Unix()
+        
+        *resp = pb.SearchCourseClassResponse{
+                Status: 0,
+                Courseclass: &amp;pb.CourseClass{
+                        CourseID:     course.CourseID,
+                        CourseName:   course.CourseName,
+                        Introduction: course.Introduction,
+                        TextBooks:    course.TextBooks,
+                        StartTime:    stime,
+                        EndTime:      etime,
+                        State: course.State,
+                },
+        }
+        return err
+}</span>
+
+func (c *CourseClassHandler) SearchCourseClasses(ctx context.Context, req *pb.CourseIDArray, resp *pb.SearchCourseClassesResponse) error <span class="cov8" title="1">{
+
+        var courseclasses []*pb.CourseClass
+        var err error
+        var course repo.CourseClass
+        for i := range req.IDArray </span><span class="cov8" title="1">{
+                course, err = c.CourseClassRepository.SearchCourseClass(ctx, req.IDArray[i])
+                // t := time.Now()
+                // stime := t.Format(course.StartTime.String())
+                // etime := t.Format(course.EndTime.String())
+                stime := course.StartTime.Unix()
+                etime := course.EndTime.Unix()
+
+                courseclasses = append(courseclasses, &amp;pb.CourseClass{
+                        CourseID:     course.CourseID,
+                        CourseName:   course.CourseName,
+                        Introduction: course.Introduction,
+                        TextBooks:    course.TextBooks,
+                        StartTime:    stime,
+                        EndTime:      etime,
+                        State: course.State,
+                })
+        }</span>
+        <span class="cov8" title="1">*resp = pb.SearchCourseClassesResponse{
+                Status:        0,
+                Msg:           "Success",
+                Courseclasses: courseclasses,
+        }
+        return err</span>
+}
+
+func (c *CourseClassHandler) AddTake(ctx context.Context, req *pb.Take, resp *pb.EditResponse) error <span class="cov8" title="1">{
+        take := repo.Take{
+                UserID:   req.UserID,
+                CourseID: req.CourseID,
+                Role:     req.Role,
+        }
+        err := c.CourseClassRepository.AddTake(ctx, take)
+        resp.Status = 0
+        resp.Msg = "Success"
+        return err
+}</span>
+
+func (c *CourseClassHandler) DeleteTake(ctx context.Context, req *pb.UserCourse, resp *pb.EditResponse) error <span class="cov8" title="1">{
+        err := c.CourseClassRepository.DeleteTake(ctx, req.UserID, req.CourseID)
+        resp.Status = 0
+        resp.Msg = "Success"
+        return err
+}</span>
+
+func (c *CourseClassHandler) DeleteTakeByUser(ctx context.Context, req *pb.UserID, resp *pb.EditResponse) error <span class="cov8" title="1">{
+        err := c.CourseClassRepository.DeleteTakeByUser(ctx, req.UserID)
+        resp.Status = 0
+        resp.Msg = "Success"
+        return err
+}</span>
+
+func (c *CourseClassHandler) DeleteTakeByCourseClass(ctx context.Context, req *pb.CourseID, resp *pb.EditResponse) error <span class="cov8" title="1">{
+        err := c.CourseClassRepository.DeleteTakeByCourseClass(ctx, req.CourseID)
+        resp.Status = 0
+        resp.Msg = "Success"
+        return err
+}</span>
+
+func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserID, resp *pb.SearchTakeByUserResponse) error <span class="cov8" title="1">{
+        courses, err := c.CourseClassRepository.SearchTakeByUser(ctx, req.UserID)
+
+        var ans []*pb.CourseClass
+        for i := range courses </span><span class="cov8" title="1">{
+                ans = append(ans, &amp;pb.CourseClass{
+                        CourseID:     courses[i].CourseID,
+                        CourseName:   courses[i].CourseName,
+                        Introduction: courses[i].Introduction,
+                        TextBooks:    courses[i].TextBooks,
+                        StartTime:    courses[i].StartTime.Unix(),
+                        EndTime:      courses[i].EndTime.Unix(),
+                        State: courses[i].State,
+                })
+        }</span>
+
+        <span class="cov8" title="1">*resp = pb.SearchTakeByUserResponse{
+                Status:  0,
+                Msg:     "Success",
+                Courses: ans,
+        }
+        return err</span>
+}
+
+const (
+        ServiceName = "go.micro.client.user"
+        EtcdAddr    = "localhost:2379"
+)
+
+func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMessage, resp *pb.NewCourseResponse) error <span class="cov8" title="1">{
+        stime := time.Unix(req.StartTime, 0)
+        etime := time.Unix(req.EndTime, 0)
+
+        courseclass := repo.CourseClass{
+                CourseName:   req.CourseName,
+                Introduction: req.Introduction,
+                TextBooks:    req.TextBooks,
+                StartTime:    stime,
+                EndTime:      etime,
+                State:                 req.State,
+        }
+
+        var newCourse repo.CourseClass
+        var err1 error
+
+        newCourse, err1 = c.CourseClassRepository.NewCourse(ctx, courseclass)
+
+        log.Println(newCourse.CourseID)
+        *resp = pb.NewCourseResponse{
+                Status: 0,
+                Msg:    "Sucess",
+                Courseclass: &amp;pb.CourseClass{
+                        CourseID:     newCourse.CourseID,
+                        CourseName:   newCourse.CourseName,
+                        Introduction: newCourse.Introduction,
+                        TextBooks:    newCourse.TextBooks,
+                        StartTime:    newCourse.StartTime.Unix(),
+                        EndTime:      newCourse.EndTime.Unix(),
+                        State: newCourse.State,
+                },
+        }
+
+        take := repo.Take{
+                UserID:   req.UserID,
+                CourseID: newCourse.CourseID,
+                Role:     1,
+        }
+
+        err1 = c.CourseClassRepository.AddTake(ctx, take)
+        resp.Status = 0
+        resp.Msg = "Success"
+        return err1
+}</span>
+</pre>
+		
+		</div>
+	
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+
+</body></html>
