@@ -19,7 +19,7 @@ func UserRouter(g *gin.Engine, s user.UserService) {
 	v1 := g.Group("/user")
 	{
 		v1.POST("/register", register) //注册
-		v1.GET("/info", getinfo)       //获取个人信息
+		v1.POST("/getinfo", getinfo)   //获取个人信息
 		v1.POST("/info", editinfo)     //修改个人信息
 		v1.POST("/password", setPw)    //修改登录密码
 	}

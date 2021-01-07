@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 15:38:54
+ * @LastEditTime: 2021-01-07 16:50:58
  */
 package handler
 
@@ -28,14 +28,14 @@ func CourseRouter(g *gin.Engine, s courseclass.CourseClassService) {
 	courseClassService = s
 	v1 := g.Group("/course")
 	{
-		v1.GET("/mylist", getmylist)       //获取个人课程列表
-		v1.GET("/student", getstudent)     //获取个人信息
+		v1.POST("/mylist", getmylist)      //获取个人课程列表
+		v1.POST("/student", getstudent)    //获取个人信息
 		v1.PUT("/newcourse", newcourse)    //新增课程
 		v1.POST("/edit", editcourse)       //编辑课程
-		v1.GET("/detail", courseDetail)    //编辑课程
+		v1.POST("/detail", courseDetail)   //编辑课程
 		v1.POST("/delete", courseDelete)   //编辑课程
-		v1.GET("/hwlist", getHWlist)       //获取作业列表
-		v1.GET("/nostu", getNotinStudent)  //获取作业列表
+		v1.POST("/hwlist", getHWlist)      //获取作业列表
+		v1.POST("/nostu", getNotinStudent) //获取作业列表
 		v1.POST("/students", addStudents)  //课程添加学生
 		v1.POST("/delstu", deleteStudents) //课程添加学生
 	}

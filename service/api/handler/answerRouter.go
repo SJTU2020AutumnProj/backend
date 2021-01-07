@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-12-15 21:26:29
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 14:25:50
+ * @LastEditTime: 2021-01-07 16:51:33
  */
 package handler
 
@@ -29,9 +29,9 @@ func AnswerRouter(g *gin.Engine, s answer.AnswerService) {
 	answerService = s
 	v1 := g.Group("/answer")
 	{
-		v1.PUT("/new", stuCreateAnswer)        //学生提交答案
-		v1.GET("/get", getAnswer)              //获取学生作业答案
-		v1.GET("/checkdetail", getCheckDetail) //获取批改作业信息
+		v1.PUT("/new", stuCreateAnswer)         //学生提交答案
+		v1.POST("/get", getAnswer)              //获取学生作业答案
+		v1.POST("/checkdetail", getCheckDetail) //获取批改作业信息
 		// v1.POST("/info", editinfo)    //修改个人信息
 	}
 }

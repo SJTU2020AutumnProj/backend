@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 13:28:35
+ * @LastEditTime: 2021-01-07 16:50:28
  */
 package handler
 
@@ -29,15 +29,15 @@ func HomeworkRouter(g *gin.Engine, s homework.HomeworkService) {
 	homeworkService = s
 	v1 := g.Group("/homework")
 	{
-		v1.PUT("/create", createHW)                       //创建作业
-		v1.POST("/update", modifyHw)                      //修改作业
-		v1.GET("/detail", stuGetdetail)                   //退出登录
-		v1.GET("/cmtlist", GetcmtList)                    //检测权限
-		v1.PUT("/postAnswer", teacherPostAnswer)          //教师上传标准答案
-		v1.POST("/publishAnswer", teacherPublishAnswer)   //教师发布标准答案
-		v1.POST("/publishCheck", teacherPublishCheck)     //教师发布批改情况
-		v1.PUT("/correct", teacherCheck)                  //教师批改作业
-		v1.GET("/teacherGetHomework", teacherGetHomework) //教师批改作业
+		v1.PUT("/create", createHW)                        //创建作业
+		v1.POST("/update", modifyHw)                       //修改作业
+		v1.POST("/detail", stuGetdetail)                   //退出登录
+		v1.POST("/cmtlist", GetcmtList)                    //检测权限
+		v1.PUT("/postAnswer", teacherPostAnswer)           //教师上传标准答案
+		v1.POST("/publishAnswer", teacherPublishAnswer)    //教师发布标准答案
+		v1.POST("/publishCheck", teacherPublishCheck)      //教师发布批改情况
+		v1.PUT("/correct", teacherCheck)                   //教师批改作业
+		v1.POST("/teacherGetHomework", teacherGetHomework) //教师批改作业
 
 	}
 }

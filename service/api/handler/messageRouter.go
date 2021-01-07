@@ -27,8 +27,8 @@ func MessageRouter(g *gin.Engine, s message.MessageService) {
 	messageService = s
 	v1 := g.Group("/message")
 	{
-		v1.GET("/userId", getPersonalMessage) //获取用户message
-		v1.GET("/courseId", getCourseMessage) //获取用户message
+		v1.POST("/userId", getPersonalMessage) //获取用户message
+		v1.POST("/courseId", getCourseMessage) //获取用户message
 	}
 }
 

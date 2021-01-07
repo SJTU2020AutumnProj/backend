@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-18 08:38:54
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 14:51:19
+ * @LastEditTime: 2021-01-07 16:51:20
  */
 package handler
 
@@ -25,9 +25,9 @@ func AuthRouter(g *gin.Engine, s auth.AuthService) {
 	authService = s
 	v1 := g.Group("/auth")
 	{
-		v1.POST("/login", login)        //登录
-		v1.GET("/logout", logout)       //退出登录
-		v1.GET("/checkAuth", checkAuth) //检测权限
+		v1.POST("/login", login)         //登录
+		v1.POST("/logout", logout)       //退出登录
+		v1.POST("/checkAuth", checkAuth) //检测权限
 	}
 }
 
