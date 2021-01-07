@@ -34,6 +34,7 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 	randomNumber := strconv.Itoa(int(rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000)))
 	content := "\tYour verification code is " + "<b>" + randomNumber + "</b>"
 	title := "Your verification code"
+	log.Println("VerificationHandler SendCodeEmail begin to send code email")
 	emailService := email.NewEmailService("go.micro.service.email", client.DefaultClient)
 	resp, err := emailService.SendEmail(
 		ctx,
