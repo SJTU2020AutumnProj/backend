@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-08 01:58:08
+ * @LastEditTime: 2021-01-08 04:42:53
  */
 package handler
 
@@ -565,7 +565,7 @@ func teacherCheck(c *gin.Context) {
 		UserID      int32  `form:"userId" json:"userId" binding:"required"`
 		HwID        int32  `form:"hwId" json:"hwId" binding:"required"`
 		Score       int32  `form:"score" json:"score" binding:"required"`
-		Description string `form:"description" json:"descripttion" binding:"required"`
+		Description string `form:"description" json:"description" binding:"required"`
 		Comment     string `form:"comment" json:"comment" binding:"required"`
 	}
 	//获取token
