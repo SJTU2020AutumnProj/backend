@@ -576,16 +576,11 @@ func (h *HomeworkHandler) GetHomeworkByCourseIDAndUserID(ctx context.Context, re
 			return err
 		}
 		homework_json, err := h.HomeworkMongo.SearchHomework(ctx, homeworks[i].HomeworkID)
-		if nil != err {
-			resp.Status = -1
-			resp.Msg = "Error"
-			log.Println("Handler GetHomeworkByCourseIDAndUserID error:", err)
-			return err
-		}
+
 		var checkID int32
 		var studentAnswerID int32
 		var userHomeworkState int32
-		if uh == nil {
+		if err != nil {
 			checkID = -1
 			studentAnswerID = -1
 			userHomeworkState = 0
@@ -626,13 +621,6 @@ func (h *HomeworkHandler) GetUserHomework(ctx context.Context, req *pb.GetUserHo
 	uh, err := h.HomeworkRepository.SearchUserHomework(ctx, req.UserID, req.HomeworkID)
 
 	if nil != err {
-		resp.Status = -1
-		resp.Msg = "Error"
-		log.Println("Handler GetUserHomework error: ", err)
-		return err
-	}
-
-	if nil == uh {
 		*resp = pb.GetUserHomeworkResponse{
 			Status: 0,
 			UserHomework: &pb.UserHomework{
