@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 08:40:45
+ * @LastEditTime: 2021-01-07 09:39:51
  */
 package handler
 
@@ -373,8 +373,8 @@ func GetcmtList(c *gin.Context) {
 		State:            usrhw.State,
 		UserID:           usrhw.UserID,
 		Score:            hwinfo.Score,
-		StartTime:        utils.TimeStamp2string(hwinfo.StartTime),
-		EndTime:          utils.TimeStamp2string(hwinfo.EndTime),
+		StartTime:        utils.TimeStamp2string2(hwinfo.StartTime),
+		EndTime:          utils.TimeStamp2string2(hwinfo.EndTime),
 		AnswerID:         hwinfo.AnswerID,
 		CheckID:          usrhw.CheckID,
 		StandardAnswerID: usrhw.AnswerID,
