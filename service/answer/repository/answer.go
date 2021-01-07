@@ -145,17 +145,16 @@ func (repo *AnswerRepositoryImpl) PostAnswerByTeacher(ctx context.Context, userI
 	if err := repo.DB.Create(&answer).Error; nil != err {
 		return Answer{}, err
 	}
+	// um := UserHomework{
+	// 	HomeworkID: homeworkID,
+	// 	UserID:     userID,
+	// 	AnswerID:   answer.AnswerID,
+	// 	CheckID:    -1,
+	// 	State:      -1,
+	// }
 
-	um := UserHomework{
-		HomeworkID: homeworkID,
-		UserID:     userID,
-		AnswerID:   answer.AnswerID,
-		CheckID:    -1,
-		State:      -1,
-	}
-
-	if err := repo.DB.Save(um).Error; nil != err {
-		return Answer{}, err
-	}
+	// if err := repo.DB.Save(um).Error; nil != err {
+	// 	return Answer{}, err
+	// }
 	return answer, nil
 }
