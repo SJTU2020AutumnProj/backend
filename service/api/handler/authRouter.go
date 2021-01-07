@@ -58,7 +58,7 @@ func login(c *gin.Context) {
 	log.Println(result)
 	log.Println(err)
 	if err != nil {
-		c.JSON(200, gin.H{"status": 401, "msg": "登录失败", "data": err})
+		c.JSON(200, gin.H{"status": 401, "msg": "登录失败"})
 		return
 	}
 	c.SetCookie("token", result.Token, 3600, "/", "/", false, true)

@@ -73,7 +73,7 @@ func register(c *gin.Context) {
 	log.Println(result)
 	log.Println(err)
 	if err != nil {
-		c.JSON(200, gin.H{"status": 401, "msg": "写入数据库失败", "data": err})
+		c.JSON(200, gin.H{"status": 401, "msg": "写入数据库失败"})
 		return
 	}
 	c.JSON(200, gin.H{"status": 200, "msg": "注册成功"})
@@ -121,7 +121,7 @@ func getinfo(c *gin.Context) {
 	log.Println(result)
 	log.Println(err)
 	if err != nil {
-		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取用户信息失败", "data": err})
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取用户信息失败"})
 		return
 	}
 	res := response{
