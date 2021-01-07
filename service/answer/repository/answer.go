@@ -73,7 +73,7 @@ func(repo *AnswerRepositoryImpl) SearchAnswer(ctx context.Context,answerID int32
 func(repo *AnswerRepositoryImpl) UpdateAnswer(ctx context.Context,answer Answer) error{
 	tmp, err := repo.SearchAnswer(ctx, answer.AnswerID)
 	tmp.CommitTime = answer.CommitTime
-	if err = repo.DB.Save(tmp).Error; nil != err {
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
 		return err
 	}
 	return nil
@@ -155,7 +155,7 @@ func (repo *AnswerRepositoryImpl) PostAnswerByTeacher(ctx context.Context,userID
 		State:		-1,
 	}
 
-	if err := repo.DB.Create(&um).Error;nil != err {
+	if err := repo.DB.Save(um).Error; nil != err {
 		return Answer{},err
 	}
 	return answer,nil
