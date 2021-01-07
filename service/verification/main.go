@@ -4,8 +4,8 @@ import (
 	"boxin/service/verification/handler"
 	verification "boxin/service/verification/proto/verification"
 
-	// 自定义插件
-	"boxin/service/verification/wrapper/breaker/hystrix"
+	// // 自定义插件
+	// "boxin/service/verification/wrapper/breaker/hystrix"
 	// 引入插件
 	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 	// 引入公共的自定义配置函数
@@ -53,8 +53,8 @@ func main() {
 			registry.Addrs(EtcdAddr),
 		)),
 		micro.WrapClient(
-			// 引入hystrix包装器
-			hystrix.NewClientWrapper(),
+			// // 引入hystrix包装器
+			// hystrix.NewClientWrapper(),
 			// 配置链路追踪为jaeger
 			opentracing.NewClientWrapper(jaegerTracer),
 		),
