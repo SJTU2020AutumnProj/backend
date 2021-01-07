@@ -48,7 +48,7 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 		log.Println("VerificationHandler SendCodeEmail error ", resp.Message)
 		*out = pb.SendCodeEmailResponse{
 			Status:  -1,
-			Message: resp.Message,
+			Message: "SendCodeEmail error",
 		}
 		return err
 	}
@@ -60,6 +60,10 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 			Message: "Redis set key value error",
 		}
 		return setErr
+	}
+	*out = pb.SendCodeEmailResponse{
+		Status:  0,
+		Message: "SendCodeEmail success",
 	}
 	return nil
 }
