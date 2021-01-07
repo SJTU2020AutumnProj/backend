@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-12-15 21:26:29
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 20:45:44
+ * @LastEditTime: 2021-01-07 22:26:28
  */
 package handler
 
@@ -96,7 +96,7 @@ func stuCreateAnswer(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"status": 200, "msg": result.Msg, "answerId": result.AnswerID})
+	c.JSON(200, gin.H{"status": 200, "msg": result.Msg, "data": result.AnswerID})
 
 }
 
@@ -166,7 +166,7 @@ func getAnswer(c *gin.Context) {
 		Note:       result.Answer.Note,
 		CommitTime: utils.TimeStamp2string2(result.Answer.CommitTime),
 	}
-	c.JSON(200, gin.H{"status": 200, "msg": "获取答案内容成功", "answerId": responsedata})
+	c.JSON(200, gin.H{"status": 200, "msg": "获取答案内容成功", "data": responsedata})
 
 }
 
