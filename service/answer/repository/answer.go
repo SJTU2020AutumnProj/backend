@@ -123,7 +123,7 @@ func (repo *AnswerRepositoryImpl) SearchAnswerByHomeworkID(ctx context.Context, 
 }
 
 func (repo *AnswerRepositoryImpl) PostAnswerByStudent(ctx context.Context, userID int32, homeworkID int32, state int32, answer Answer) (Answer, error) {
-	if err := repo.DB.Table("answer").Model(&answer).Create(answer).Error; nil != err {
+	if err := repo.DB.Table("answer").Model(&answer).Create(&answer).Error; nil != err {
 		return Answer{}, err
 	}
 
@@ -142,7 +142,7 @@ func (repo *AnswerRepositoryImpl) PostAnswerByStudent(ctx context.Context, userI
 }
 
 func (repo *AnswerRepositoryImpl) PostAnswerByTeacher(ctx context.Context, userID int32, homeworkID int32, answer Answer) (Answer, error) {
-	if err := repo.DB.Table("answer").Model(&answer).Create(answer).Error; nil != err {
+	if err := repo.DB.Table("answer").Model(&answer).Create(&answer).Error; nil != err {
 		return Answer{}, err
 	}
 	// um := UserHomework{
