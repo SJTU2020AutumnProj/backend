@@ -19,6 +19,8 @@ service HomeworkService {
     rpc GetHomeworkByStudentID(StudentID)returns(GetHomeworkByStudentIDResponse){}
     rpc GetHomeworkByStudentIDAndCourseID(GetHomeworkByStudentIDAndCourseIDParam)returns(GetHomeworkByStudentIDAndCourseIDResponse){}
 
+    rpc GetUserByHomeworkID(HomeworkID)returns(GetUserByHomeworkIDResponse){}
+
     rpc GetUserHomework(GetUserHomeworkParam)returns(GetUserHomeworkResponse){}
 
     rpc GetHomeworkByCourseID(CourseID)returns(GetHomeworkByCourseIDResponse){}
@@ -82,6 +84,22 @@ message UserHomework{
     int32 answerID = 3;
     int32 checkID = 4;
     int32 state = 5;
+}
+
+message UserInfo {
+    int32 userID = 1;
+    int32 userType = 2;
+    string userName = 3;
+    string password = 4;
+    string school = 5;
+    string iD = 6;
+    string phone = 7;
+    string email = 8;
+    string name = 9;
+    int32 homeworkID = 10;
+    int32 answerID = 11;
+    int32 checkID = 12;
+    int32 state = 13;
 }
 
 message UserID{
@@ -288,7 +306,7 @@ message StudentSearchHomeworkResponse {
 }
 
 message ReleaseCheckResponse {
-        enum Status {
+    enum Status {
         SUCCESS = 0;
         ERROR = -1;
     }
@@ -296,3 +314,12 @@ message ReleaseCheckResponse {
     string msg = 2;
 }
 
+message GetUserByHomeworkIDResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated UserInfo userInfo = 3;
+}

@@ -2,9 +2,9 @@ package main
 
 import (
 	"boxin/service/homework/handler"
+	mongoDB "boxin/service/homework/mongoDB"
 	homework "boxin/service/homework/proto/homework"
 	repo "boxin/service/homework/repository"
-	mongoDB "boxin/service/homework/mongoDB"
 
 	"context"
 	"fmt"
@@ -13,10 +13,10 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/micro/go-micro/v2/broker"
 	"github.com/micro/go-micro/v2/broker/nats"
+	"github.com/micro/go-micro/v2/registry"
+	"github.com/micro/go-micro/v2/registry/etcd"
 	"github.com/pkg/errors"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,7 +28,7 @@ const (
 	ServiceName = "go.micro.service.homework"
 	MysqlUri    = "root:root@(127.0.0.1:3306)/jub?charset=utf8mb4&parseTime=True&loc=Local"
 	EtcdAddr    = "localhost:2379"
-	NatsURI = "nats://localhost:4222"
+	NatsURI     = "nats://localhost:4222"
 )
 
 func main() {
@@ -59,7 +59,6 @@ func main() {
 
 	collection := client.Database("jub").Collection("homework")
 
-
 	//启动服务
 	service := micro.NewService(
 		micro.Name(ServiceName),
@@ -75,11 +74,11 @@ func main() {
 	service.Init()
 
 	homeworkHandler := &handler.HomeworkHandler{
-		HomeworkMongo: &mongoDB.HomeworkMongoImpl{CL:collection},
-		HomeworkRepository:&repo.HomeworkRepositoryImpl{DB: db},
-		HomeworkAssignedPubEvent: micro.NewEvent(ServiceName + "." + handler.HomeworkAssignedTopic, service.Client()),
-		HomeworkAnswerPubEvent: micro.NewEvent(ServiceName + "." + handler.HomeworkAnswerPubTopic, service.Client()),
-		CheckPubEvent: micro.NewEvent(ServiceName + "." + handler.CheckPubTopic, service.Client()),
+		HomeworkMongo:            &mongoDB.HomeworkMongoImpl{CL: collection},
+		HomeworkRepository:       &repo.HomeworkRepositoryImpl{DB: db},
+		HomeworkAssignedPubEvent: micro.NewEvent(ServiceName+"."+handler.HomeworkAssignedTopic, service.Client()),
+		HomeworkAnswerPubEvent:   micro.NewEvent(ServiceName+"."+handler.HomeworkAnswerPubTopic, service.Client()),
+		CheckPubEvent:            micro.NewEvent(ServiceName+"."+handler.CheckPubTopic, service.Client()),
 	}
 
 	if err := homework.RegisterHomeworkServiceHandler(service.Server(), homeworkHandler); nil != err {

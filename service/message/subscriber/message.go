@@ -91,7 +91,6 @@ func (sub *MessageSub) ReleaseCheck(ctx context.Context, message *homework.Relea
 			repo.Message{
 				MessageTime: pubTime,
 				MessageType: 1,
-				CourseID:    message.CourseID,
 				UserID: message.StudentID[i],
 				Title:       "作业 " + message.Title + " 已经批改完成",
 				State:       0,
