@@ -3,6 +3,7 @@ package main
 import (
 	"boxin/service/verification/handler"
 	verification "boxin/service/verification/proto/verification"
+	"github.com/micro/go-plugins/wrapper/breaker/hystrix/v2"
 	repo "boxin/service/verification/repository"
 	"log"
 
@@ -36,6 +37,10 @@ func main() {
 		micro.Registry(etcd.NewRegistry(
 			registry.Addrs(EtcdAddr),
 		)),
+		micro.WrapClient(
+            // 引入hystrix包装器
+            hystrix.NewClientWrapper(),
+        ),
 	)
 
 	service.Init()
