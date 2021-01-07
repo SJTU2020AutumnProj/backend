@@ -1,0 +1,5 @@
+mode: set
+boxin/service/check/handler/check.go:20.117,42.2 8 1
+boxin/service/check/handler/check.go:45.108,54.2 7 1
+boxin/service/check/handler/check.go:57.117,77.2 9 1
+boxin/service/check/handler/check.go:80.116,100.2 6 1

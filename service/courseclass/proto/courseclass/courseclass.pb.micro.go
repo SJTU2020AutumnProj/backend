@@ -55,7 +55,6 @@ type CourseClassService interface {
 	DeleteTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*EditResponse, error)
 	DeleteTakeByCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error)
 	SearchTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchTakeByUserResponse, error)
-	SearchTakeByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchTakeByCourseResponse, error)
 }
 
 type courseClassService struct {
@@ -170,16 +169,6 @@ func (c *courseClassService) SearchTakeByUser(ctx context.Context, in *UserID, o
 	return out, nil
 }
 
-func (c *courseClassService) SearchTakeByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchTakeByCourseResponse, error) {
-	req := c.c.NewRequest(c.name, "CourseClassService.SearchTakeByCourse", in)
-	out := new(SearchTakeByCourseResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // Server API for CourseClassService service
 
 type CourseClassServiceHandler interface {
@@ -194,7 +183,6 @@ type CourseClassServiceHandler interface {
 	DeleteTakeByUser(context.Context, *UserID, *EditResponse) error
 	DeleteTakeByCourseClass(context.Context, *CourseID, *EditResponse) error
 	SearchTakeByUser(context.Context, *UserID, *SearchTakeByUserResponse) error
-	SearchTakeByCourse(context.Context, *CourseID, *SearchTakeByCourseResponse) error
 }
 
 func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceHandler, opts ...server.HandlerOption) error {
@@ -209,7 +197,6 @@ func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceH
 		DeleteTakeByUser(ctx context.Context, in *UserID, out *EditResponse) error
 		DeleteTakeByCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error
 		SearchTakeByUser(ctx context.Context, in *UserID, out *SearchTakeByUserResponse) error
-		SearchTakeByCourse(ctx context.Context, in *CourseID, out *SearchTakeByCourseResponse) error
 	}
 	type CourseClassService struct {
 		courseClassService
@@ -260,8 +247,4 @@ func (h *courseClassServiceHandler) DeleteTakeByCourseClass(ctx context.Context,
 
 func (h *courseClassServiceHandler) SearchTakeByUser(ctx context.Context, in *UserID, out *SearchTakeByUserResponse) error {
 	return h.CourseClassServiceHandler.SearchTakeByUser(ctx, in, out)
-}
-
-func (h *courseClassServiceHandler) SearchTakeByCourse(ctx context.Context, in *CourseID, out *SearchTakeByCourseResponse) error {
-	return h.CourseClassServiceHandler.SearchTakeByCourse(ctx, in, out)
 }

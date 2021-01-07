@@ -13,10 +13,18 @@ build: proto
 
 	go build -o courseclass-service *.go
 
-.PHONY: test
-test:
-	go test -v ./... -cover
 
 .PHONY: docker
 docker:
 	docker build . -t courseclass-service:latest
+
+	.PHONY: test
+test: 
+
+	go test -v ./handler -coverprofile=size_coverage.out
+
+
+.PHONY: print
+print: 
+
+	go tool cover -html=size_coverage.out

@@ -10,3 +10,14 @@ proto:
 build: proto
 
 	go build -o auth-srv main.go
+
+.PHONY:test
+test: 
+
+	go test -v ./handler -coverprofile=size_coverage.out
+
+
+.PHONY: print
+print: 
+
+	go tool cover -html=size_coverage.out

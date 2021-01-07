@@ -4,9 +4,10 @@ import (
 	// handler "boxin/service/courseclass/handler"
 	courseclass "boxin/service/courseclass/proto/courseclass"
 	repo "boxin/service/courseclass/repository"
-	userhandler "boxin/service/user/handler"
-	user "boxin/service/user/proto/user"
-	userrepo "boxin/service/user/repository"
+
+	// userhandler "boxin/service/user/handler"
+	// user "boxin/service/user/proto/user"
+	// userrepo "boxin/service/user/repository"
 	"context"
 	"testing"
 	"time"
@@ -15,7 +16,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	. "github.com/smartystreets/goconvey/convey"
-
 	// "github.com/micro/go-micro/v2"
 	// "github.com/micro/go-micro/v2/registry"
 	// "github.com/micro/go-micro/v2/registry/etcd"
@@ -48,7 +48,7 @@ func TestNewCourseClass(t *testing.T) {
 	}
 
 	Convey("Test NewCourseClass", t, func() {
-		req.UserID = 99635
+		req.UserID = 99638
 		req.CourseName = "测试课程"
 		req.Introduction = "希望别出错"
 		req.TextBooks = "编译原理"
@@ -104,7 +104,7 @@ func TestDeleteCourseClass(t *testing.T) {
 
 	Convey("Test DeleteCourseClass", t, func() {
 
-		nreq.UserID = 99635
+		nreq.UserID = 99639
 		nreq.CourseName = "测试课程"
 		nreq.Introduction = "希望别出错"
 		nreq.TextBooks = "编译原理"
@@ -166,7 +166,7 @@ func TestUpdateCourseClass(t *testing.T) {
 
 	Convey("Test UpdateCourseClass", t, func() {
 
-		nreq.UserID = 99635
+		nreq.UserID = 99640
 		nreq.CourseName = "测试课程"
 		nreq.Introduction = "希望别出错"
 		nreq.TextBooks = "编译原理"
@@ -187,12 +187,12 @@ func TestUpdateCourseClass(t *testing.T) {
 		So(id, ShouldEqual, 0)
 
 		req.CourseID = 99999
-		id2:=tf_error(courseclass.EditResponse_SUCCESS)
+		id2 := tf_error(courseclass.EditResponse_SUCCESS)
 		So(id2, ShouldBeGreaterThanOrEqualTo, -1)
 
 		// So(c.UpdateCourseClass(context.TODO(), &error_req, &error_rsp), ShouldNotBeNil)
 		defer func() { So(db.Delete(&repo.CourseClass{}, nrsp.Courseclass.CourseID).Error, ShouldBeNil) }()
-		// defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{}) }()
+		defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{}) }()
 	})
 }
 
@@ -224,18 +224,9 @@ func TestSearchCourseClass(t *testing.T) {
 		return -1
 	}
 
-	tf_error := func(status courseclass.SearchCourseClassResponse_Status) int32 {
-		So(c.SearchCourseClass(context.TODO(), &req, &rsp), ShouldNotBeNil)
-		So(rsp.Status, ShouldNotEqual, status)
-		if rsp.Status == courseclass.SearchCourseClassResponse_SUCCESS {
-			return 0
-		}
-		return -1
-	}
-
 	Convey("Test SearchCourseClass", t, func() {
 
-		nreq.UserID = 99635
+		nreq.UserID = 99641
 		nreq.CourseName = "测试课程"
 		nreq.Introduction = "希望别出错"
 		nreq.TextBooks = "编译原理"
@@ -249,17 +240,13 @@ func TestSearchCourseClass(t *testing.T) {
 		id := tf(courseclass.SearchCourseClassResponse_SUCCESS)
 		So(id, ShouldEqual, 0)
 
-		req.CourseID = 99999
-		id2:= tf_error(courseclass.SearchCourseClassResponse_SUCCESS)
-		So(id2, ShouldEqual,-1)
-
 		// So(c.UpdateCourseClass(context.TODO(), &error_req, &error_rsp), ShouldNotBeNil)
 		defer func() { So(db.Delete(&repo.CourseClass{}, nrsp.Courseclass.CourseID).Error, ShouldBeNil) }()
 		defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{}) }()
 	})
 }
 
-func TestSeaechCourseClasses(t *testing.T) {
+func TestSearchCourseClasses(t *testing.T) {
 	db, err := gorm.Open("mysql", MysqlUri)
 	if nil != err {
 		panic(err)
@@ -286,7 +273,7 @@ func TestSeaechCourseClasses(t *testing.T) {
 
 	Convey("Test SearchCourseClass", t, func() {
 
-		nreq.UserID = 99635
+		nreq.UserID = 99642
 		nreq.CourseName = "测试课程"
 		nreq.Introduction = "希望别出错"
 		nreq.TextBooks = "编译原理"
@@ -326,14 +313,14 @@ func TestAddTake(t *testing.T) {
 	}
 
 	Convey("Test AddTake", t, func() {
-		req.UserID = 99635
+		req.UserID = 99639
 		req.CourseID = 66988
 		req.Role = 1
 
 		id := tf(courseclass.EditResponse_SUCCESS)
 		So(id, ShouldBeGreaterThanOrEqualTo, 0)
 		// defer func() { So(db.Delete(&repo.Take{}, rsp.Courseclass.CourseID).Error, ShouldBeNil) }()
-		defer func() { db.Where("user_id = ?", 99635).Delete(&repo.Take{}) }()
+		defer func() { db.Where("user_id = ?", 99639).Delete(&repo.Take{}) }()
 	})
 }
 
@@ -361,18 +348,18 @@ func TestDeleteTake(t *testing.T) {
 	}
 
 	Convey("Test DeleteTake", t, func() {
-		nreq.UserID = 99635
+		nreq.UserID = 99644
 		nreq.CourseID = 1
 		nreq.Role = 1
 
 		req.CourseID = 1
-		req.UserID = 99635
+		req.UserID = 99644
 
 		c.AddTake(context.TODO(), &nreq, &nrsp)
 
 		id := tf(courseclass.EditResponse_SUCCESS)
 		So(id, ShouldBeGreaterThanOrEqualTo, 0)
-		// defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{}) }()
+		defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{}) }()
 	})
 }
 
@@ -400,17 +387,17 @@ func TestDeleteTakeByUser(t *testing.T) {
 	}
 
 	Convey("Test DeleteTakeByUser", t, func() {
-		nreq.UserID = 99635
+		nreq.UserID = 99645
 		nreq.CourseID = 1
 		nreq.Role = 1
 
-		req.UserID = 99635
+		req.UserID = 99645
 
 		c.AddTake(context.TODO(), &nreq, &nrsp)
 
 		id := tf(courseclass.EditResponse_SUCCESS)
 		So(id, ShouldBeGreaterThanOrEqualTo, 0)
-		// defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{}) }()
+		defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{}) }()
 	})
 }
 
@@ -438,17 +425,17 @@ func TestDeleteTakeByCourseClass(t *testing.T) {
 	}
 
 	Convey("TestDeleteTakeByCourseClass", t, func() {
-		nreq.UserID = 99635
-		nreq.CourseID = 99635
+		nreq.UserID = 99649
+		nreq.CourseID = 99648
 		nreq.Role = 1
 
-		req.CourseID = 99635
+		req.CourseID = 99649
 
 		c.AddTake(context.TODO(), &nreq, &nrsp)
 
 		id := tf(courseclass.EditResponse_SUCCESS)
 		So(id, ShouldBeGreaterThanOrEqualTo, 0)
-		// defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{}) }()
+		defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{}) }()
 	})
 }
 
@@ -479,7 +466,7 @@ func TestSearchTakeByUser(t *testing.T) {
 	}
 
 	Convey("Test NewCourseClass", t, func() {
-		ncreq.UserID = 99635
+		ncreq.UserID = 99650
 		ncreq.CourseName = "测试课程"
 		ncreq.Introduction = "希望别出错"
 		ncreq.TextBooks = "编译原理"
@@ -488,11 +475,11 @@ func TestSearchTakeByUser(t *testing.T) {
 		ncreq.State = 0
 		c.NewCourse(context.TODO(), &ncreq, &ncrsp)
 
-		nreq.UserID = 99635
+		nreq.UserID = 99650
 		nreq.CourseID = ncrsp.Courseclass.CourseID
 		nreq.Role = 1
 
-		req.UserID = 99635
+		req.UserID = 99650
 
 		c.AddTake(context.TODO(), &nreq, &nrsp)
 
@@ -505,90 +492,20 @@ func TestSearchTakeByUser(t *testing.T) {
 	})
 }
 
-func TestSearchTakeByCourse(t *testing.T) {
-	db, err := gorm.Open("mysql", MysqlUri)
-	if nil != err {
-		panic(err)
-	}
-	defer db.Close()
-
-	u := &(userhandler.UserHandler{UserRepository: &userrepo.UserRepositoryImpl{DB:db}})
-	var ureq user.RegisterUserParam
-	var ursp user.RegisterUserResponse
-
-	c := &CourseClassHandler{CourseClassRepository: &repo.CourseClassRepositoryImpl{DB: db}}
-	var req courseclass.CourseID
-	// var rsp courseclass.SearchTakeByCourseResponse
-
-	var nreq courseclass.Take
-	var nrsp courseclass.EditResponse
-
-	tf := func(status courseclass.SearchTakeByCourseResponse_Status) int32 {
-		// So(c.SearchTakeByCourse(context.TODO(), &req, &rsp), ShouldBeNil)
-		// So(rsp.Status, ShouldEqual, status)
-		// if rsp.Status == courseclass.SearchTakeByCourseResponse_SUCCESS {
-		// 	return 0
-		// }
-		// return -1
-		return 0
-	}
-
-	Convey("TestSearchTakeByCourse", t, func() {
-		ureq.UserName = "测试用户111"
-		ureq.Type = 0
-		ureq.Password = "123"
-		ureq.School = "SJTU"
-		ureq.ID = "1111"
-		ureq.Phone = "1223"
-		ureq.Email = "11@sjtu.edu.cn"
-		ureq.School = "SJTU"
-		u.RegisterStudent(context.TODO(),&ureq,&ursp)
-
-		nreq.UserID = ursp.UserID.UserID
-		nreq.CourseID = 99635
-		nreq.Role = 1
-
-		req.CourseID = 99635
-
-		c.AddTake(context.TODO(), &nreq, &nrsp)
-
-		id := tf(courseclass.SearchTakeByCourseResponse_SUCCESS)
-		So(id, ShouldBeGreaterThanOrEqualTo, 0)
-		defer func() { db.Where("user_id = ?", nreq.UserID).Delete(&repo.Take{})
-		db.Where("user_id = ?",nreq.UserID).Delete(&userrepo.User{})
-		}()
-	})
-}
-
 // func TestSearchTakeByCourse(t *testing.T) {
 // 	db, err := gorm.Open("mysql", MysqlUri)
 // 	if nil != err {
 // 		panic(err)
 // 	}
 // 	defer db.Close()
-// 	c := &CourseClassHandler{CourseClassRepository: &repo.CourseClassRepositoryImpl{DB: db}}
 
 // 	u := &(userhandler.UserHandler{UserRepository: &userrepo.UserRepositoryImpl{DB: db}})
 // 	var ureq user.RegisterUserParam
 // 	var ursp user.RegisterUserResponse
 
-// 	// c := &CourseClassHandler{CourseClassRepository: &repo.CourseClassRepositoryImpl{DB: db}}
-// 	// var req courseclass.CourseID
+// 	c := &CourseClassHandler{CourseClassRepository: &repo.CourseClassRepositoryImpl{DB: db}}
+// 	var req courseclass.CourseID
 // 	// var rsp courseclass.SearchTakeByCourseResponse
-
-// 	const (
-// 		ServiceName = "go.micro.client.courseclass"
-// 		EtcdAddr    = "localhost:2379"
-// 	)
-
-// 	server := micro.NewService(
-// 		micro.Name(ServiceName),
-// 		micro.Registry(etcd.NewRegistry(
-// 			registry.Addrs(EtcdAddr),
-// 		)),
-// 	)
-// 	server.Init()
-// 	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", server.Client())
 
 // 	var nreq courseclass.Take
 // 	var nrsp courseclass.EditResponse
@@ -600,26 +517,25 @@ func TestSearchTakeByCourse(t *testing.T) {
 // 		// 	return 0
 // 		// }
 // 		// return -1
-// 		rsp, err1 := courseClassService.SearchTakeByCourse(context.Background(), &courseclass.CourseID{CourseID: 99635})
-// 		So(err1, ShouldBeNil)
-// 		So(rsp, ShouldNotBeNil)
 // 		return 0
 // 	}
 
 // 	Convey("TestSearchTakeByCourse", t, func() {
 // 		ureq.UserName = "测试用户111"
+// 		// ureq.Type = 0
 // 		ureq.Password = "123"
 // 		ureq.School = "SJTU"
 // 		ureq.ID = "1111"
 // 		ureq.Phone = "1223"
 // 		ureq.Email = "11@sjtu.edu.cn"
+// 		ureq.School = "SJTU"
 // 		u.RegisterStudent(context.TODO(), &ureq, &ursp)
 
 // 		nreq.UserID = ursp.UserID.UserID
-// 		nreq.CourseID = 99635
+// 		nreq.CourseID = 99638
 // 		nreq.Role = 1
 
-// 		// req.CourseID = 99635
+// 		req.CourseID = 99638
 
 // 		c.AddTake(context.TODO(), &nreq, &nrsp)
 

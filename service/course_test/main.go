@@ -110,15 +110,15 @@ func getCourseByUser(courseClassService courseclass.CourseClassService, userID i
 	return resp.Courses, err
 }
 
-func getUserByCourse(courseClassService courseclass.CourseClassService, courseID int32) ([]*courseclass.User, error) {
-	resp, err := courseClassService.SearchTakeByCourse(context.Background(), &courseclass.CourseID{CourseID: courseID})
-	if nil != err {
-		log.Println("getUserByCourse error:", err)
-		return []*courseclass.User{}, err
-	}
-	log.Println("getUserByCourse success:", resp)
-	return resp.Users, err
-}
+// func getUserByCourse(courseClassService courseclass.CourseClassService, courseID int32) ([]*courseclass.User, error) {
+// 	resp, err := courseClassService.SearchTakeByCourse(context.Background(), &courseclass.CourseID{CourseID: courseID})
+// 	if nil != err {
+// 		log.Println("getUserByCourse error:", err)
+// 		return []*courseclass.User{}, err
+// 	}
+// 	log.Println("getUserByCourse success:", resp)
+// 	return resp.Users, err
+// }
 
 func newCourse(courseClassService courseclass.CourseClassService, userID int32, courseName string, introduction string, textBooks string, startTime time.Time, endTime time.Time) {
 	stime := startTime.Unix()

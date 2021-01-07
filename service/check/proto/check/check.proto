@@ -10,44 +10,48 @@ option go_package = "proto/check";
 service CheckService {
     rpc CreateCheck(CreateCheckParam)returns (CreateCheckResponse){}
     rpc DeleteCheck(CheckID)returns(DeleteCheckResponse){}
-    rpc UpdateCheck(CheckInfo)returns (UpdateCheckResponse){}
-    rpc SearchCheck(CheckID)returns (SearchCheckResponse){}
-    rpc SearchCheckByTeacherID(TeacherID)returns (SearchCheckByTeacherIDResponse){}
-    rpc SearchCheckByHomeworkID(HomeworkID)returns (SearchCheckByHomeworkIDResponse){}
+    rpc UpdateCheck(UpdateCheckParam)returns (UpdateCheckResponse){}
+    rpc SearchCheckByID(CheckID)returns (SearchCheckByIDResponse){}
+}
+
+message CheckInfo {
+    int32 checkID = 1;
+    int64 checkTime = 2;
+    string description = 3;
+    string comment = 4;
+    int32 score = 5;
 }
 
 //Parameter protocol
 message CreateCheckParam{
-    int32 AnswerID = 1;
+    int32 answerID = 1;
     int32 homeworkID = 2;
     int32 teacherID = 3;
-    int64 checkTime = 4;
-    string check_json = 5;
+    int32 studentID = 4;
+    int64 checkTime = 5;
+    string description = 6;
+    string comment = 7;
+    int32 score = 8;
 }
 
 message CheckID{
     int32 CheckID = 1;
 }
 
-message CheckInfo{
-    int32 CheckID = 1;
-    int32 AnswerID = 2;
+message UpdateCheckParam{
+    int32 checkID = 1;
+    int32 answerID = 2;
     int32 homeworkID = 3;
     int32 teacherID = 4;
-    int64 checkTime = 5;
-    string check_json = 6;
+    int32 studentID = 5;
+    int64 checkTime = 6;
+    string description = 7;
+    string comment = 8;
+    int32 score = 9;
 }
 
-message TeacherID{
-    int32 TeacherID = 1;
-}
-
-message HomeworkID{
-    int32 HomeworkID = 1;
-}
 
 //Response protocol
-
 message CreateCheckResponse{
     enum Status {
         SUCCESS = 0;
@@ -57,7 +61,6 @@ message CreateCheckResponse{
     string msg = 2;
     int32 CheckID = 3;
 }
-
 
 message DeleteCheckResponse{
     enum Status {
@@ -77,7 +80,7 @@ message UpdateCheckResponse{
     string msg = 2;
 }
 
-message SearchCheckResponse{
+message SearchCheckByIDResponse{
     enum Status {
         SUCCESS = 0;
         ERROR = -1;
@@ -87,22 +90,3 @@ message SearchCheckResponse{
     CheckInfo check = 3;
 }
 
-message SearchCheckByTeacherIDResponse{
-    enum Status {
-        SUCCESS = 0;
-        ERROR = -1;
-    }
-    Status status = 1;
-    string msg = 2;
-    repeated CheckInfo checks = 3;
-}
-
-message SearchCheckByHomeworkIDResponse{
-    enum Status {
-        SUCCESS = 0;
-        ERROR = -1;
-    }
-    Status status = 1;
-    string msg = 2;
-    repeated CheckInfo checks = 3;
-}
