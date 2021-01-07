@@ -10,6 +10,11 @@ import (
 	"fmt"
 	"log"
 
+	// 引入插件
+	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
+	// 引入公共的自定义配置函数
+	"boxin/utils/tracer"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/micro/go-micro/v2"
@@ -29,6 +34,7 @@ const (
 	MysqlUri    = "root:root@(127.0.0.1:3306)/jub?charset=utf8mb4&parseTime=True&loc=Local"
 	EtcdAddr    = "localhost:2379"
 	NatsURI     = "nats://localhost:4222"
+	JaegerAddr  = "localhost:6831"
 )
 
 func main() {
@@ -59,6 +65,13 @@ func main() {
 
 	collection := client.Database("jub").Collection("homework")
 
+	// 配置jaeger连接
+	jaegerTracer, closer, err := tracer.NewJaegerTracer(ServiceName, JaegerAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer closer.Close()
+
 	//启动服务
 	service := micro.NewService(
 		micro.Name(ServiceName),
@@ -69,6 +82,14 @@ func main() {
 		micro.Broker(nats.NewBroker(
 			broker.Addrs(NatsURI),
 		)),
+		micro.WrapClient(
+			// // 引入hystrix包装器
+			// hystrix.NewClientWrapper(),
+			// 配置链路追踪为jaeger
+			opentracing.NewClientWrapper(jaegerTracer),
+		),
+		// 配置链路追踪为jaeger
+		micro.WrapHandler(opentracing.NewHandlerWrapper(jaegerTracer)),
 	)
 
 	service.Init()
