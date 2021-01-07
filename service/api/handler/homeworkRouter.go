@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 00:12:16
+ * @LastEditTime: 2021-01-07 08:40:45
  */
 package handler
 
@@ -30,7 +30,7 @@ func HomeworkRouter(g *gin.Engine, s homework.HomeworkService) {
 		v1.PUT("/create", createHW)     //创建作业
 		v1.POST("/update", modifyHw)    //修改作业
 		v1.GET("/detail", stuGetdetail) //退出登录
-		// v1.GET("/checkAuth", checkAuth) //检测权限
+		v1.GET("/cmtlist", GetcmtList)  //检测权限
 	}
 }
 
@@ -210,7 +210,7 @@ func stuGetdetail(c *gin.Context) {
 		return
 	}
 	//解析检验token
-	log.Println("====== courseRouter——>editCourse token======")
+	log.Println("====== HomeworkRouter——>stuGetdetail token======")
 	log.Println(token)
 	ck := auth.CheckAuthParam{
 		Token: token}
@@ -221,6 +221,11 @@ func stuGetdetail(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
 		return
 	}
+	//不是学生？
+	if usrinfo.Data.UserType != 0 {
+		c.JSON(200, gin.H{"status": 500, "msg": "请调用教师专用接口！"})
+		return
+	}
 	var p param
 	if err := c.ShouldBindJSON(&p); err != nil {
 		log.Println(err)
@@ -229,11 +234,113 @@ func stuGetdetail(c *gin.Context) {
 	}
 	log.Println("====== stuGetdetail hwId======")
 	log.Println(p.HwID)
-	userHw := homework.GetUserHomeworkParam{
+	userHwparam := homework.GetUserHomeworkParam{
 		UserID:     usrinfo.Data.UserID,
 		HomeworkID: p.HwID,
 	}
-	res1, err := homeworkService.GetUserHomework(context.Background(), &userHw)
+	res1, err := homeworkService.GetUserHomework(context.Background(), &userHwparam)
+
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
+		return
+	}
+	usrhw := res1.UserHomework
+	log.Println(usrhw)
+
+	hwid := homework.HomeworkID{
+		HomeworkID: p.HwID,
+	}
+	res2, err := homeworkService.SearchHomework(context.Background(), &hwid)
+
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
+		return
+	}
+	hwinfo := res2.Homework
+	log.Println(hwinfo)
+
+	responsedata := resdata{
+		HwID:             hwinfo.HomeworkID,
+		Title:            hwinfo.Title,
+		Description:      hwinfo.Description,
+		Note:             hwinfo.Note,
+		Content:          hwinfo.Content,
+		CourseID:         hwinfo.CourseID,
+		State:            usrhw.State,
+		UserID:           usrhw.UserID,
+		Score:            hwinfo.Score,
+		StartTime:        utils.TimeStamp2string(hwinfo.StartTime),
+		EndTime:          utils.TimeStamp2string(hwinfo.EndTime),
+		AnswerID:         hwinfo.AnswerID,
+		CheckID:          usrhw.CheckID,
+		StandardAnswerID: usrhw.AnswerID,
+		TeacherID:        hwinfo.UserID,
+	}
+	c.JSON(200, gin.H{"status": 200, "msg": "获取作业详情成功（学生）", "data": responsedata})
+
+}
+
+func GetcmtList(c *gin.Context) {
+	type param struct {
+		HwID int32 `form:"hwId" json:"hwId" binding:"required"`
+	}
+	type resdata struct {
+		HwID        int32  `form:"hwId" json:"hwId" binding:"required"`
+		Title       string `form:"title" json:"title" binding:"required"`
+		Description string `form:"description" json:"description" binding:"required"`
+		Note        string `form:"note" json:"note" binding:"required"`
+		Content     string `form:"content" json:"content" binding:"required"`
+		CourseID    int32  `form:"courseId" json:"courseId" binding:"required"`
+		State       int32  `form:"state" json:"state" binding:"required"`
+		//0表示暂存，未发布，1表示发布
+		Score            int32  `form:"score" json:"score" binding:"required"`
+		StartTime        string `form:"startTime" json:"startTime" binding:"required"`
+		EndTime          string `form:"endTime" json:"endTime" binding:"required"`
+		AnswerID         int32  `form:"answerId " json:"answerId" binding:"required"`
+		CheckID          int32  `form:"checkId" json:"checkId" binding:"required"`
+		StandardAnswerID int32  `form:"standardAnswerId" json:"standardAnswerId" binding:"required"`
+		TeacherID        int32  `form:"teacherId" json:"teacherId" binding:"required"`
+		UserID           int32  `form:"userId" json:"userId" binding:"required"`
+	}
+	//获取token
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
+	if token == "" {
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
+		return
+	}
+	//解析检验token
+	log.Println("====== HomeworkRouter——>GetcmtList token======")
+	log.Println(token)
+	ck := auth.CheckAuthParam{
+		Token: token}
+	usrinfo, jwterr := authService.CheckAuth(context.Background(), &ck)
+	log.Println(usrinfo)
+	log.Println(jwterr)
+	if jwterr != nil {
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		return
+	}
+	//不是教师？
+	if usrinfo.Data.UserType != 1 {
+		c.JSON(200, gin.H{"status": 500, "msg": "您没有编辑课程的权限！"})
+		return
+	}
+	var p param
+	if err := c.ShouldBindJSON(&p); err != nil {
+		log.Println(err)
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+		return
+	}
+	log.Println("====== GetcmtList hwId======")
+	log.Println(p.HwID)
+	userHwparam := homework.GetUserHomeworkParam{
+		UserID:     usrinfo.Data.UserID,
+		HomeworkID: p.HwID,
+	}
+	res1, err := homeworkService.GetUserHomework(context.Background(), &userHwparam)
 
 	log.Println(err)
 	if err != nil {
