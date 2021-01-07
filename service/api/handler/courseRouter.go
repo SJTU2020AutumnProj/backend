@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-08 02:28:16
+ * @LastEditTime: 2021-01-08 04:35:17
  */
 package handler
 
@@ -585,11 +585,11 @@ func addStudents(c *gin.Context) {
 	for i, v := range p.Students {
 		students[i] = v.UserID
 	}
-
+	//学生role是2
 	stus := courseclass.Take{
 		UserID:   students,
 		CourseID: p.CourseID,
-		Role:     0}
+		Role:     2}
 	result, err := courseClassService.AddTake(context.Background(), &stus)
 	log.Println(result)
 	log.Println(err)
