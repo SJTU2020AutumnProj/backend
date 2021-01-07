@@ -2,6 +2,7 @@ package handler
 
 import (
 	"boxin/service/answer/proto/answer"
+	"boxin/service/user/proto/user"
 	mongoDB "boxin/service/homework/mongoDB"
 	pb "boxin/service/homework/proto/homework"
 	repo "boxin/service/homework/repository"
@@ -432,6 +433,53 @@ func (h *HomeworkHandler) GetHomeworkByCourseID(ctx context.Context, req *pb.Cou
 	return nil
 }
 
+func (h*HomeworkHandler) GetUserByHomeworkID(ctx context.Context,req *pb.HomeworkID,resp *pb.GetUserByHomeworkIDResponse) error{
+	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
+	var userInfos []*pb.UserInfo
+	
+	uh,err := h.HomeworkRepository.SearchUserHomeworkByHomeworkID(ctx, req.HomeworkID)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler GetUserByHomeworkID error:", err)
+		return err
+	}
+
+	for i := range uh{
+		var userID *user.UserID
+		userID.UserID = uh[i].UserID
+		users,err:=userService.SearchUser(ctx,userID)
+		if nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("Handler GetUserByHomeworkID error:", err)
+			return err
+		}
+		var userInfo *pb.UserInfo
+		userInfo.UserID = users.User.UserID
+		userInfo.UserType = users.User.UserType
+		userInfo.UserName = users.User.UserName
+		userInfo.Password = users.User.Password
+		userInfo.School = users.User.School
+		userInfo.ID = users.User.ID
+		userInfo.Phone = users.User.Phone
+		userInfo.Email = users.User.Email
+		userInfo.Name = users.User.Name
+		userInfo.HomeworkID = uh[i].HomeworkID
+		userInfo.AnswerID = uh[i].AnswerID
+		userInfo.CheckID = uh[i].CheckID
+		userInfo.State = uh[i].CheckID
+
+		userInfos = append(userInfos,userInfo)
+	}
+	*resp = pb.GetUserByHomeworkIDResponse{
+		Status:    0,
+		Msg:       "Success",
+		UserInfo:  userInfos,
+	}
+	return nil
+}
+
 func (h *HomeworkHandler) GetUserHomework(ctx context.Context, req *pb.GetUserHomeworkParam, resp *pb.GetUserHomeworkResponse) error {
 	uh, err := h.HomeworkRepository.SearchUserHomework(ctx, req.UserID, req.HomeworkID)
 
@@ -499,8 +547,8 @@ func (h *HomeworkHandler) ReleaseHomeworkAnswer(ctx context.Context, req *pb.Rel
 		return nil
 	}
 	homeworkAnswerPub := &pb.HomeworkAnswerPub{
-		HomeworkID: req.HomeworkID,
-		AnswerID:   homework.AnswerID,
+		HomeworkID: homework.HomeworkID,
+		AnswerID:   req.AnswerID,
 		TeacherID:  req.TeacherID,
 		CourseID:   homework.CourseID,
 		Title:      homework.Title,

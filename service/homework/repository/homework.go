@@ -49,6 +49,7 @@ type HomeworkRepository interface {
 	SearchUserIDByHomeworkID(ctx context.Context, homeworkID int32) ([]int32, error)
 	SearchHomeworkIDByUserID(ctx context.Context, userID int32) ([]int32, error)
 	SearchUserHomework(ctx context.Context, userID int32, homeworkID int32) (UserHomework, error)
+	SearchUserHomeworkByHomeworkID(ctx context.Context, homeworkID int32) ([]UserHomework, error)
 
 	PostHomeworkAnswer(ctx context.Context, homeworkID int32, answerID int32) error
 	ReleaseHomeworkAnswer(ctx context.Context, homeworkID int32) error
@@ -233,4 +234,29 @@ func (repo *HomeworkRepositoryImpl) UpdateUserHomeworkState(ctx context.Context,
 		return err
 	}
 	return nil
+}
+
+func (repo *HomeworkRepositoryImpl) SearchUserHomeworkByHomeworkID(ctx context.Context, homeworkID int32) ([]UserHomework, error){
+	var uh []*UserHomework
+	var ans []UserHomework
+	result := repo.DB.Table("user_homework").Where("homework_id = ?", homeworkID)
+
+	if nil != result.Error {
+		return []UserHomework{}, result.Error
+	}
+
+	for i := range uh {
+		userhomework:= UserHomework{
+			HomeworkID:uh[i].HomeworkID,
+			UserID:	uh[i].UserID,
+			CheckID:	uh[i].CheckID, 
+			AnswerID:	uh[i].AnswerID,
+			State:	   uh[i].State,
+		}
+		if uh[i].HomeworkID == homeworkID {
+			ans = append(ans, userhomework)
+		}
+	}
+
+	return ans, nil
 }
