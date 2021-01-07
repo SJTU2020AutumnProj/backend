@@ -76,7 +76,7 @@ func register(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "写入数据库失败", "data": err})
 		return
 	}
-	c.JSON(200, gin.H{"status": 200, "msg": result.Msg})
+	c.JSON(200, gin.H{"status": 200, "msg": "注册成功"})
 	return
 
 }

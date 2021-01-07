@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-12-15 21:26:29
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 22:26:28
+ * @LastEditTime: 2021-01-08 00:08:17
  */
 package handler
 
@@ -96,7 +96,7 @@ func stuCreateAnswer(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"status": 200, "msg": result.Msg, "data": result.AnswerID})
+	c.JSON(200, gin.H{"status": 200, "msg": "学生提交答案成功", "data": result.AnswerID})
 
 }
 
