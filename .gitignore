@@ -5,6 +5,7 @@
 *.so
 *.dylib
 *.etcd
+*_debug_bin
 
 # Test binary, built with `go test -c`
 *.test
