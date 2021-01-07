@@ -573,7 +573,7 @@ func (h *HomeworkHandler) GetHomeworkByCourseIDAndUserID(ctx context.Context, re
 			resp.Status = -1
 			resp.Msg = "Error"
 			log.Println("Handler GetHomeworkByCourseIDAndUserID error: ", err)
-			return err
+			continue
 		}
 		homework_json, err := h.HomeworkMongo.SearchHomework(ctx, homeworks[i].HomeworkID)
 
