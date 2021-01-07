@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-16 21:32:52
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 11:29:57
+ * @LastEditTime: 2021-01-07 11:43:12
  */
 package main
 
@@ -84,7 +84,7 @@ func main() {
 	handler.VerifyRouter(webHandler, verifyService)
 	handler.HomeworkRouter(webHandler, homeworkService)
 	handler.AnswerRouter(webHandler, answerService)
-	handler.CheckRouter(webHandler, checkrService)
+	handler.CheckRouter(webHandler, checkService)
 	service.Init()
 	if err := service.Run(); err != nil {
 		log.Fatal(err)

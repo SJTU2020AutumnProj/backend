@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 11:33:22
+ * @LastEditTime: 2021-01-07 13:22:24
  */
 package handler
 
@@ -29,14 +29,15 @@ func HomeworkRouter(g *gin.Engine, s homework.HomeworkService) {
 	homeworkService = s
 	v1 := g.Group("/homework")
 	{
-		v1.PUT("/create", createHW)                     //创建作业
-		v1.POST("/update", modifyHw)                    //修改作业
-		v1.GET("/detail", stuGetdetail)                 //退出登录
-		v1.GET("/cmtlist", GetcmtList)                  //检测权限
-		v1.PUT("/postAnswer", teacherPostAnswer)        //教师上传标准答案
-		v1.POST("/publishAnswer", teacherPublishAnswer) //教师发布标准答案
-		v1.POST("/publishCheck", teacherPublishCheck)   //教师发布批改情况
-		v1.PUT("/correct", teacherCheck)                //教师批改作业
+		v1.PUT("/create", createHW)                       //创建作业
+		v1.POST("/update", modifyHw)                      //修改作业
+		v1.GET("/detail", stuGetdetail)                   //退出登录
+		v1.GET("/cmtlist", GetcmtList)                    //检测权限
+		v1.PUT("/postAnswer", teacherPostAnswer)          //教师上传标准答案
+		v1.POST("/publishAnswer", teacherPublishAnswer)   //教师发布标准答案
+		v1.POST("/publishCheck", teacherPublishCheck)     //教师发布批改情况
+		v1.PUT("/correct", teacherCheck)                  //教师批改作业
+		v1.GET("/teacherGetHomework", teacherGetHomework) //教师批改作业
 
 	}
 }
@@ -280,9 +281,9 @@ func stuGetdetail(c *gin.Context) {
 		Score:            hwinfo.Score,
 		StartTime:        utils.TimeStamp2string(hwinfo.StartTime),
 		EndTime:          utils.TimeStamp2string(hwinfo.EndTime),
-		AnswerID:         hwinfo.AnswerID,
+		AnswerID:         usrhw.AnswerID,
 		CheckID:          usrhw.CheckID,
-		StandardAnswerID: usrhw.AnswerID,
+		StandardAnswerID: hwinfo.AnswerID,
 		TeacherID:        hwinfo.UserID,
 	}
 	c.JSON(200, gin.H{"status": 200, "msg": "获取作业详情成功（学生）", "data": responsedata})
@@ -294,22 +295,13 @@ func GetcmtList(c *gin.Context) {
 		HwID int32 `form:"hwId" json:"hwId" binding:"required"`
 	}
 	type resdata struct {
-		HwID        int32  `form:"hwId" json:"hwId" binding:"required"`
-		Title       string `form:"title" json:"title" binding:"required"`
-		Description string `form:"description" json:"description" binding:"required"`
-		Note        string `form:"note" json:"note" binding:"required"`
-		Content     string `form:"content" json:"content" binding:"required"`
-		CourseID    int32  `form:"courseId" json:"courseId" binding:"required"`
-		State       int32  `form:"state" json:"state" binding:"required"`
-		//0表示暂存，未发布，1表示发布
-		Score            int32  `form:"score" json:"score" binding:"required"`
-		StartTime        string `form:"startTime" json:"startTime" binding:"required"`
-		EndTime          string `form:"endTime" json:"endTime" binding:"required"`
-		AnswerID         int32  `form:"answerId " json:"answerId" binding:"required"`
-		CheckID          int32  `form:"checkId" json:"checkId" binding:"required"`
-		StandardAnswerID int32  `form:"standardAnswerId" json:"standardAnswerId" binding:"required"`
-		TeacherID        int32  `form:"teacherId" json:"teacherId" binding:"required"`
-		UserID           int32  `form:"userId" json:"userId" binding:"required"`
+		UserID   int32  `form:"userId" json:"userId"  binding:"required"`
+		School   string `form:"school" json:"school" binding:"required"`
+		ID       string `form:"ID" json:"ID"  binding:"required"`
+		State    int32  `form:"state" json:"state"  binding:"required"`
+		AnswerID int32  `form:"answerId" json:"answerId"  binding:"required"`
+		CheckID  int32  `form:"checkId" json:"checkId"  binding:"required"`
+		Name     string `form:"name" json:"name" binding:"required"`
 	}
 	//获取token
 	token, err1 := c.Cookie("token")
@@ -343,19 +335,82 @@ func GetcmtList(c *gin.Context) {
 	}
 	log.Println("====== GetcmtList hwId======")
 	log.Println(p.HwID)
-	userHwparam := homework.GetUserHomeworkParam{
-		UserID:     usrinfo.Data.UserID,
+	hid := homework.HomeworkID{
 		HomeworkID: p.HwID,
 	}
-	res1, err := homeworkService.GetUserHomework(context.Background(), &userHwparam)
-
+	result, err := homeworkService.GetUserByHomeworkID(context.Background(), &hid)
+	log.Println(result)
 	log.Println(err)
 	if err != nil {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
 		return
 	}
-	usrhw := res1.UserHomework
-	log.Println(usrhw)
+	responsedata := make([]resdata, len(result.UserInfo))
+	for i, v := range result.UserInfo {
+		responsedata[i] = resdata{
+			UserID:   v.UserID,
+			School:   v.School,
+			ID:       v.ID,
+			State:    v.State,
+			AnswerID: v.AnswerID,
+			CheckID:  v.CheckID,
+			Name:     v.Name,
+		}
+	}
+
+	c.JSON(200, gin.H{"status": 200, "msg": "获取作业提交情况成功", "data": responsedata})
+
+}
+
+func teacherGetHomework(c *gin.Context) {
+	type param struct {
+		HwID int32 `form:"hwId" json:"hwId" binding:"required"`
+	}
+	type resdata struct {
+		HwID             int32  `form:"hwId" json:"hwId"  binding:"required"`
+		CourseID         int32  `form:"courseId" json:"courseId" binding:"required"`
+		TeacherID        int32  `form:"teachereId" json:"teacherId" binding:"required"`
+		StartTime        string `form:"startTime" json:"startTime" binding:"required"`
+		EndTime          string `form:"endTime" json:"endTime" binding:"required"`
+		Title            string `form:"title" json:"title" binding:"required"`
+		Score            int32  `form:"score" json:"score" binding:"required"`
+		StandardAnswerID int32  `form:"standardAnswerId" json:"standardAnswerId"  binding:"required"`
+		Content          string `form:"content" json:"content" binding:"required"`
+		Description      string `form:"description" json:"description" binding:"required"`
+		Note             string `form:"note" json:"note" binding:"required"`
+	}
+	//获取token
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
+	if token == "" {
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
+		return
+	}
+	//解析检验token
+	log.Println("====== HomeworkRouter——>teacherGetdetail token======")
+	log.Println(token)
+	ck := auth.CheckAuthParam{
+		Token: token}
+	usrinfo, jwterr := authService.CheckAuth(context.Background(), &ck)
+	log.Println(usrinfo)
+	log.Println(jwterr)
+	if jwterr != nil {
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		return
+	}
+	//不是教师？
+	if usrinfo.Data.UserType != 1 {
+		c.JSON(200, gin.H{"status": 500, "msg": "请调用教师专用接口！"})
+		return
+	}
+	var p param
+	if err := c.ShouldBindJSON(&p); err != nil {
+		log.Println(err)
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+		return
+	}
+	log.Println("====== stuGetdetail hwId======")
+	log.Println(p.HwID)
 
 	hwid := homework.HomeworkID{
 		HomeworkID: p.HwID,
@@ -377,17 +432,13 @@ func GetcmtList(c *gin.Context) {
 		Note:             hwinfo.Note,
 		Content:          hwinfo.Content,
 		CourseID:         hwinfo.CourseID,
-		State:            usrhw.State,
-		UserID:           usrhw.UserID,
 		Score:            hwinfo.Score,
-		StartTime:        utils.TimeStamp2string2(hwinfo.StartTime),
-		EndTime:          utils.TimeStamp2string2(hwinfo.EndTime),
-		AnswerID:         hwinfo.AnswerID,
-		CheckID:          usrhw.CheckID,
-		StandardAnswerID: usrhw.AnswerID,
+		StartTime:        utils.TimeStamp2string(hwinfo.StartTime),
+		EndTime:          utils.TimeStamp2string(hwinfo.EndTime),
+		StandardAnswerID: hwinfo.AnswerID,
 		TeacherID:        hwinfo.UserID,
 	}
-	c.JSON(200, gin.H{"status": 200, "msg": "获取作业详情成功（学生）", "data": responsedata})
+	c.JSON(200, gin.H{"status": 200, "msg": "获取作业详情成功（教师）", "data": responsedata})
 
 }
 
