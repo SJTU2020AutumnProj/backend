@@ -2,10 +2,10 @@ package handler
 
 import (
 	"boxin/service/answer/proto/answer"
-	"boxin/service/user/proto/user"
 	mongoDB "boxin/service/homework/mongoDB"
 	pb "boxin/service/homework/proto/homework"
 	repo "boxin/service/homework/repository"
+	"boxin/service/user/proto/user"
 
 	"boxin/service/courseclass/proto/courseclass"
 
@@ -433,11 +433,11 @@ func (h *HomeworkHandler) GetHomeworkByCourseID(ctx context.Context, req *pb.Cou
 	return nil
 }
 
-func (h*HomeworkHandler) GetUserByHomeworkID(ctx context.Context,req *pb.HomeworkID,resp *pb.GetUserByHomeworkIDResponse) error{
+func (h *HomeworkHandler) GetUserByHomeworkID(ctx context.Context, req *pb.HomeworkID, resp *pb.GetUserByHomeworkIDResponse) error {
 	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
 	var userInfos []*pb.UserInfo
-	
-	uh,err := h.HomeworkRepository.SearchUserHomeworkByHomeworkID(ctx, req.HomeworkID)
+
+	uh, err := h.HomeworkRepository.SearchUserHomeworkByHomeworkID(ctx, req.HomeworkID)
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
@@ -445,10 +445,10 @@ func (h*HomeworkHandler) GetUserByHomeworkID(ctx context.Context,req *pb.Homewor
 		return err
 	}
 
-	for i := range uh{
+	for i := range uh {
 		// var userID *user.UserID
 		// userID.UserID = uh[i].UserID
-		u,err:=userService.SearchUser(ctx,&user.UserID{UserID:uh[i].UserID})
+		u, err := userService.SearchUser(ctx, &user.UserID{UserID: uh[i].UserID})
 		if nil != err {
 			resp.Status = -1
 			resp.Msg = "Error"
@@ -473,27 +473,84 @@ func (h*HomeworkHandler) GetUserByHomeworkID(ctx context.Context,req *pb.Homewor
 		// userInfos = append(userInfos,userInfo)
 
 		userInfo := &pb.UserInfo{
-			UserID: u.User.UserID,
-			UserType: u.User.UserType,
-			UserName: u.User.UserName,
-			Password: u.User.Password,
-			School: u.User.School,
-			ID: u.User.ID,
-			Phone:	u.User.Phone,
-			Email: u.User.Email,
-			Name: u.User.Name,
+			UserID:     u.User.UserID,
+			UserType:   u.User.UserType,
+			UserName:   u.User.UserName,
+			Password:   u.User.Password,
+			School:     u.User.School,
+			ID:         u.User.ID,
+			Phone:      u.User.Phone,
+			Email:      u.User.Email,
+			Name:       u.User.Name,
 			HomeworkID: uh[i].HomeworkID,
-			AnswerID: uh[i].AnswerID,
-			CheckID:	   uh[i].CheckID,
-			State:	   uh[i].State,
+			AnswerID:   uh[i].AnswerID,
+			CheckID:    uh[i].CheckID,
+			State:      uh[i].State,
 		}
 
-		userInfos = append(userInfos,userInfo)
+		userInfos = append(userInfos, userInfo)
 	}
 	*resp = pb.GetUserByHomeworkIDResponse{
-		Status:    0,
-		Msg:       "Success",
-		UserInfo:  userInfos,
+		Status:   0,
+		Msg:      "Success",
+		UserInfo: userInfos,
+	}
+	return nil
+}
+
+func (h *HomeworkHandler) GetHomeworkByCourseIDAndUserID(ctx context.Context, req *pb.CourseIDAndUserID, resp *pb.GetHomeworkByCourseIDAndUserIDResponse) error {
+	homeworks, err := h.HomeworkRepository.SearchHomeworkByCourseID(ctx, req.CourseID)
+	var ans []*pb.HomeworkAndUserInfo
+
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler GetHomeworkByCourseIDAndUserID error: ", err)
+		return err
+	}
+
+	for i := range homeworks {
+		uh, err := h.HomeworkRepository.SearchUserHomeworkByHomeworkID(ctx, homeworks[i].HomeworkID)
+		if nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("Handler GetHomeworkByCourseIDAndUserID error: ", err)
+			return err
+		}
+		for j := range uh {
+			if uh[j].UserID == req.UserID {
+				homework_json, err := h.HomeworkMongo.SearchHomework(ctx, homeworks[i].HomeworkID)
+				if nil != err {
+					resp.Status = -1
+					resp.Msg = "Error"
+					log.Println("Handler GetHomeworkByCourseIDAndUserID error:", err)
+					return err
+				}
+				ans = append(ans, &pb.HomeworkAndUserInfo{
+					HomeworkID:        homeworks[i].HomeworkID,
+					CourseID:          homeworks[i].CourseID,
+					TeacherID:         homeworks[i].UserID,
+					StartTime:         homeworks[i].StartTime.Unix(),
+					EndTime:           homeworks[i].EndTime.Unix(),
+					Title:             homeworks[i].Title,
+					State:             homeworks[i].State,
+					AnswerID:          homeworks[i].AnswerID,
+					Score:             homeworks[i].Score,
+					Description:       homework_json.Description,
+					Content:           homework_json.Content,
+					Note:              homework_json.Note,
+					StudentID:         uh[j].UserID,
+					CheckID:           uh[j].CheckID,
+					UserHomeworkState: uh[j].State,
+				})
+			}
+		}
+	}
+
+	*resp = pb.GetHomeworkByCourseIDAndUserIDResponse{
+		Status:              0,
+		Msg:                 "Success",
+		HomeworkAndUserInfo: ans,
 	}
 	return nil
 }

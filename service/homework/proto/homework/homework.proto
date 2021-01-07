@@ -23,6 +23,8 @@ service HomeworkService {
 
     rpc GetUserHomework(GetUserHomeworkParam)returns(GetUserHomeworkResponse){}
 
+    rpc GetHomeworkByCourseIDAndUserID(CourseIDAndUserID)returns(GetHomeworkByCourseIDAndUserIDResponse){}
+
     rpc GetHomeworkByCourseID(CourseID)returns(GetHomeworkByCourseIDResponse){}
     rpc PostHomeworkAnswer(PostParam)returns (PostHomeworkAnswerResponse) {}
     rpc ReleaseHomeworkAnswer(ReleaseParam)returns (ReleaseHomeworkAnswerResponse) {}
@@ -63,6 +65,11 @@ message HomeworkID{
     int32 homeworkID = 1;
 }
 
+message CourseIDAndUserID{
+    int32 CourseID = 1;
+    int32 UserID = 2;
+}
+
 message HomeworkInfo{
     int32 homeworkID = 1;
     int32 courseID = 2;
@@ -100,6 +107,24 @@ message UserInfo {
     int32 answerID = 11;
     int32 checkID = 12;
     int32 state = 13;
+}
+
+message HomeworkAndUserInfo{
+    int32 homeworkID = 1;
+    int32 courseID = 2;
+    int32 teacherID = 3;
+    int64 startTime = 4;
+    int64 endTime = 5;
+    string title = 6;
+    int32 state = 7;
+    int32 answerID = 8;
+    int32 score = 9;
+    string description = 10;
+    string content = 11;
+    string note = 12;
+    int32 studentID = 13;
+    int32 checkID = 14;
+    int32 userHomeworkState = 15;
 }
 
 message UserID{
@@ -322,4 +347,14 @@ message GetUserByHomeworkIDResponse {
     Status status = 1;
     string msg = 2;
     repeated UserInfo userInfo = 3;
+}
+
+message GetHomeworkByCourseIDAndUserIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated HomeworkAndUserInfo homeworkAndUserInfo = 3;
 }
