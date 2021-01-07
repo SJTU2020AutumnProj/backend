@@ -6,14 +6,14 @@ import (
 	homework "boxin/service/homework/proto/homework"
 	repo "boxin/service/homework/repository"
 
+	"context"
+	"fmt"
+	"log"
+
 	// 引入插件
 	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
 	// 引入公共的自定义配置函数
 	"boxin/utils/tracer"
-
-	"context"
-	"fmt"
-	"log"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
