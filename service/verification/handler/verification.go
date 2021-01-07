@@ -36,6 +36,7 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 	title := "Your verification code"
 	log.Println("VerificationHandler SendCodeEmail begin to send code email")
 	emailService := email.NewEmailService("go.micro.service.email", client.DefaultClient)
+	log.Println("VerificationHandler SendCodeEmail client constructed")
 	resp, err := emailService.SendEmail(
 		ctx,
 		&email.SendEmailParam{
@@ -53,6 +54,8 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 		}
 		return err
 	}
+	log.Println("VerificationHandler SendCodeEmail send email success")
+	log.Println("VerificationHandler SendCodeEmail begin to store email address and code")
 	setErr := v.VerificationRepository.Set(ctx, in.Email, randomNumber, ExpireTime)
 	if nil != setErr {
 		log.Println("VerificationHandler redis error ", setErr)
@@ -62,6 +65,7 @@ func (v *VerificationHandler) SendCodeEmail(ctx context.Context, in *pb.SendCode
 		}
 		return setErr
 	}
+	log.Println("VerificationHandler SendCodeEmail store email address and code success")
 	*out = pb.SendCodeEmailResponse{
 		Status:  0,
 		Message: "SendCodeEmail success",
