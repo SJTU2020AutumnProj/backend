@@ -121,10 +121,8 @@ message PostParam{
 
 message ReleaseParam{
     int32 homeworkID = 1;
-    int32 answerID = 2;
-    int32 teacherID = 3;
-    int32 courseID = 4;
-    int64 pubTime = 5;
+    int32 teacherID = 2;
+    int64 pubTime = 3;
 }
 
 message HomeworkAnswerPub{
@@ -148,8 +146,7 @@ message StudentSearchHomeworkParam {
 message ReleaseCheckParam {
     int32 homeworkID = 1;
     int32 teacherID = 2;
-    int32 courseID = 3;
-    int64 releaseTime = 4;
+    int64 releaseTime = 3;
 }
 
 message ReleasedCheck {
