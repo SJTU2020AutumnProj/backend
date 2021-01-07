@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-05 15:49:05
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-05 16:06:05
+ * @LastEditTime: 2021-01-08 00:00:42
  */
 package handler
 
@@ -51,6 +51,6 @@ func sendCodeEmail(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "邮箱发送异常"})
 		return
 	}
-	c.JSON(200, gin.H{"status": result.Status, "msg": "验证码已发送"})
+	c.JSON(200, gin.H{"status": 200, "msg": "验证码已发送"})
 	return
 }
