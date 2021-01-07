@@ -4,6 +4,7 @@ import (
 	pb "boxin/service/email/proto/email"
 	"context"
 	"log"
+
 	// "time"
 
 	"github.com/go-gomail/gomail"
@@ -52,6 +53,7 @@ func (e *EmailHandler) SendEmail(ctx context.Context, in *pb.SendEmailParam, out
 	// }
 	// return nil
 	// time.Sleep(30 * time.Second)
+	log.Println("EmailHandler SendCodeEmail get request")
 	m := gomail.NewMessage()
 
 	m.SetAddressHeader("From", SMTPMailUser, SMTPMailName)
@@ -63,9 +65,9 @@ func (e *EmailHandler) SendEmail(ctx context.Context, in *pb.SendEmailParam, out
 	m.SetHeader("Subject", in.Title)
 
 	m.SetBody("text/html", "Dear "+in.Username+":<br><br>"+"&nbsp;&nbsp;"+in.Content)
-
+	log.Println("EmailHandler SendCodeEmail begin to send code")
 	d := gomail.NewPlainDialer(SMTPMailHost, SMTPMailPort, SMTPMailUser, SMTPMailPwd)
-
+	log.Println("EmailHandler SendCodeEmail client constructed")
 	if err := d.DialAndSend(m); err != nil {
 		log.Println("EmailHandler SendCodeEmail error ", err)
 		*out = pb.SendEmailResponse{
@@ -74,9 +76,11 @@ func (e *EmailHandler) SendEmail(ctx context.Context, in *pb.SendEmailParam, out
 		}
 		return err
 	}
+	log.Println("EmailHandler SendCodeEmail send success")
 	*out = pb.SendEmailResponse{
 		Status:  0,
 		Message: "Send email success",
 	}
+	log.Println("EmailHandler SendCodeEmail return")
 	return nil
 }
