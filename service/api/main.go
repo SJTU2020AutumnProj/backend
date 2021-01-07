@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-16 21:32:52
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 09:36:15
+ * @LastEditTime: 2021-01-07 11:29:57
  */
 package main
 
@@ -14,6 +14,7 @@ import (
 	answer "boxin/service/answer/proto/answer"
 	"boxin/service/api/handler"
 	auth "boxin/service/auth/proto/auth"
+	check "boxin/service/check/proto/check"
 	courseclass "boxin/service/courseclass/proto/courseclass"
 	homework "boxin/service/homework/proto/homework"
 	user "boxin/service/user/proto/user"
@@ -68,6 +69,7 @@ func main() {
 	courseClassService := courseclass.NewCourseClassService("go.micro.service.courseclass", client.DefaultClient)
 	homeworkService := homework.NewHomeworkService("go.micro.service.homework", client.DefaultClient)
 	answerService := answer.NewAnswerService("go.micro.service.answer", client.DefaultClient)
+	checkService := check.NewCheckService("go.micro.service.check", client.DefaultClient)
 	webHandler := gin.Default()
 	webHandler.Use(Cors())
 	service := web.NewService(
@@ -82,6 +84,7 @@ func main() {
 	handler.VerifyRouter(webHandler, verifyService)
 	handler.HomeworkRouter(webHandler, homeworkService)
 	handler.AnswerRouter(webHandler, answerService)
+	handler.CheckRouter(webHandler, checkrService)
 	service.Init()
 	if err := service.Run(); err != nil {
 		log.Fatal(err)

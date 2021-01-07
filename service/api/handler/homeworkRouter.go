@@ -6,12 +6,13 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 10:45:25
+ * @LastEditTime: 2021-01-07 11:33:22
  */
 package handler
 
 import (
 	auth "boxin/service/auth/proto/auth"
+	check "boxin/service/check/proto/check"
 	homework "boxin/service/homework/proto/homework"
 	utils "boxin/utils"
 	"context"
@@ -35,6 +36,7 @@ func HomeworkRouter(g *gin.Engine, s homework.HomeworkService) {
 		v1.PUT("/postAnswer", teacherPostAnswer)        //教师上传标准答案
 		v1.POST("/publishAnswer", teacherPublishAnswer) //教师发布标准答案
 		v1.POST("/publishCheck", teacherPublishCheck)   //教师发布批改情况
+		v1.PUT("/correct", teacherCheck)                //教师批改作业
 
 	}
 }
@@ -505,6 +507,71 @@ func teacherPublishAnswer(c *gin.Context) {
 
 }
 
+func teacherCheck(c *gin.Context) {
+	type param struct {
+		AnswerID    int32  `form:"answerId" json:"answerId" binding:"required"`
+		UserID      int32  `form:"userId" json:"userId" binding:"required"`
+		HwID        int32  `form:"hwId" json:"hwId" binding:"required"`
+		Score       int32  `form:"score" json:"score" binding:"required"`
+		Description string `form:"description" json:"descripttion" binding:"required"`
+		Comment     string `form:"comment" json:"comment" binding:"required"`
+	}
+	//获取token
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
+	if token == "" {
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
+		return
+	}
+	//解析检验token
+	log.Println("====== HomeworkRouter——>teacherPublicAnswer token======")
+	log.Println(token)
+	ck := auth.CheckAuthParam{
+		Token: token}
+	usrinfo, jwterr := authService.CheckAuth(context.Background(), &ck)
+	log.Println(usrinfo)
+	log.Println(jwterr)
+	if jwterr != nil {
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		return
+	}
+	//不是教师？
+	if usrinfo.Data.UserType != 1 {
+		c.JSON(200, gin.H{"status": 500, "msg": "您没有上传标准答案的权限！"})
+		return
+	}
+	var p param
+	if err := c.ShouldBind(&p); err != nil {
+		log.Println(err)
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+		return
+	}
+	log.Println("====== teacherCheck hwId======")
+	log.Println(p.HwID)
+	checkTime := time.Now().Unix()
+	log.Println(checkTime)
+	log.Println(utils.TimeStamp2string2(checkTime))
+	a := check.CreateCheckParam{
+		HomeworkID:  p.HwID,
+		TeacherID:   usrinfo.Data.UserID,
+		CheckTime:   checkTime,
+		StudentID:   p.UserID,
+		Description: p.Description,
+		Comment:     p.Comment,
+		Score:       p.Score,
+		AnswerID:    p.AnswerID,
+	}
+	result, err := checkService.CreateCheck(context.Background(), &a)
+	log.Println(result)
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
+		return
+	}
+
+	c.JSON(200, gin.H{"status": 200, "msg": "批改作业成功", "data": result.CheckID})
+}
+
 func teacherPublishCheck(c *gin.Context) {
 	type param struct {
 		HwID int32 `form:"hwId" json:"hwId" binding:"required"`
@@ -544,12 +611,12 @@ func teacherPublishCheck(c *gin.Context) {
 	pubTime := time.Now().Unix()
 	log.Println(pubTime)
 	log.Println(utils.TimeStamp2string2(pubTime))
-	a := homework.ReleaseParam{
-		HomeworkID: p.HwID,
-		TeacherID:  usrinfo.Data.UserID,
-		PubTime:    pubTime,
+	a := homework.ReleaseCheckParam{
+		HomeworkID:  p.HwID,
+		TeacherID:   usrinfo.Data.UserID,
+		ReleaseTime: pubTime,
 	}
-	result, err := homeworkService.ReleaseHomeworkAnswer(context.Background(), &a)
+	result, err := homeworkService.ReleaseCheck(context.Background(), &a)
 	log.Println(result)
 	log.Println(err)
 	if err != nil {
@@ -557,6 +624,6 @@ func teacherPublishCheck(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, gin.H{"status": 200, "msg": "发布标准答案成功"})
+	c.JSON(200, gin.H{"status": 200, "msg": "发布作业批改情况成功"})
 
 }
