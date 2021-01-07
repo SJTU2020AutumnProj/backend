@@ -236,7 +236,7 @@ func (repo *HomeworkRepositoryImpl) UpdateUserHomeworkState(ctx context.Context,
 	return nil
 }
 
-func (repo *HomeworkRepositoryImpl) SearchUserHomeworkByHomeworkID(ctx context.Context, homeworkID int32) ([]UserHomework, error){
+func (repo *HomeworkRepositoryImpl) SearchUserHomeworkByHomeworkID(ctx context.Context, homeworkID int32) ([]UserHomework, error) {
 	var uh []*UserHomework
 	var ans []UserHomework
 	result := repo.DB.Table("user_homework").Where("homework_id = ?", homeworkID)
@@ -245,13 +245,17 @@ func (repo *HomeworkRepositoryImpl) SearchUserHomeworkByHomeworkID(ctx context.C
 		return []UserHomework{}, result.Error
 	}
 
+	if err := result.Find(&uh).Error; nil != err {
+		return []UserHomework{}, err
+	}
+
 	for i := range uh {
-		userhomework:= UserHomework{
-			HomeworkID:uh[i].HomeworkID,
-			UserID:	uh[i].UserID,
-			CheckID:	uh[i].CheckID, 
-			AnswerID:	uh[i].AnswerID,
-			State:	   uh[i].State,
+		userhomework := UserHomework{
+			HomeworkID: uh[i].HomeworkID,
+			UserID:     uh[i].UserID,
+			CheckID:    uh[i].CheckID,
+			AnswerID:   uh[i].AnswerID,
+			State:      uh[i].State,
 		}
 		if uh[i].HomeworkID == homeworkID {
 			ans = append(ans, userhomework)
