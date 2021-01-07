@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-12-15 21:26:29
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 09:31:00
+ * @LastEditTime: 2021-01-07 09:59:46
  */
 package handler
 
@@ -16,6 +16,7 @@ import (
 	"boxin/utils"
 	"context"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,10 +37,9 @@ func AnswerRouter(g *gin.Engine, s answer.AnswerService) {
 // createAnswer
 func stuCreateAnswer(c *gin.Context) {
 	type param struct {
-		HwID       int32  `form:"hwId" json:"hwId" binding:"required"`
-		Content    string `form:"content" json:"content"  binding:"required"`
-		CommitTime string `form:"commitTime" json:"commitTime" binding:"required"`
-		Note       string `form:"note" json:"note" `
+		HwID    int32  `form:"hwId" json:"hwId" binding:"required"`
+		Content string `form:"content" json:"content"  binding:"required"`
+		Note    string `form:"note" json:"note" `
 	}
 	//获取token
 	token, err1 := c.Cookie("token")
@@ -61,7 +61,7 @@ func stuCreateAnswer(c *gin.Context) {
 		return
 	}
 	//不是学生？
-	if usrinfo.Data.UserType != 1 {
+	if usrinfo.Data.UserType != 2 {
 		c.JSON(200, gin.H{"status": 500, "msg": "您应该调用教师上传答案接口！"})
 		return
 	}
@@ -75,7 +75,7 @@ func stuCreateAnswer(c *gin.Context) {
 	log.Println("====== stuCreateAnswer======")
 	log.Println(p.HwID)
 
-	commitTime := utils.String2timeStamp2(p.CommitTime)
+	commitTime := time.Now().Unix()
 	log.Println(commitTime)
 	log.Println(utils.TimeStamp2string2(commitTime))
 	a := answer.PostAnswerParam{

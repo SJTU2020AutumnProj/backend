@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 09:39:51
+ * @LastEditTime: 2021-01-07 10:45:25
  */
 package handler
 
@@ -16,6 +16,7 @@ import (
 	utils "boxin/utils"
 	"context"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,10 +28,14 @@ func HomeworkRouter(g *gin.Engine, s homework.HomeworkService) {
 	homeworkService = s
 	v1 := g.Group("/homework")
 	{
-		v1.PUT("/create", createHW)     //创建作业
-		v1.POST("/update", modifyHw)    //修改作业
-		v1.GET("/detail", stuGetdetail) //退出登录
-		v1.GET("/cmtlist", GetcmtList)  //检测权限
+		v1.PUT("/create", createHW)                     //创建作业
+		v1.POST("/update", modifyHw)                    //修改作业
+		v1.GET("/detail", stuGetdetail)                 //退出登录
+		v1.GET("/cmtlist", GetcmtList)                  //检测权限
+		v1.PUT("/postAnswer", teacherPostAnswer)        //教师上传标准答案
+		v1.POST("/publishAnswer", teacherPublishAnswer) //教师发布标准答案
+		v1.POST("/publishCheck", teacherPublishCheck)   //教师发布批改情况
+
 	}
 }
 
@@ -381,5 +386,177 @@ func GetcmtList(c *gin.Context) {
 		TeacherID:        hwinfo.UserID,
 	}
 	c.JSON(200, gin.H{"status": 200, "msg": "获取作业详情成功（学生）", "data": responsedata})
+
+}
+
+func teacherPostAnswer(c *gin.Context) {
+	type param struct {
+		HwID    int32  `form:"hwId" json:"hwId" binding:"required"`
+		Content string `form:"content" json:"content"  binding:"required"`
+		Note    string `form:"note" json:"note" `
+	}
+	//获取token
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
+	if token == "" {
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
+		return
+	}
+	//解析检验token
+	log.Println("====== HomeworkRouter——>teacherPostAnswer token======")
+	log.Println(token)
+	ck := auth.CheckAuthParam{
+		Token: token}
+	usrinfo, jwterr := authService.CheckAuth(context.Background(), &ck)
+	log.Println(usrinfo)
+	log.Println(jwterr)
+	if jwterr != nil {
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		return
+	}
+	//不是教师？
+	if usrinfo.Data.UserType != 1 {
+		c.JSON(200, gin.H{"status": 500, "msg": "您没有上传标准答案的权限！"})
+		return
+	}
+	var p param
+	if err := c.ShouldBind(&p); err != nil {
+		log.Println(err)
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+		return
+	}
+	log.Println("====== teacherPostAnswer hwId======")
+	log.Println(p.HwID)
+	commitTime := time.Now().Unix()
+	log.Println(commitTime)
+	log.Println(utils.TimeStamp2string2(commitTime))
+	a := homework.PostParam{
+		UserID:     usrinfo.Data.UserID,
+		HomeworkID: p.HwID,
+		CommitTime: commitTime,
+		Content:    p.Content,
+		Note:       p.Note,
+	}
+	result, err := homeworkService.PostHomeworkAnswer(context.Background(), &a)
+	log.Println(result)
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
+		return
+	}
+
+	c.JSON(200, gin.H{"status": 200, "msg": "上传标准答案成功", "data": result.AnswerID})
+
+}
+
+func teacherPublishAnswer(c *gin.Context) {
+	type param struct {
+		HwID int32 `form:"hwId" json:"hwId" binding:"required"`
+	}
+	//获取token
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
+	if token == "" {
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
+		return
+	}
+	//解析检验token
+	log.Println("====== HomeworkRouter——>teacherPublicAnswer token======")
+	log.Println(token)
+	ck := auth.CheckAuthParam{
+		Token: token}
+	usrinfo, jwterr := authService.CheckAuth(context.Background(), &ck)
+	log.Println(usrinfo)
+	log.Println(jwterr)
+	if jwterr != nil {
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		return
+	}
+	//不是教师？
+	if usrinfo.Data.UserType != 1 {
+		c.JSON(200, gin.H{"status": 500, "msg": "您没有上传标准答案的权限！"})
+		return
+	}
+	var p param
+	if err := c.ShouldBind(&p); err != nil {
+		log.Println(err)
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+		return
+	}
+	log.Println("====== teacherPublicAnswer hwId======")
+	log.Println(p.HwID)
+	pubTime := time.Now().Unix()
+	log.Println(pubTime)
+	log.Println(utils.TimeStamp2string2(pubTime))
+	a := homework.ReleaseParam{
+		HomeworkID: p.HwID,
+		TeacherID:  usrinfo.Data.UserID,
+		PubTime:    pubTime,
+	}
+	result, err := homeworkService.ReleaseHomeworkAnswer(context.Background(), &a)
+	log.Println(result)
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
+		return
+	}
+
+	c.JSON(200, gin.H{"status": 200, "msg": "发布标准答案成功"})
+
+}
+
+func teacherPublishCheck(c *gin.Context) {
+	type param struct {
+		HwID int32 `form:"hwId" json:"hwId" binding:"required"`
+	}
+	//获取token
+	token, err1 := c.Cookie("token")
+	log.Println(err1)
+	if token == "" {
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少token，请检查是否已登录"})
+		return
+	}
+	//解析检验token
+	log.Println("====== HomeworkRouter——>teacherPublicAnswer token======")
+	log.Println(token)
+	ck := auth.CheckAuthParam{
+		Token: token}
+	usrinfo, jwterr := authService.CheckAuth(context.Background(), &ck)
+	log.Println(usrinfo)
+	log.Println(jwterr)
+	if jwterr != nil {
+		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录", "data": jwterr})
+		return
+	}
+	//不是教师？
+	if usrinfo.Data.UserType != 1 {
+		c.JSON(200, gin.H{"status": 500, "msg": "您没有上传标准答案的权限！"})
+		return
+	}
+	var p param
+	if err := c.ShouldBind(&p); err != nil {
+		log.Println(err)
+		c.JSON(200, gin.H{"status": 500, "msg": "缺少必须参数，请稍后重试"})
+		return
+	}
+	log.Println("====== teacherPublicAnswer hwId======")
+	log.Println(p.HwID)
+	pubTime := time.Now().Unix()
+	log.Println(pubTime)
+	log.Println(utils.TimeStamp2string2(pubTime))
+	a := homework.ReleaseParam{
+		HomeworkID: p.HwID,
+		TeacherID:  usrinfo.Data.UserID,
+		PubTime:    pubTime,
+	}
+	result, err := homeworkService.ReleaseHomeworkAnswer(context.Background(), &a)
+	log.Println(result)
+	log.Println(err)
+	if err != nil {
+		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败"})
+		return
+	}
+
+	c.JSON(200, gin.H{"status": 200, "msg": "发布标准答案成功"})
 
 }
