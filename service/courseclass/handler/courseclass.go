@@ -294,30 +294,42 @@ func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.
 		return err
 	}
 
-	for j:= range userIDs {
-		if allUsers[0].UserID == userIDs[j]{
-			allUsers = append(allUsers[:0], allUsers[1:]...)
-		}
-	}
+	// for j := range userIDs {
+	// 	if allUsers[0].UserID == userIDs[j] {
+	// 		allUsers = append(allUsers[:0], allUsers[1:]...)
+	// 	}
+	// }
 
 	//去除已经选了这门课的学生
-	for i := range allUsers {
-		for j := range userIDs {
-			if allUsers[i].UserID == userIDs[j] && i!=len(allUsers)-1 && i!=0{
-				allUsers = append(allUsers[:i], allUsers[i+1:]...)
-			}
+	res1 := make([]user.UserInfo, len(allUsers))
+	j := 0
+	t := 0
+	for i := 0; i < len(allUsers) && j < len(userIDs); i++ {
+		if allUsers[i].UserID < userIDs[j] {
+			res1[t] = *allUsers[i]
+			t++
+		} else if allUsers[i].UserID == userIDs[j] {
+			j++
 		}
 	}
+	// for i,v1 := range allUsers {
+	// 	for j:=t1;UserIDs[j]>v1.UserID ;j++{
+	// 		if(v1.UserID)
+	// 		if v1.UserID == v2 && i < len(allUsers)-1 && i != 0 {
+	// 			allUsers = append(allUsers[:i], allUsers[i+1:]...)
+	// 		}
+	// 	}
+	// }
 
-	for j:= range userIDs{
-		if allUsers[len(allUsers)-1].UserID == userIDs[j]{
-			allUsers = allUsers[:len(allUsers)-1]
-		}
-	}
+	// for j := range userIDs {
+	// 	if allUsers[len(allUsers)-1].UserID == userIDs[j] {
+	// 		allUsers = allUsers[:len(allUsers)-1]
+	// 	}
+	// }
 
 	var ans []*pb.User
 
-	for i := range allUsers {
+	for i := 0; i < t; i++ {
 		ans = append(ans, &pb.User{
 			UserID:   allUsers[i].UserID,
 			UserType: allUsers[i].UserType,

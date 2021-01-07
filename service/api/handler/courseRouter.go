@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 16:50:58
+ * @LastEditTime: 2021-01-07 20:31:46
  */
 package handler
 
@@ -281,6 +281,15 @@ func courseDetail(c *gin.Context) {
 	type param struct {
 		CourseID int32 `form:"courseId" json:"courseId"  binding:"required"`
 	}
+	type resdata struct {
+		CourseID     int32  `form:"courseId" json:"courseId" binding:"required"`
+		CourseName   string `form:"courseName" json:"courseName" binding:"required"`
+		Introduction string `form:"introduction" json:"introduction" binding:"required"`
+		Textbooks    string `form:"textbooks" json:"textbooks" binding:"required"`
+		StartTime    string `form:"startTime" json:"startTime" binding:"required"`
+		EndTime      string `form:"endTime" json:"endTime" binding:"required"`
+		State        int32  `form:"state" json:"state" binding:"required"`
+	}
 
 	token, err1 := c.Cookie("token")
 	log.Println(err1)
@@ -319,7 +328,17 @@ func courseDetail(c *gin.Context) {
 		c.JSON(200, gin.H{"status": 401, "msg": "数据库读取失败或未找到相应数据"})
 		return
 	}
-	c.JSON(200, gin.H{"status": 200, "msg": "获取学生列表成功", "data": result.Courseclass})
+	responsedata := resdata{
+		CourseID:     result.Courseclass.CourseID,
+		CourseName:   result.Courseclass.CourseName,
+		Introduction: result.Courseclass.Introduction,
+		Textbooks:    result.Courseclass.TextBooks,
+		StartTime:    utils.TimeStamp2string(result.Courseclass.StartTime),
+		EndTime:      utils.TimeStamp2string(result.Courseclass.EndTime),
+		State:        result.Courseclass.State,
+	}
+
+	c.JSON(200, gin.H{"status": 200, "msg": "获取学生列表成功", "data": responsedata})
 
 }
 
@@ -474,7 +493,7 @@ func getNotinStudent(c *gin.Context) {
 	}
 	//不是教师？
 	if usrinfo.Data.UserType != 1 {
-		c.JSON(200, gin.H{"status": 500, "msg": "您没有创建课程的权限！"})
+		c.JSON(200, gin.H{"status": 500, "msg": "您没有此权限！"})
 		return
 	}
 	var p param
