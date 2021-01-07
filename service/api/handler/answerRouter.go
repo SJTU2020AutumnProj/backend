@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-12-15 21:26:29
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-08 00:08:17
+ * @LastEditTime: 2021-01-08 03:10:44
  */
 package handler
 
@@ -129,11 +129,6 @@ func getAnswer(c *gin.Context) {
 	log.Println(jwterr)
 	if jwterr != nil {
 		c.JSON(200, gin.H{"status": 404, "msg": "token失效，请重新登录"})
-		return
-	}
-	//不是教师？
-	if usrinfo.Data.UserType != 1 {
-		c.JSON(200, gin.H{"status": 500, "msg": "您应该调用教师上传答案接口！"})
 		return
 	}
 	var p param
