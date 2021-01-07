@@ -3,8 +3,8 @@ package main
 import (
 	"boxin/service/auth/handler"
 	auth "boxin/service/auth/proto/auth"
-	repo "boxin/service/auth/repository"
 	redis "boxin/service/auth/redis"
+	repo "boxin/service/auth/repository"
 	"log"
 
 	// 引入插件
@@ -12,9 +12,9 @@ import (
 	// 引入公共的自定义配置函数
 	"boxin/utils/tracer"
 
+	redigo "github.com/garyburd/redigo/redis"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	redigo "github.com/garyburd/redigo/redis"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/registry"
 	"github.com/micro/go-micro/v2/registry/etcd"
@@ -42,6 +42,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	log.Println("Auth service connected to redis")
 	defer c.Close()
 
 	// 配置jaeger连接
@@ -71,7 +72,7 @@ func main() {
 
 	authHandler := &handler.AuthHandler{
 		AuthRepository: &repo.AuthRepositoryImpl{DB: db},
-		AuthRedis: &redis.AuthRedisImpl{CONN: c},
+		AuthRedis:      &redis.AuthRedisImpl{CONN: c},
 	}
 
 	if err := auth.RegisterAuthServiceHandler(service.Server(), authHandler); nil != err {
