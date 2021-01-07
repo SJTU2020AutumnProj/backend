@@ -6,6 +6,8 @@ import (
 	repo "boxin/service/courseclass/repository"
 	"log"
 
+
+	
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/micro/go-micro/v2"
