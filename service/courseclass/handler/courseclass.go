@@ -328,27 +328,38 @@ func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.
 	}
 	allUsers := getAllUserResponse.Users
 
-	userIDs, err := c.CourseClassRepository.SearchStudentByCourseClass(ctx, req.CourseID)
+	var allStudents []*user.UserInfo
+
+	for i := range allUsers{
+		if allUsers[i].UserType == 2{
+			allStudents = append(allStudents,allUsers[i])
+		}
+	}
+
+	userIDs, err := c.CourseClassRepository.SearchTakeByCourseClass(ctx, req.CourseID)
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("Handler SearchUserNotInCourse error: ", err)
 		return err
 	}
+	log.Println("userIDs", userIDs)
+	log.Println("allStudents", allStudents)
 
 	//去除已经选了这门课的学生
-	res1 := make([]user.UserInfo, len(allUsers))
+	res1 := make([]user.UserInfo, len(allStudents))
 	j := 0
 	t := 0
-	for i := 0; i < len(allUsers); i++ {
-		if j == len(userIDs) || allUsers[i].UserID < userIDs[j] {
-			res1[t] = *allUsers[i]
+	for i := 0; i < len(allStudents); i++ {
+		if j == len(userIDs) || allStudents[i].UserID < userIDs[j] {
+			res1[t] = *allStudents[i]
 			t++
-		} else if allUsers[i].UserID == userIDs[j] {
+		} else if allStudents[i].UserID == userIDs[j] {
 			j++
 		}
 	}
 
+	log.Println("res1", res1)
 	var ans []*pb.User
 
 	for i := 0; i < t; i++ {
