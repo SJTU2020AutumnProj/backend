@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2020-11-17 10:20:03
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-08 01:21:18
+ * @LastEditTime: 2021-01-08 01:41:43
  */
 package handler
 
@@ -457,6 +457,7 @@ func getHWlist(c *gin.Context) {
 	}
 	reslist := make([]response, len(result.HomeworkAndUserInfo))
 	t := 0
+	log.Println(len(result.HomeworkAndUserInfo))
 	for _, v := range result.HomeworkAndUserInfo {
 		if v.State == 1 {
 			reslist[t] = response{

@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-07 23:20:59
+ * @LastEditTime: 2021-01-08 01:58:08
  */
 package handler
 
@@ -256,10 +256,11 @@ func stuGetdetail(c *gin.Context) {
 	usrhw := res1.UserHomework
 	log.Println(usrhw)
 
-	hwid := homework.HomeworkID{
+	hwid := homework.StudentSearchHomeworkParam{
 		HomeworkID: p.HwID,
+		UserID:     usrinfo.Data.UserID,
 	}
-	res2, err := homeworkService.SearchHomework(context.Background(), &hwid)
+	res2, err := homeworkService.StudentSearchHomework(context.Background(), &hwid)
 
 	log.Println(err)
 	if err != nil {
