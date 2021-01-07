@@ -288,8 +288,8 @@ func (u *UserHandler) SearchUsers(ctx context.Context, in *pb.UserIDArray, out *
 	return nil
 }
 
-func(u *UserHandler) GetAllUsers(ctx context.Context, in *pb.GetAllUsersParam, out *pb.GetAllUsersResponse)error{
-	users,err := u.UserRepository.GetAllUsers(ctx)
+func (u *UserHandler) GetAllUsers(ctx context.Context, in *pb.GetAllUsersParam, out *pb.GetAllUsersResponse) error {
+	users, err := u.UserRepository.GetAllUsers(ctx)
 	if nil != err {
 		log.Println("GetAllUsers error: ", err)
 		*out = pb.GetAllUsersResponse{
@@ -300,16 +300,17 @@ func(u *UserHandler) GetAllUsers(ctx context.Context, in *pb.GetAllUsersParam, o
 	}
 
 	var ret []*pb.UserInfo
-	for i := range users{
-		user:=pb.UserInfo{
-			UserID: 	users[i].UserID,
-			UserType:	users[i].UserType,
-			UserName: 	users[i].UserName,
-			Password:	users[i].Password,
-			School:	 	users[i].School,
-			ID:	 		users[i].ID,
-			Phone:	 	users[i].Phone,
-			Email:		users[i].Email,
+	for i := range users {
+		user := pb.UserInfo{
+			UserID:   users[i].UserID,
+			UserType: users[i].UserType,
+			UserName: users[i].UserName,
+			Password: users[i].Password,
+			School:   users[i].School,
+			ID:       users[i].ID,
+			Phone:    users[i].Phone,
+			Email:    users[i].Email,
+			Name:     users[i].Name,
 		}
 		ret = append(ret, &user)
 	}
