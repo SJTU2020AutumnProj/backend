@@ -330,9 +330,9 @@ func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.
 
 	var allStudents []*user.UserInfo
 
-	for i := range allUsers{
-		if allUsers[i].UserType == 2{
-			allStudents = append(allStudents,allUsers[i])
+	for i := range allUsers {
+		if allUsers[i].UserType == 2 {
+			allStudents = append(allStudents, allUsers[i])
 		}
 	}
 
@@ -348,21 +348,23 @@ func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.
 
 	//去除已经选了这门课的学生
 	res1 := make([]user.UserInfo, len(allStudents))
-	j := 0
-	t := 0
 	for i := 0; i < len(allStudents); i++ {
-		if j == len(userIDs) || allStudents[i].UserID < userIDs[j] {
-			res1[t] = *allStudents[i]
-			t++
-		} else if allStudents[i].UserID == userIDs[j] {
-			j++
+		var flag bool
+		flag = false
+		for j := 0; j < len(userIDs); j++ {
+			if allStudents[i].UserID == userIDs[j] {
+				flag = true
+			}
+		}
+		if flag == false {
+			res1 = append(res1, *allStudents[i])
 		}
 	}
 
 	log.Println("res1", res1)
 	var ans []*pb.User
 
-	for i := 0; i < t; i++ {
+	for i:=range res1 {
 		ans = append(ans, &pb.User{
 			UserID:   res1[i].UserID,
 			UserType: res1[i].UserType,
