@@ -6,7 +6,7 @@
  * @School: SJTU
  * @Date: 2021-01-06 10:11:40
  * @LastEditors: Seven
- * @LastEditTime: 2021-01-08 04:42:53
+ * @LastEditTime: 2021-01-08 08:49:09
  */
 package handler
 
@@ -102,6 +102,7 @@ func createHW(c *gin.Context) {
 		Content:     p.Content,
 		Note:        p.Note,
 		Score:       p.Score,
+		AnswerID:    -1,
 	}
 	result, err := homeworkService.AssignHomework(context.Background(), &newHW)
 	log.Println(result)
