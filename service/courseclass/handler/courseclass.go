@@ -254,16 +254,19 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 	}
 
 	var ans []*pb.User
-	for i := range users.Users {
+	for _, v := range users.Users {
+		if v.UserType != 2 { //不是学生
+			continue
+		}
 		ans = append(ans, &pb.User{
-			UserID:   users.Users[i].UserID,
-			UserType: users.Users[i].UserType,
-			UserName: users.Users[i].UserName,
-			School:   users.Users[i].School,
-			Id:       users.Users[i].ID,
-			Phone:    users.Users[i].Phone,
-			Email:    users.Users[i].Email,
-			Name:     users.Users[i].Name,
+			UserID:   v.UserID,
+			UserType: v.UserType,
+			UserName: v.UserName,
+			School:   v.School,
+			Id:       v.ID,
+			Phone:    v.Phone,
+			Email:    v.Email,
+			Name:     v.Name,
 		})
 	}
 
@@ -364,7 +367,7 @@ func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.
 	log.Println("res1", res1)
 	var ans []*pb.User
 
-	for i:=range res1 {
+	for i := range res1 {
 		ans = append(ans, &pb.User{
 			UserID:   res1[i].UserID,
 			UserType: res1[i].UserType,
