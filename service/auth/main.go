@@ -1,3 +1,13 @@
+/*
+ * @Description:
+ * @Version: 1.0
+ * @Author: Zhang AO
+ * @studentID: 518021910368
+ * @School: SJTU
+ * @Date: 2021-01-08 00:06:29
+ * @LastEditors: Seven
+ * @LastEditTime: 2021-01-08 09:57:23
+ */
 package main
 
 import (
@@ -6,6 +16,7 @@ import (
 	redis "boxin/service/auth/redis"
 	repo "boxin/service/auth/repository"
 	"log"
+	"time"
 
 	// 引入插件
 	"github.com/micro/go-plugins/wrapper/trace/opentracing/v2"
@@ -37,8 +48,9 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+	settimeout := redigo.DialConnectTimeout(60 * time.Minute)
 
-	c, err := redigo.Dial("tcp", "127.0.0.1:6379")
+	c, err := redigo.Dial("tcp", "127.0.0.1:6379", settimeout)
 	if err != nil {
 		panic(err)
 	}
