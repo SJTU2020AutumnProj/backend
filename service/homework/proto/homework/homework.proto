@@ -1,0 +1,361 @@
+//声明proto本版
+syntax = "proto3";
+//服务名
+package go.micro.service.homework;
+//生成go文件的包路径
+option go_package = "proto/homework";
+
+//定义task服务的接口，主要是增删改查
+//结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
+service HomeworkService {
+    rpc AssignHomework(AssignHomeworkParam)returns (AssignHomeworkResponse){}
+    rpc DeleteHomework(HomeworkID)returns(DeleteHomeworkResponse){}
+    rpc UpdateHomework(HomeworkInfo)returns (UpdateHomeworkResponse){}
+    rpc SearchHomework(HomeworkID)returns (SearchHomeworkResponse){}
+
+    rpc GetHomeworkByTeacherID(TeacherID)returns (GetHomeworkByTeacherIDResponse){}
+    rpc GetHomeworkByTeacherIDAndCourseID(GetHomeworkByTeacherIDAndCourseIDParam)returns (GetHomeworkByTeacherIDAndCourseIDResponse){}
+
+    rpc GetHomeworkByStudentID(StudentID)returns(GetHomeworkByStudentIDResponse){}
+    rpc GetHomeworkByStudentIDAndCourseID(GetHomeworkByStudentIDAndCourseIDParam)returns(GetHomeworkByStudentIDAndCourseIDResponse){}
+
+    rpc GetUserByHomeworkID(HomeworkID)returns(GetUserByHomeworkIDResponse){}
+
+    rpc GetUserHomework(GetUserHomeworkParam)returns(GetUserHomeworkResponse){}
+
+    rpc GetHomeworkByCourseIDAndUserID(CourseIDAndUserID)returns(GetHomeworkByCourseIDAndUserIDResponse){}
+
+    rpc GetHomeworkByCourseID(CourseID)returns(GetHomeworkByCourseIDResponse){}
+    rpc PostHomeworkAnswer(PostParam)returns (PostHomeworkAnswerResponse) {}
+    rpc ReleaseHomeworkAnswer(ReleaseParam)returns (ReleaseHomeworkAnswerResponse) {}
+    rpc StudentSearchHomework (StudentSearchHomeworkParam)returns (StudentSearchHomeworkResponse){} 
+    rpc ReleaseCheck (ReleaseCheckParam)returns (ReleaseCheckResponse) {}
+}
+
+//Parameter protocol
+message AssignHomeworkParam {
+    int32 courseID = 1;
+    int32 userID = 2;
+    int64 startTime = 3;
+    int64 endTime = 4;
+    string title = 5;
+    int32 state = 6;
+    int32 answerID = 7;
+    int32 score = 8;
+    string description = 9;
+    string content = 10;
+    string note = 11;
+}
+
+message AssignedHomework {
+    int32 homeworkID = 1;
+    int32 courseID = 2;
+    int32 userID = 3;
+    int64 startTime = 4;
+    int64 endTime = 5;
+    string title = 6;
+    int32 score = 7;
+    int32 state = 8;
+    int32 answerID = 9;
+    string description = 10;
+    string note = 11;
+}
+
+message HomeworkID{
+    int32 homeworkID = 1;
+}
+
+message CourseIDAndUserID{
+    int32 CourseID = 1;
+    int32 UserID = 2;
+}
+
+message HomeworkInfo{
+    int32 homeworkID = 1;
+    int32 courseID = 2;
+    int32 userID = 3;
+    int64 startTime = 4;
+    int64 endTime = 5;
+    string title = 6;
+    int32 state = 7;
+    int32 answerID = 8;
+    int32 score = 9;
+    string description = 10;
+    string content = 11;
+    string note = 12;
+}
+
+message UserHomework{
+    int32 userID = 1;
+    int32 homeworkID = 2;
+    int32 answerID = 3;
+    int32 checkID = 4;
+    int32 state = 5;
+}
+
+message UserInfo {
+    int32 userID = 1;
+    int32 userType = 2;
+    string userName = 3;
+    string password = 4;
+    string school = 5;
+    string iD = 6;
+    string phone = 7;
+    string email = 8;
+    string name = 9;
+    int32 homeworkID = 10;
+    int32 answerID = 11;
+    int32 checkID = 12;
+    int32 state = 13;
+}
+
+message HomeworkAndUserInfo{
+    int32 homeworkID = 1;
+    int32 courseID = 2;
+    int32 teacherID = 3;
+    int64 startTime = 4;
+    int64 endTime = 5;
+    string title = 6;
+    int32 state = 7;
+    int32 answerID = 8;
+    int32 score = 9;
+    string description = 10;
+    string content = 11;
+    string note = 12;
+    int32 studentID = 13;
+    int32 studentAnswerID = 14;
+    int32 checkID = 15;
+    int32 userHomeworkState = 16;
+}
+
+message UserID{
+    int32 userID = 1;
+}
+
+message TeacherID{
+    int32 teacherID = 1;
+}
+
+message StudentID{
+    int32 studentID = 1;
+}
+
+message GetHomeworkByTeacherIDAndCourseIDParam{
+    int32 teacherID = 1;
+    int32 CourseID = 2;
+}
+
+message GetHomeworkByStudentIDAndCourseIDParam{
+    int32 studentID = 1;
+    int32 courseID = 2;
+}
+
+message GetUserHomeworkParam{
+    int32 userID = 1;
+    int32 homeworkID = 2;
+}
+
+message PostParam{
+    int32 homeworkID = 1;
+    int32 userID = 2;
+    int64 commit_time = 3;
+    string content = 4;
+    string note = 5;
+}
+
+message ReleaseParam{
+    int32 homeworkID = 1;
+    int32 teacherID = 2;
+    int64 pubTime = 3;
+}
+
+message HomeworkAnswerPub{
+    int32 homeworkID = 1;
+    int32 answerID = 2;
+    int32 teacherID = 3;
+    int32 courseID = 4;
+    string title = 5;
+    int64 pubTime = 6;
+}
+
+message CourseID{
+    int32 courseID = 1;
+}
+
+message StudentSearchHomeworkParam {
+    int32 userID = 1;
+    int32 homeworkID = 2;
+}
+
+message ReleaseCheckParam {
+    int32 homeworkID = 1;
+    int32 teacherID = 2;
+    int64 releaseTime = 3;
+}
+
+message ReleasedCheck {
+    int32 homeworkID = 1;
+    int32 teacherID = 2;
+    repeated int32 studentID = 3;
+    int32 courseID = 4;
+    int64 releaseTime = 5;
+    string title = 6;
+}
+
+//Response protocol
+
+message AssignHomeworkResponse{
+     enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    int32 homeworkID = 3;
+}
+
+message DeleteHomeworkResponse{
+         enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message UpdateHomeworkResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message SearchHomeworkResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    HomeworkInfo homework = 3;
+}
+
+message GetHomeworkByTeacherIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated HomeworkInfo homeworks = 3;
+}
+
+message GetHomeworkByTeacherIDAndCourseIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated HomeworkInfo homeworks = 3;
+}
+
+message GetHomeworkByStudentIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated HomeworkInfo homeworks = 3;
+}
+
+message GetHomeworkByCourseIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated HomeworkInfo homeworks = 3;
+}
+
+message GetHomeworkByStudentIDAndCourseIDResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated HomeworkInfo homeworks = 3;
+}
+
+message GetUserHomeworkResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    UserHomework userHomework = 3;
+}
+
+message PostHomeworkAnswerResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    int32 answerID = 3;
+}
+
+message ReleaseHomeworkAnswerResponse{
+      enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message StudentSearchHomeworkResponse {
+      enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    HomeworkInfo homework = 3;
+}
+
+message ReleaseCheckResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message GetUserByHomeworkIDResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated UserInfo userInfo = 3;
+}
+
+message GetHomeworkByCourseIDAndUserIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated HomeworkAndUserInfo homeworkAndUserInfo = 3;
+}

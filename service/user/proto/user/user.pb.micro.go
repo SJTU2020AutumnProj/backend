@@ -44,14 +44,13 @@ func NewUserServiceEndpoints() []*api.Endpoint {
 // Client API for UserService service
 
 type UserService interface {
-	AddUser(ctx context.Context, in *User, opts ...client.CallOption) (*EditResponse, error)
-	RegisterAdmin(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error)
-	RegisterTeacher(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error)
-	RegisterStudent(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error)
-	DeleteUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*EditResponse, error)
-	UpdateUser(ctx context.Context, in *User, opts ...client.CallOption) (*EditResponse, error)
-	SearchUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchResponse, error)
+	RegisterAdmin(ctx context.Context, in *RegisterUserParam, opts ...client.CallOption) (*RegisterUserResponse, error)
+	RegisterTeacher(ctx context.Context, in *RegisterUserParam, opts ...client.CallOption) (*RegisterUserResponse, error)
+	RegisterStudent(ctx context.Context, in *RegisterUserParam, opts ...client.CallOption) (*RegisterUserResponse, error)
+	UpdateUser(ctx context.Context, in *UpdateUserParam, opts ...client.CallOption) (*UpdateUserResponse, error)
+	SearchUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchUserResponse, error)
 	SearchUsers(ctx context.Context, in *UserIDArray, opts ...client.CallOption) (*SearchUsersResponse, error)
+	GetAllUsers(ctx context.Context, in *GetAllUsersParam, opts ...client.CallOption) (*GetAllUsersResponse, error)
 }
 
 type userService struct {
@@ -66,19 +65,9 @@ func NewUserService(name string, c client.Client) UserService {
 	}
 }
 
-func (c *userService) AddUser(ctx context.Context, in *User, opts ...client.CallOption) (*EditResponse, error) {
-	req := c.c.NewRequest(c.name, "UserService.AddUser", in)
-	out := new(EditResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userService) RegisterAdmin(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error) {
+func (c *userService) RegisterAdmin(ctx context.Context, in *RegisterUserParam, opts ...client.CallOption) (*RegisterUserResponse, error) {
 	req := c.c.NewRequest(c.name, "UserService.RegisterAdmin", in)
-	out := new(RegisterResponse)
+	out := new(RegisterUserResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,9 +75,9 @@ func (c *userService) RegisterAdmin(ctx context.Context, in *UserInfo, opts ...c
 	return out, nil
 }
 
-func (c *userService) RegisterTeacher(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error) {
+func (c *userService) RegisterTeacher(ctx context.Context, in *RegisterUserParam, opts ...client.CallOption) (*RegisterUserResponse, error) {
 	req := c.c.NewRequest(c.name, "UserService.RegisterTeacher", in)
-	out := new(RegisterResponse)
+	out := new(RegisterUserResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -96,9 +85,9 @@ func (c *userService) RegisterTeacher(ctx context.Context, in *UserInfo, opts ..
 	return out, nil
 }
 
-func (c *userService) RegisterStudent(ctx context.Context, in *UserInfo, opts ...client.CallOption) (*RegisterResponse, error) {
+func (c *userService) RegisterStudent(ctx context.Context, in *RegisterUserParam, opts ...client.CallOption) (*RegisterUserResponse, error) {
 	req := c.c.NewRequest(c.name, "UserService.RegisterStudent", in)
-	out := new(RegisterResponse)
+	out := new(RegisterUserResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -106,19 +95,9 @@ func (c *userService) RegisterStudent(ctx context.Context, in *UserInfo, opts ..
 	return out, nil
 }
 
-func (c *userService) DeleteUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*EditResponse, error) {
-	req := c.c.NewRequest(c.name, "UserService.DeleteUser", in)
-	out := new(EditResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userService) UpdateUser(ctx context.Context, in *User, opts ...client.CallOption) (*EditResponse, error) {
+func (c *userService) UpdateUser(ctx context.Context, in *UpdateUserParam, opts ...client.CallOption) (*UpdateUserResponse, error) {
 	req := c.c.NewRequest(c.name, "UserService.UpdateUser", in)
-	out := new(EditResponse)
+	out := new(UpdateUserResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -126,9 +105,9 @@ func (c *userService) UpdateUser(ctx context.Context, in *User, opts ...client.C
 	return out, nil
 }
 
-func (c *userService) SearchUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchResponse, error) {
+func (c *userService) SearchUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchUserResponse, error) {
 	req := c.c.NewRequest(c.name, "UserService.SearchUser", in)
-	out := new(SearchResponse)
+	out := new(SearchUserResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -146,29 +125,37 @@ func (c *userService) SearchUsers(ctx context.Context, in *UserIDArray, opts ...
 	return out, nil
 }
 
+func (c *userService) GetAllUsers(ctx context.Context, in *GetAllUsersParam, opts ...client.CallOption) (*GetAllUsersResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.GetAllUsers", in)
+	out := new(GetAllUsersResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for UserService service
 
 type UserServiceHandler interface {
-	AddUser(context.Context, *User, *EditResponse) error
-	RegisterAdmin(context.Context, *UserInfo, *RegisterResponse) error
-	RegisterTeacher(context.Context, *UserInfo, *RegisterResponse) error
-	RegisterStudent(context.Context, *UserInfo, *RegisterResponse) error
-	DeleteUser(context.Context, *UserID, *EditResponse) error
-	UpdateUser(context.Context, *User, *EditResponse) error
-	SearchUser(context.Context, *UserID, *SearchResponse) error
+	RegisterAdmin(context.Context, *RegisterUserParam, *RegisterUserResponse) error
+	RegisterTeacher(context.Context, *RegisterUserParam, *RegisterUserResponse) error
+	RegisterStudent(context.Context, *RegisterUserParam, *RegisterUserResponse) error
+	UpdateUser(context.Context, *UpdateUserParam, *UpdateUserResponse) error
+	SearchUser(context.Context, *UserID, *SearchUserResponse) error
 	SearchUsers(context.Context, *UserIDArray, *SearchUsersResponse) error
+	GetAllUsers(context.Context, *GetAllUsersParam, *GetAllUsersResponse) error
 }
 
 func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) error {
 	type userService interface {
-		AddUser(ctx context.Context, in *User, out *EditResponse) error
-		RegisterAdmin(ctx context.Context, in *UserInfo, out *RegisterResponse) error
-		RegisterTeacher(ctx context.Context, in *UserInfo, out *RegisterResponse) error
-		RegisterStudent(ctx context.Context, in *UserInfo, out *RegisterResponse) error
-		DeleteUser(ctx context.Context, in *UserID, out *EditResponse) error
-		UpdateUser(ctx context.Context, in *User, out *EditResponse) error
-		SearchUser(ctx context.Context, in *UserID, out *SearchResponse) error
+		RegisterAdmin(ctx context.Context, in *RegisterUserParam, out *RegisterUserResponse) error
+		RegisterTeacher(ctx context.Context, in *RegisterUserParam, out *RegisterUserResponse) error
+		RegisterStudent(ctx context.Context, in *RegisterUserParam, out *RegisterUserResponse) error
+		UpdateUser(ctx context.Context, in *UpdateUserParam, out *UpdateUserResponse) error
+		SearchUser(ctx context.Context, in *UserID, out *SearchUserResponse) error
 		SearchUsers(ctx context.Context, in *UserIDArray, out *SearchUsersResponse) error
+		GetAllUsers(ctx context.Context, in *GetAllUsersParam, out *GetAllUsersResponse) error
 	}
 	type UserService struct {
 		userService
@@ -181,34 +168,30 @@ type userServiceHandler struct {
 	UserServiceHandler
 }
 
-func (h *userServiceHandler) AddUser(ctx context.Context, in *User, out *EditResponse) error {
-	return h.UserServiceHandler.AddUser(ctx, in, out)
-}
-
-func (h *userServiceHandler) RegisterAdmin(ctx context.Context, in *UserInfo, out *RegisterResponse) error {
+func (h *userServiceHandler) RegisterAdmin(ctx context.Context, in *RegisterUserParam, out *RegisterUserResponse) error {
 	return h.UserServiceHandler.RegisterAdmin(ctx, in, out)
 }
 
-func (h *userServiceHandler) RegisterTeacher(ctx context.Context, in *UserInfo, out *RegisterResponse) error {
+func (h *userServiceHandler) RegisterTeacher(ctx context.Context, in *RegisterUserParam, out *RegisterUserResponse) error {
 	return h.UserServiceHandler.RegisterTeacher(ctx, in, out)
 }
 
-func (h *userServiceHandler) RegisterStudent(ctx context.Context, in *UserInfo, out *RegisterResponse) error {
+func (h *userServiceHandler) RegisterStudent(ctx context.Context, in *RegisterUserParam, out *RegisterUserResponse) error {
 	return h.UserServiceHandler.RegisterStudent(ctx, in, out)
 }
 
-func (h *userServiceHandler) DeleteUser(ctx context.Context, in *UserID, out *EditResponse) error {
-	return h.UserServiceHandler.DeleteUser(ctx, in, out)
-}
-
-func (h *userServiceHandler) UpdateUser(ctx context.Context, in *User, out *EditResponse) error {
+func (h *userServiceHandler) UpdateUser(ctx context.Context, in *UpdateUserParam, out *UpdateUserResponse) error {
 	return h.UserServiceHandler.UpdateUser(ctx, in, out)
 }
 
-func (h *userServiceHandler) SearchUser(ctx context.Context, in *UserID, out *SearchResponse) error {
+func (h *userServiceHandler) SearchUser(ctx context.Context, in *UserID, out *SearchUserResponse) error {
 	return h.UserServiceHandler.SearchUser(ctx, in, out)
 }
 
 func (h *userServiceHandler) SearchUsers(ctx context.Context, in *UserIDArray, out *SearchUsersResponse) error {
 	return h.UserServiceHandler.SearchUsers(ctx, in, out)
+}
+
+func (h *userServiceHandler) GetAllUsers(ctx context.Context, in *GetAllUsersParam, out *GetAllUsersResponse) error {
+	return h.UserServiceHandler.GetAllUsers(ctx, in, out)
 }

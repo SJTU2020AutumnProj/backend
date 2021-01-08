@@ -1,0 +1,230 @@
+settings:
+  files:
+    outputs:
+      status: false
+      name: outputs.log
+    logs:
+      status: false
+      name: logs.log
+    errors:
+      status: false
+      name: errors.log
+  legacy:
+    force: false
+    interval: 0s
+server:
+  status: true
+  open: false
+  port: 8080
+  host: http://localhost
+schema:
+- name: api
+  path: service/api
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill api
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: auth
+  path: service/auth
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill auth
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: user
+  path: service/user
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill user
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: courseclass
+  path: service/courseclass
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill courseclass
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: homework
+  path: service/homework
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill homework
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: answer
+  path: service/answer
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill answer
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: check
+  path: service/check
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill check
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: verification
+  path: service/verification
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill verification
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: email
+  path: service/email
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill email
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor
+- name: message
+  path: service/message
+  args:
+  - main.go
+  commands:
+    run:
+      status: true
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    scripts:
+    - type: before
+      command: tskill message
+      output: true
+    ignore:
+      paths:
+      - .git
+      - .realize
+      - vendor

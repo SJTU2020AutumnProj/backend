@@ -44,7 +44,7 @@ func NewCourseClassServiceEndpoints() []*api.Endpoint {
 // Client API for CourseClassService service
 
 type CourseClassService interface {
-	AddCourseClass(ctx context.Context, in *CourseClass, opts ...client.CallOption) (*EditResponse, error)
+	//rpc AddCourseClass (CourseClass) returns (EditResponse) {}
 	DeleteCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error)
 	UpdateCourseClass(ctx context.Context, in *CourseClass, opts ...client.CallOption) (*EditResponse, error)
 	SearchCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchCourseClassResponse, error)
@@ -56,6 +56,8 @@ type CourseClassService interface {
 	DeleteTakeByCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error)
 	SearchTakeByUser(ctx context.Context, in *UserID, opts ...client.CallOption) (*SearchTakeByUserResponse, error)
 	SearchTakeByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchTakeByCourseResponse, error)
+	SearchStudentByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchStudentByCourseResponse, error)
+	SearchUserNotInCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchUserNotInCourseResponse, error)
 }
 
 type courseClassService struct {
@@ -68,16 +70,6 @@ func NewCourseClassService(name string, c client.Client) CourseClassService {
 		c:    c,
 		name: name,
 	}
-}
-
-func (c *courseClassService) AddCourseClass(ctx context.Context, in *CourseClass, opts ...client.CallOption) (*EditResponse, error) {
-	req := c.c.NewRequest(c.name, "CourseClassService.AddCourseClass", in)
-	out := new(EditResponse)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *courseClassService) DeleteCourseClass(ctx context.Context, in *CourseID, opts ...client.CallOption) (*EditResponse, error) {
@@ -190,10 +182,30 @@ func (c *courseClassService) SearchTakeByCourse(ctx context.Context, in *CourseI
 	return out, nil
 }
 
+func (c *courseClassService) SearchStudentByCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchStudentByCourseResponse, error) {
+	req := c.c.NewRequest(c.name, "CourseClassService.SearchStudentByCourse", in)
+	out := new(SearchStudentByCourseResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *courseClassService) SearchUserNotInCourse(ctx context.Context, in *CourseID, opts ...client.CallOption) (*SearchUserNotInCourseResponse, error) {
+	req := c.c.NewRequest(c.name, "CourseClassService.SearchUserNotInCourse", in)
+	out := new(SearchUserNotInCourseResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for CourseClassService service
 
 type CourseClassServiceHandler interface {
-	AddCourseClass(context.Context, *CourseClass, *EditResponse) error
+	//rpc AddCourseClass (CourseClass) returns (EditResponse) {}
 	DeleteCourseClass(context.Context, *CourseID, *EditResponse) error
 	UpdateCourseClass(context.Context, *CourseClass, *EditResponse) error
 	SearchCourseClass(context.Context, *CourseID, *SearchCourseClassResponse) error
@@ -205,11 +217,12 @@ type CourseClassServiceHandler interface {
 	DeleteTakeByCourseClass(context.Context, *CourseID, *EditResponse) error
 	SearchTakeByUser(context.Context, *UserID, *SearchTakeByUserResponse) error
 	SearchTakeByCourse(context.Context, *CourseID, *SearchTakeByCourseResponse) error
+	SearchStudentByCourse(context.Context, *CourseID, *SearchStudentByCourseResponse) error
+	SearchUserNotInCourse(context.Context, *CourseID, *SearchUserNotInCourseResponse) error
 }
 
 func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceHandler, opts ...server.HandlerOption) error {
 	type courseClassService interface {
-		AddCourseClass(ctx context.Context, in *CourseClass, out *EditResponse) error
 		DeleteCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error
 		UpdateCourseClass(ctx context.Context, in *CourseClass, out *EditResponse) error
 		SearchCourseClass(ctx context.Context, in *CourseID, out *SearchCourseClassResponse) error
@@ -221,6 +234,8 @@ func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceH
 		DeleteTakeByCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error
 		SearchTakeByUser(ctx context.Context, in *UserID, out *SearchTakeByUserResponse) error
 		SearchTakeByCourse(ctx context.Context, in *CourseID, out *SearchTakeByCourseResponse) error
+		SearchStudentByCourse(ctx context.Context, in *CourseID, out *SearchStudentByCourseResponse) error
+		SearchUserNotInCourse(ctx context.Context, in *CourseID, out *SearchUserNotInCourseResponse) error
 	}
 	type CourseClassService struct {
 		courseClassService
@@ -231,10 +246,6 @@ func RegisterCourseClassServiceHandler(s server.Server, hdlr CourseClassServiceH
 
 type courseClassServiceHandler struct {
 	CourseClassServiceHandler
-}
-
-func (h *courseClassServiceHandler) AddCourseClass(ctx context.Context, in *CourseClass, out *EditResponse) error {
-	return h.CourseClassServiceHandler.AddCourseClass(ctx, in, out)
 }
 
 func (h *courseClassServiceHandler) DeleteCourseClass(ctx context.Context, in *CourseID, out *EditResponse) error {
@@ -279,4 +290,12 @@ func (h *courseClassServiceHandler) SearchTakeByUser(ctx context.Context, in *Us
 
 func (h *courseClassServiceHandler) SearchTakeByCourse(ctx context.Context, in *CourseID, out *SearchTakeByCourseResponse) error {
 	return h.CourseClassServiceHandler.SearchTakeByCourse(ctx, in, out)
+}
+
+func (h *courseClassServiceHandler) SearchStudentByCourse(ctx context.Context, in *CourseID, out *SearchStudentByCourseResponse) error {
+	return h.CourseClassServiceHandler.SearchStudentByCourse(ctx, in, out)
+}
+
+func (h *courseClassServiceHandler) SearchUserNotInCourse(ctx context.Context, in *CourseID, out *SearchUserNotInCourseResponse) error {
+	return h.CourseClassServiceHandler.SearchUserNotInCourse(ctx, in, out)
 }

@@ -8,7 +8,7 @@ option go_package = "proto/courseclass";
 //定义task服务的接口，主要是增删改查
 //结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
 service CourseClassService {
-	rpc AddCourseClass (CourseClass) returns (EditResponse) {}
+	//rpc AddCourseClass (CourseClass) returns (EditResponse) {}
 	rpc DeleteCourseClass (CourseID) returns (EditResponse) {}
 	rpc UpdateCourseClass (CourseClass) returns (EditResponse) {}
 	rpc SearchCourseClass (CourseID) returns (SearchCourseClassResponse) {}
@@ -22,6 +22,8 @@ service CourseClassService {
 	rpc DeleteTakeByCourseClass(CourseID) returns (EditResponse){}
 	rpc SearchTakeByUser (UserID) returns (SearchTakeByUserResponse){}
 	rpc SearchTakeByCourse (CourseID) returns (SearchTakeByCourseResponse){}
+	rpc SearchStudentByCourse(CourseID) returns (SearchStudentByCourseResponse){}
+	rpc SearchUserNotInCourse(CourseID)returns(SearchUserNotInCourseResponse){}
 }
 
 message CourseClass {
@@ -31,6 +33,7 @@ message CourseClass {
 	string textBooks = 4;
 	int64 startTime = 5;
 	int64 endTime = 6;
+	int32 state = 7;
 }
 
 message CourseID {
@@ -70,18 +73,17 @@ message SearchCourseClassesResponse {
     repeated CourseClass courseclasses = 3;
 }
 
-
 message UserID {
     int32 userID = 1;
 }
 
 message UserCourse {
-	int32 userID = 1;
+	repeated int32 userID = 1;
 	int32 courseID = 2;
 }
 
 message Take {
-	int32 userID = 1;
+	repeated int32 userID = 1;
 	int32 courseID = 2;
 	int32 role = 3;
 }
@@ -97,6 +99,16 @@ message SearchTakeByUserResponse {
 	repeated CourseClass courses = 3;
 }
 
+message SearchStudentByCourseResponse{
+	enum Status {
+		SUCCESS = 0;
+		ERROR = -1;
+	}
+	Status status = 1;
+	string msg = 2;
+	repeated User users = 3;
+}
+
 message User {
     int32 userID = 1;
     int32 userType = 2;
@@ -106,9 +118,20 @@ message User {
     string id = 6;
     string phone = 7;
     string email = 8;
+	string name = 9;
 }
 
 message SearchTakeByCourseResponse {
+	enum Status {
+		SUCCESS = 0;
+		ERROR = -1;
+	}
+	Status status = 1;
+	string msg = 2;
+	repeated User users = 3;
+}
+
+message SearchUserNotInCourseResponse{
 	enum Status {
 		SUCCESS = 0;
 		ERROR = -1;
@@ -125,6 +148,7 @@ message NewCourseMessage {
 	string textBooks = 4;
 	int64 startTime = 5;
 	int64 endTime = 6;
+	int32 state = 7;
 }
 
 message NewCourseResponse {

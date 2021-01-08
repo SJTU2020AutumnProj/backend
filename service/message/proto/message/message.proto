@@ -1,0 +1,52 @@
+//声明proto本版
+syntax = "proto3";
+//服务名
+package go.micro.service.message;
+//生成go文件的包路径
+option go_package = "proto/message";
+
+//定义task服务的接口，主要是增删改查
+//结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
+service MessageService {
+    rpc GetMessageByUserID(GetMessageByUserIDParam)returns (GetMessageByUserIDResponse){}
+    rpc GetMessageByCourseID(GetMessageByCourseIDParam)returns (GetMessageByCourseIDResponse){}
+}
+
+message GetMessageByUserIDParam {
+    int32 userID = 1;
+}
+
+message GetMessageByCourseIDParam {
+    int32 courseID = 1;
+}
+
+message GetMessageByUserIDResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated Message data = 3;
+}
+
+message GetMessageByCourseIDResponse {
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    repeated Message data = 3;
+}
+
+message Message {
+    int32 messageID = 1;
+    int64 messageTime = 2;
+    int32 messageType = 3;
+    int32 userID = 4;
+    int32 courseID = 5;
+    string title = 6;
+    string content = 7;
+    int32 state = 8;
+}

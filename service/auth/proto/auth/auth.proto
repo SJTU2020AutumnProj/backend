@@ -9,6 +9,8 @@ option go_package = "proto/auth";
 //结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
 service AuthService {
   rpc Login(LoginParam)returns (LoginResponse){}
+  rpc CheckAuth(CheckAuthParam)returns (CheckAuthResponse){}
+  rpc Logout(LogoutParam)returns (LogoutResponse){}
 }
 
 message LoginParam {
@@ -16,10 +18,19 @@ message LoginParam {
     string password = 2;
 }
 
+message CheckAuthParam {
+    string token = 1;
+}
+
+message LogoutParam {
+    string token = 1;
+}
+
 message UserData {
     int32 userID = 1;
     int32 userType = 2;
     string userName = 3;
+    string password = 4;
     string school = 5;
     string id = 6;
     string phone = 7;
@@ -34,4 +45,31 @@ message LoginResponse {
     Status status = 1;
     string msg = 2;
     UserData data = 3;
+    string token = 4;
+}
+
+message AuthData {
+    int32 userID = 1;
+    int32 userType = 2;
+    string userName = 3;
+    string password = 4;
+}
+
+message CheckAuthResponse {
+    enum Status {
+        SUCCESS = 0;
+        INVALID_TOKEN = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    AuthData data = 3;
+}
+
+message LogoutResponse {
+    enum Status {
+        SUCCESS = 0;
+        INVALID_TOKEN = -1;
+    }
+    Status status = 1;
+    string msg = 2;
 }

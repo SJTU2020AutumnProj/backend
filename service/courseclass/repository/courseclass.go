@@ -16,6 +16,7 @@ type CourseClass struct {
 	TextBooks    string    `gorm:"size:1000;not null"`
 	StartTime    time.Time `gorm:"not null"`
 	EndTime      time.Time `gorm:"not null"`
+	State        int32     `gorm:"not null"`
 }
 
 type Take struct {
@@ -49,6 +50,7 @@ type CourseClassRepository interface {
 	DeleteTakeByCourseClass(ctx context.Context, courseID int32) error
 	SearchTakeByUser(ctx context.Context, userID int32) ([]*CourseClass, error)
 	SearchTakeByCourseClass(ctx context.Context, courseID int32) ([]int32, error)
+	SearchStudentByCourseClass(ctx context.Context, courseID int32) ([]int32, error)
 	// GenerateTake(
 	// 	userID int32,
 	// 	courseID int32,
@@ -71,7 +73,14 @@ func (repo *CourseClassRepositoryImpl) AddCourseClass(ctx context.Context, cours
 }
 
 func (repo *CourseClassRepositoryImpl) DeleteCourseClass(ctx context.Context, courseID int32) error {
-	if err := repo.DB.Delete(&CourseClass{}, courseID).Error; nil != err {
+	// if err := repo.DB.Delete(&CourseClass{}, courseID).Error; nil != err {
+	// 	return err
+	// }
+	// return nil
+
+	tmp, err := repo.SearchCourseClass(ctx, courseID)
+	tmp.State = -1
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
 		return err
 	}
 	return nil
@@ -84,8 +93,9 @@ func (repo *CourseClassRepositoryImpl) UpdateCourseClass(ctx context.Context, c 
 	tmp.TextBooks = c.TextBooks
 	tmp.StartTime = c.StartTime
 	tmp.EndTime = c.EndTime
+	tmp.State = c.State
 
-	if err = repo.DB.Save(tmp).Error; nil != err {
+	if err = repo.DB.Model(&tmp).Updates(tmp).Error; nil != err {
 		return err
 	}
 	return nil
@@ -124,7 +134,7 @@ func (repo *CourseClassRepositoryImpl) AddTake(ctx context.Context, take Take) e
 }
 
 func (repo *CourseClassRepositoryImpl) DeleteTake(ctx context.Context, userID int32, courseID int32) error {
-	if err := repo.DB.Where("user_id = ?", userID).Delete(&Take{}, courseID).Error; nil != err {
+	if err := repo.DB.Where("user_id = ?", userID).Where("course_id = ?", courseID).Delete(&Take{}).Error; nil != err {
 		return err
 	}
 	return nil
@@ -189,6 +199,23 @@ func (repo *CourseClassRepositoryImpl) SearchTakeByCourseClass(ctx context.Conte
 
 	for i := range tmp {
 		ans = append(ans, tmp[i].UserID)
+	}
+
+	if nil != result.Error {
+		return ans, result.Error
+	}
+	return ans, result.Error
+}
+
+func (repo *CourseClassRepositoryImpl) SearchStudentByCourseClass(ctx context.Context, courseID int32) ([]int32, error) {
+	var tmp []*Take
+	var ans []int32
+	result := repo.DB.Find(&tmp, "course_id = ?", courseID)
+
+	for i := range tmp {
+		if tmp[i].Role == 2 {
+			ans = append(ans, tmp[i].UserID)
+		}
 	}
 
 	if nil != result.Error {

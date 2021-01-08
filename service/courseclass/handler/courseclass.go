@@ -10,41 +10,39 @@ import (
 
 	"golang.org/x/crypto/openpgp/errors"
 
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/registry"
-	"github.com/micro/go-micro/v2/registry/etcd"
+	"github.com/micro/go-micro/v2/client"
 )
 
 type CourseClassHandler struct {
 	CourseClassRepository repo.CourseClassRepository
 }
 
-func (c *CourseClassHandler) AddCourseClass(ctx context.Context, req *pb.CourseClass, resp *pb.EditResponse) error {
+// func (c *CourseClassHandler) AddCourseClass(ctx context.Context, req *pb.CourseClass, resp *pb.EditResponse) error {
 
-	// timeNow := time.Unix(timestamp, 0)
+// 	// timeNow := time.Unix(timestamp, 0)
 
-	stime := time.Unix(req.StartTime, 0)
-	etime := time.Unix(req.EndTime, 0)
+// 	stime := time.Unix(req.StartTime, 0)
+// 	etime := time.Unix(req.EndTime, 0)
 
-	// log.Println("repo.stime", stime)
+// 	// log.Println("repo.stime", stime)
 
-	courseclass := repo.CourseClass{
-		CourseName:   req.CourseName,
-		Introduction: req.Introduction,
-		TextBooks:    req.TextBooks,
-		StartTime:    stime,
-		EndTime:      etime,
-	}
-	if err := c.CourseClassRepository.AddCourseClass(ctx, courseclass); nil != err {
-		resp.Status = -1
-		resp.Msg = "Error"
-		log.Println("CourseClassHandler AddCourseClass error: ", err)
-		return err
-	}
-	resp.Status = 0
-	resp.Msg = "Success"
-	return nil
-}
+// 	courseclass := repo.CourseClass{
+// 		CourseName:   req.CourseName,
+// 		Introduction: req.Introduction,
+// 		TextBooks:    req.TextBooks,
+// 		StartTime:    stime,
+// 		EndTime:      etime,
+// 	}
+// 	if err := c.CourseClassRepository.AddCourseClass(ctx, courseclass); nil != err {
+// 		resp.Status = -1
+// 		resp.Msg = "Error"
+// 		log.Println("CourseClassHandler AddCourseClass error: ", err)
+// 		return err
+// 	}
+// 	resp.Status = 0
+// 	resp.Msg = "Success"
+// 	return nil
+// }
 
 func (c *CourseClassHandler) DeleteCourseClass(ctx context.Context, req *pb.CourseID, resp *pb.EditResponse) error {
 	if err := c.CourseClassRepository.DeleteCourseClass(ctx, req.CourseID); nil != err {
@@ -69,6 +67,7 @@ func (c *CourseClassHandler) UpdateCourseClass(ctx context.Context, req *pb.Cour
 		TextBooks:    req.TextBooks,
 		StartTime:    stime,
 		EndTime:      etime,
+		State:        req.State,
 	}
 	if err := c.CourseClassRepository.UpdateCourseClass(ctx, course); nil != err {
 		resp.Status = -1
@@ -104,6 +103,7 @@ func (c *CourseClassHandler) SearchCourseClass(ctx context.Context, req *pb.Cour
 			TextBooks:    course.TextBooks,
 			StartTime:    stime,
 			EndTime:      etime,
+			State:        course.State,
 		},
 	}
 	return nil
@@ -132,6 +132,7 @@ func (c *CourseClassHandler) SearchCourseClasses(ctx context.Context, req *pb.Co
 			TextBooks:    course.TextBooks,
 			StartTime:    stime,
 			EndTime:      etime,
+			State:        course.State,
 		})
 	}
 	*resp = pb.SearchCourseClassesResponse{
@@ -143,16 +144,19 @@ func (c *CourseClassHandler) SearchCourseClasses(ctx context.Context, req *pb.Co
 }
 
 func (c *CourseClassHandler) AddTake(ctx context.Context, req *pb.Take, resp *pb.EditResponse) error {
-	take := repo.Take{
-		UserID:   req.UserID,
-		CourseID: req.CourseID,
-		Role:     req.Role,
-	}
-	if err := c.CourseClassRepository.AddTake(ctx, take); nil != err {
-		resp.Status = -1
-		resp.Msg = "Error"
-		log.Println("CourseHandler AddTake error: ", err)
-		return err
+	for i := range req.UserID {
+		userID := req.UserID[i]
+		take := repo.Take{
+			UserID:   userID,
+			CourseID: req.CourseID,
+			Role:     req.Role,
+		}
+		if err := c.CourseClassRepository.AddTake(ctx, take); nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("CourseHandler AddTake error: ", err)
+			return err
+		}
 	}
 	resp.Status = 0
 	resp.Msg = "Success"
@@ -160,11 +164,14 @@ func (c *CourseClassHandler) AddTake(ctx context.Context, req *pb.Take, resp *pb
 }
 
 func (c *CourseClassHandler) DeleteTake(ctx context.Context, req *pb.UserCourse, resp *pb.EditResponse) error {
-	if err := c.CourseClassRepository.DeleteTake(ctx, req.UserID, req.CourseID); nil != err {
-		resp.Status = -1
-		resp.Msg = "Error"
-		log.Println("CourseHandler DeleteTake error: ", err)
-		return err
+	for i := range req.UserID {
+		userID := req.UserID[i]
+		if err := c.CourseClassRepository.DeleteTake(ctx, userID, req.CourseID); nil != err {
+			resp.Status = -1
+			resp.Msg = "Error"
+			log.Println("CourseHandler DeleteTake error: ", err)
+			return err
+		}
 	}
 	resp.Status = 0
 	resp.Msg = "Success"
@@ -214,6 +221,7 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 			TextBooks:    courses[i].TextBooks,
 			StartTime:    courses[i].StartTime.Unix(),
 			EndTime:      courses[i].EndTime.Unix(),
+			State:        courses[i].State,
 		})
 	}
 
@@ -225,20 +233,8 @@ func (c *CourseClassHandler) SearchTakeByUser(ctx context.Context, req *pb.UserI
 	return nil
 }
 
-const (
-	ServiceName = "go.micro.client.user"
-	EtcdAddr    = "localhost:2379"
-)
-
 func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchTakeByCourseResponse) error {
-	server := micro.NewService(
-		micro.Name(ServiceName),
-		micro.Registry(etcd.NewRegistry(
-			registry.Addrs(EtcdAddr),
-		)),
-	)
-	server.Init()
-	userService := user.NewUserService("go.micro.service.user", server.Client())
+	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
 
 	userIDs, err := c.CourseClassRepository.SearchTakeByCourseClass(ctx, req.CourseID)
 	if nil != err {
@@ -248,7 +244,7 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 		return err
 	}
 
-	users, err1 := userService.SearchUsers(context.Background(), &user.UserIDArray{IDArray: userIDs})
+	users, err1 := userService.SearchUsers(ctx, &user.UserIDArray{UserIDArray: userIDs})
 
 	if nil != err1 {
 		resp.Status = -1
@@ -258,20 +254,134 @@ func (c *CourseClassHandler) SearchTakeByCourse(ctx context.Context, req *pb.Cou
 	}
 
 	var ans []*pb.User
+	for _, v := range users.Users {
+		if v.UserType != 2 { //不是学生
+			continue
+		}
+		ans = append(ans, &pb.User{
+			UserID:   v.UserID,
+			UserType: v.UserType,
+			UserName: v.UserName,
+			School:   v.School,
+			Id:       v.ID,
+			Phone:    v.Phone,
+			Email:    v.Email,
+			Name:     v.Name,
+		})
+	}
+
+	*resp = pb.SearchTakeByCourseResponse{
+		Status: 0,
+		Msg:    "Success",
+		Users:  ans,
+	}
+	return nil
+}
+
+func (c *CourseClassHandler) SearchStudentByCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchStudentByCourseResponse) error {
+	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
+
+	userIDs, err := c.CourseClassRepository.SearchStudentByCourseClass(ctx, req.CourseID)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchStudentByCourse error: ", err)
+		return err
+	}
+
+	users, err1 := userService.SearchUsers(ctx, &user.UserIDArray{UserIDArray: userIDs})
+
+	if nil != err1 {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchStudentByCourse error: ", err)
+		return err
+	}
+
+	var ans []*pb.User
 	for i := range users.Users {
 		ans = append(ans, &pb.User{
 			UserID:   users.Users[i].UserID,
 			UserType: users.Users[i].UserType,
 			UserName: users.Users[i].UserName,
-			Password: users.Users[i].Password,
 			School:   users.Users[i].School,
-			Id:       users.Users[i].Id,
+			Id:       users.Users[i].ID,
 			Phone:    users.Users[i].Phone,
 			Email:    users.Users[i].Email,
+			Name:     users.Users[i].Name,
 		})
 	}
 
-	*resp = pb.SearchTakeByCourseResponse{
+	*resp = pb.SearchStudentByCourseResponse{
+		Status: 0,
+		Msg:    "Success",
+		Users:  ans,
+	}
+	return nil
+}
+
+func (c *CourseClassHandler) SearchUserNotInCourse(ctx context.Context, req *pb.CourseID, resp *pb.SearchUserNotInCourseResponse) error {
+	userService := user.NewUserService("go.micro.service.user", client.DefaultClient)
+	getAllUserResponse, err := userService.GetAllUsers(context.Background(), &user.GetAllUsersParam{})
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchUserNotInCourse error: ", err)
+		return err
+	}
+	allUsers := getAllUserResponse.Users
+
+	var allStudents []*user.UserInfo
+
+	for i := range allUsers {
+		if allUsers[i].UserType == 2 {
+			allStudents = append(allStudents, allUsers[i])
+		}
+	}
+
+	userIDs, err := c.CourseClassRepository.SearchTakeByCourseClass(ctx, req.CourseID)
+	if nil != err {
+		resp.Status = -1
+		resp.Msg = "Error"
+		log.Println("Handler SearchUserNotInCourse error: ", err)
+		return err
+	}
+	log.Println("userIDs", userIDs)
+	log.Println("allStudents", allStudents)
+
+	//去除已经选了这门课的学生
+	res1 := make([]user.UserInfo, len(allStudents))
+	for i := 0; i < len(allStudents); i++ {
+		var flag bool
+		flag = false
+		for j := 0; j < len(userIDs); j++ {
+			if allStudents[i].UserID == userIDs[j] {
+				flag = true
+			}
+		}
+		if flag == false {
+			res1 = append(res1, *allStudents[i])
+		}
+	}
+
+	log.Println("res1", res1)
+	var ans []*pb.User
+
+	for i := range res1 {
+		ans = append(ans, &pb.User{
+			UserID:   res1[i].UserID,
+			UserType: res1[i].UserType,
+			UserName: res1[i].UserName,
+			Password: res1[i].Password,
+			School:   res1[i].School,
+			Id:       res1[i].ID,
+			Phone:    res1[i].Phone,
+			Email:    res1[i].Email,
+			Name:     res1[i].Name,
+		})
+	}
+
+	*resp = pb.SearchUserNotInCourseResponse{
 		Status: 0,
 		Msg:    "Success",
 		Users:  ans,
@@ -289,6 +399,7 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 		TextBooks:    req.TextBooks,
 		StartTime:    stime,
 		EndTime:      etime,
+		State:        req.State,
 	}
 
 	var newCourse repo.CourseClass
@@ -312,6 +423,7 @@ func (c *CourseClassHandler) NewCourse(ctx context.Context, req *pb.NewCourseMes
 			TextBooks:    newCourse.TextBooks,
 			StartTime:    newCourse.StartTime.Unix(),
 			EndTime:      newCourse.EndTime.Unix(),
+			State:        newCourse.State,
 		},
 	}
 

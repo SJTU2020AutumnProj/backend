@@ -1,0 +1,92 @@
+//声明proto本版
+syntax = "proto3";
+//服务名
+package go.micro.service.check;
+//生成go文件的包路径
+option go_package = "proto/check";
+
+//定义task服务的接口，主要是增删改查
+//结构非常类似于go语言的interface定义，只是返回值必须用括号包裹，且不能使用基本类型作为参数或返回值
+service CheckService {
+    rpc CreateCheck(CreateCheckParam)returns (CreateCheckResponse){}
+    rpc DeleteCheck(CheckID)returns(DeleteCheckResponse){}
+    rpc UpdateCheck(UpdateCheckParam)returns (UpdateCheckResponse){}
+    rpc SearchCheckByID(CheckID)returns (SearchCheckByIDResponse){}
+}
+
+message CheckInfo {
+    int32 checkID = 1;
+    int64 checkTime = 2;
+    string description = 3;
+    string comment = 4;
+    int32 score = 5;
+}
+
+//Parameter protocol
+message CreateCheckParam{
+    int32 answerID = 1;
+    int32 homeworkID = 2;
+    int32 teacherID = 3;
+    int32 studentID = 4;
+    int64 checkTime = 5;
+    string description = 6;
+    string comment = 7;
+    int32 score = 8;
+}
+
+message CheckID{
+    int32 CheckID = 1;
+}
+
+message UpdateCheckParam{
+    int32 checkID = 1;
+    int32 answerID = 2;
+    int32 homeworkID = 3;
+    int32 teacherID = 4;
+    int32 studentID = 5;
+    int64 checkTime = 6;
+    string description = 7;
+    string comment = 8;
+    int32 score = 9;
+}
+
+
+//Response protocol
+message CreateCheckResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    int32 CheckID = 3;
+}
+
+message DeleteCheckResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message UpdateCheckResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+}
+
+message SearchCheckByIDResponse{
+    enum Status {
+        SUCCESS = 0;
+        ERROR = -1;
+    }
+    Status status = 1;
+    string msg = 2;
+    CheckInfo check = 3;
+}
+
