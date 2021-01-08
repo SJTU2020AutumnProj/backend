@@ -220,6 +220,7 @@ func (repo *HomeworkRepositoryImpl) AddUserHomework(ctx context.Context, userID 
 
 //这个函数把user_homework表中的state更改
 func (repo *HomeworkRepositoryImpl) UpdateUserHomeworkState(ctx context.Context, userID int32, homeworkID int32, state int32) error {
+
 	userhomework := UserHomework{
 		UserID:     userID,
 		HomeworkID: homeworkID,

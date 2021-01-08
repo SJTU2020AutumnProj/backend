@@ -301,7 +301,7 @@ func (h *AnswerHandler) PostAnswerByStudent(ctx context.Context, req *pb.PostAns
 		Content:  req.Content,
 		Note:     req.Note,
 	}
-	if err = h.AnswerMongo.AddAnswer(ctx, mongo_answer); nil != err {
+	if err = h.AnswerMongo.UpdateAnswer(ctx, mongo_answer); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("AnswerHandler CreateAnswer error: ", err)
@@ -334,7 +334,7 @@ func (h *AnswerHandler) PostAnswerByTeacher(ctx context.Context, req *pb.PostAns
 		Content:  req.Content,
 		Note:     req.Note,
 	}
-	if err = h.AnswerMongo.AddAnswer(ctx, mongo_answer); nil != err {
+	if err = h.AnswerMongo.UpdateAnswer(ctx, mongo_answer); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("AnswerHandler CreateAnswer error: ", err)

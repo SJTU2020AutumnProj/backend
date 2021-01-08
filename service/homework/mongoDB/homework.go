@@ -2,6 +2,8 @@ package mongoDB
 
 import (
 	"context"
+	"log"
+
 	// "log"
 	"fmt"
 
@@ -69,7 +71,7 @@ func (repo *HomeworkMongoImpl) UpdateHomework(ctx context.Context, homework Home
 	filter := bson.M{"homework_id": homework.HomeworkID}
 	deleteResult1, err := repo.CL.DeleteOne(ctx, filter)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 
 	id := homework.HomeworkID
@@ -80,7 +82,7 @@ func (repo *HomeworkMongoImpl) UpdateHomework(ctx context.Context, homework Home
 
 	insertResult, err := repo.CL.InsertOne(ctx, h)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 	fmt.Println("UpdateHomework,use delete and delete", deleteResult1.DeletedCount, insertResult.InsertedID)
 	return nil

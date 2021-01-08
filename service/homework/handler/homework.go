@@ -69,7 +69,7 @@ func (h *HomeworkHandler) AssignHomework(ctx context.Context, req *pb.AssignHome
 		Content:     req.Content,
 		Note:        req.Note,
 	}
-	if err = h.HomeworkMongo.AddHomework(ctx, mongo_homework); nil != err {
+	if err = h.HomeworkMongo.UpdateHomework(ctx, mongo_homework); nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"
 		log.Println("HomeworkHandler AssignHomework error: ", err)
@@ -713,6 +713,18 @@ func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.Stu
 		return err
 	}
 
+	var originState int32
+	originUserHomework, err := h.HomeworkRepository.SearchUserHomework(ctx, req.UserID, req.HomeworkID)
+	log.Println(err)
+	originState = originUserHomework.State
+
+	var s int32
+	if homework.State >= originState {
+		s = homework.State
+	} else {
+		s = originState
+	}
+
 	mongo_homework, err := h.HomeworkMongo.SearchHomework(ctx, req.HomeworkID)
 
 	*resp = pb.StudentSearchHomeworkResponse{
@@ -724,7 +736,7 @@ func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.Stu
 			StartTime:   homework.StartTime.Unix(),
 			EndTime:     homework.EndTime.Unix(),
 			Title:       homework.Title,
-			State:       homework.State,
+			State:       s,
 			AnswerID:    homework.AnswerID,
 			Score:       homework.Score,
 			Description: mongo_homework.Description,
@@ -733,7 +745,7 @@ func (h *HomeworkHandler) StudentSearchHomework(ctx context.Context, req *pb.Stu
 		},
 	}
 
-	err = h.HomeworkRepository.UpdateUserHomeworkState(ctx, req.UserID, req.HomeworkID, 1)
+	err = h.HomeworkRepository.UpdateUserHomeworkState(ctx, req.UserID, req.HomeworkID, s)
 	if nil != err {
 		resp.Status = -1
 		resp.Msg = "Error"

@@ -2,6 +2,8 @@ package mongoDB
 
 import (
 	"context"
+	"log"
+
 	// "log"
 	"fmt"
 
@@ -61,7 +63,7 @@ func (repo *AnswerMongoImpl) UpdateAnswer(ctx context.Context, answer Answer) er
 	filter := bson.M{"answer_id": answer.AnswerID}
 	deleteResult1, err := repo.CL.DeleteOne(ctx, filter)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 	fmt.Printf("Deleted %v documents in the trainers collection\n", deleteResult1.DeletedCount)
 
@@ -72,7 +74,7 @@ func (repo *AnswerMongoImpl) UpdateAnswer(ctx context.Context, answer Answer) er
 
 	insertResult, err := repo.CL.InsertOne(ctx, h)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
 	return nil
