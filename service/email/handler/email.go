@@ -21,15 +21,12 @@ type EmailHandler struct {
 Configuration of smtp service
 */
 const (
-	// SMTPMailHost = "smtp.163.com"
-	// SMTPMailPort = 25
-	SMTPMailHost = "smtp.gmail.com"
-	SMTPMailPort = 587
-	// SMTPMailUser = "sjtuboxin@163.com"
-	SMTPMailUser = "xiaoxiangjiaoJUB@gmail.com"
+	SMTPMailHost = "smtp.163.com"
+	SMTPMailPort = 25
+	SMTPMailUser = "sjtuboxin@163.com"
+
 	SMTPMailName = "boxin"
-	// SMTPMailPwd  = "RBMJNDBOVZPEKFJQ"
-	SMTPMailPwd = "ASDFGHJKL;"
+	SMTPMailPwd  = "RBMJNDBOVZPEKFJQ"
 )
 
 /*

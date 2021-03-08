@@ -3,6 +3,7 @@ package main
 import (
 	"boxin/service/verification/handler"
 	verification "boxin/service/verification/proto/verification"
+	"time"
 
 	// // 自定义插件
 	// "boxin/service/verification/wrapper/breaker/hystrix"
@@ -33,7 +34,9 @@ const (
 )
 
 func main() {
-	c, err := redigo.Dial("tcp", "127.0.0.1:6379")
+	settimeout := redigo.DialConnectTimeout(60 * time.Minute)
+	c, err := redigo.Dial("tcp", "127.0.0.1:6379", settimeout)
+	// c, err := redigo.Dial("tcp", "127.0.0.1:6379")
 	if err != nil {
 		panic(err)
 	}
